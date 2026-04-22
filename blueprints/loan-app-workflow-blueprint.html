@@ -23,13 +23,13 @@
     --wf5:        #a0701a;   --wf5-pastel: #fdf6e8;
 
     /* chip palette — pastel fills, coloured borders */
-    --c-kb:        #1d7faa;  --c-kb-bg:    #e4f5fb;
-    --c-tool:      #1a8a5a;  --c-tool-bg:  #e4f7ed;
-    --c-llm:       #6b3ecf;  --c-llm-bg:   #f0eafa;
+    --c-kb:        #1588b9;  --c-kb-bg:    #e4f5fb;
+    --c-llm:       #ad97dc;  --c-llm-bg:   #f0eafa;
     --c-in:        #3d4a5c;  --c-in-bg:    #eef0f3;
     --c-out:       #7a4a10;  --c-out-bg:   #fdf1e0;
     --c-na:        #888;     --c-na-bg:    #f4f4f5;
-    --c-loc:       #2e6da4;  --c-loc-bg:   #e8f0fa;
+    --c-in-loc:    #1a8a5a;  --c-tool-bg:  #e4f7ed;
+    --c-out-loc:   #4607c6;  --c-out-loc-bg: #efe7ff;
 
     --radius: 6px;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
@@ -266,13 +266,13 @@
   }
   .chip img { width: 13px; height: 13px; object-fit: contain; vertical-align: middle; }
 
-  .chip.kb   { color: var(--c-kb);   background: var(--c-kb-bg);   border-color: var(--c-kb); }
-  .chip.tool { color: var(--c-tool); background: var(--c-tool-bg); border-color: var(--c-tool); }
-  .chip.llm  { color: var(--c-llm);  background: var(--c-llm-bg);  border-color: var(--c-llm); }
-  .chip.in   { color: var(--c-in);   background: var(--c-in-bg);   border-color: var(--border-strong); }
-  .chip.out  { color: var(--c-out);  background: var(--c-out-bg);  border-color: #c87d30; }
-  .chip.na   { color: var(--c-na);   background: var(--c-na-bg);   border-color: var(--border); font-style: italic; }
-  .chip.loc  { color: var(--c-loc);  background: var(--c-loc-bg);  border-color: var(--c-loc); }
+  .chip.kb      { color: var(--c-kb);      background: var(--c-kb-bg);      border-color: var(--c-kb); }
+  .chip.llm     { color: var(--c-llm);     background: var(--c-llm-bg);     border-color: var(--c-llm); }
+  .chip.in      { color: var(--c-in);      background: var(--c-in-bg);      border-color: var(--border-strong); }
+  .chip.out     { color: var(--c-out);     background: var(--c-out-bg);     border-color: #c87d30; }
+  .chip.na      { color: var(--c-na);      background: var(--c-na-bg);      border-color: var(--border); font-style: italic; }
+  .chip.in-loc  { color: var(--c-in-loc);  background: var(--c-in-loc-bg);  border-color: var(--c-in-loc); }
+  .chip.out-loc { color: var(--c-out-loc); background: var(--c-out-loc-bg); border-color: var(--c-out-loc); }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
@@ -290,11 +290,11 @@
   <header class="header">
     <div>
       <h1>Agentic Workflow Blueprint</h1>
-      <div class="header-sub">Application: loan app</div>
+      <div class="header-sub">Application for demo: loan-app</div>
     </div>
     <div class="header-meta">
-      <div class="platform">Ascendion AAVA</div>
-      <div>Agentic Platform</div>
+      <div class="platform"><img src="Ascendion_logo_again.png" alt="Ascendion AAVA" style="height:45px; vertical-align:middle;"></div>
+      <div>AAVA Agentic Platform</div>
     </div>
   </header>
 
@@ -327,7 +327,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A1</span>
             <span class="agent-name">L1 inception requirements extractor</span>
-            <span class="agent-desc-preview">Transform product vision or idea documents into a comprehensive, categorized list of actionable requirements with traceability and compliance alignment.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -341,7 +340,7 @@
 
               <div class="field">
                 <span class="field-label">Input Location</span>
-                <div class="chips"><span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
               </div>
 
               <div class="field">
@@ -365,7 +364,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -385,7 +384,6 @@
         <!-- A1→A2 connector -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">Requirements Traceability Matrix</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -394,7 +392,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A2</span>
             <span class="agent-name">L1 inception requirements to epics generator</span>
-            <span class="agent-desc-preview">Transform input requirements into comprehensive, actionable epics with clear objectives, acceptance criteria, and traceability.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -421,7 +418,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -435,7 +432,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -458,7 +455,6 @@
     <!-- WF1→WF2 -->
     <div class="wf-connector">
       <div class="vc-line"></div>
-      <span class="vc-label">Epics + Features</span>
       <div class="vc-arrow"></div>
     </div>
 
@@ -480,7 +476,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A1</span>
             <span class="agent-name">L1 inception epics validator</span>
-            <span class="agent-desc-preview">Reviews and validates epic requirements for completeness, clarity, business alignment, and compliance, providing actionable reports and audit traceability.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -494,7 +489,7 @@
 
               <div class="field">
                 <span class="field-label">Input Location</span>
-                <div class="chips"><span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
               </div>
 
               <div class="field">
@@ -517,7 +512,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -537,7 +532,6 @@
         <!-- A1→A2 connector -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">EPICs + Features &amp; Validation report for each epic</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -546,7 +540,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A2</span>
             <span class="agent-name">L1 inception epics to story decomposer</span>
-            <span class="agent-desc-preview">Transform validated epics into actionable, testable user stories with full traceability and compliance alignment.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -560,7 +553,7 @@
 
               <div class="field">
                 <span class="field-label">Input 1 Location</span>
-                <div class="chips"><span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
               </div>
 
               <div class="field">
@@ -580,7 +573,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -595,7 +588,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -618,7 +611,6 @@
     <!-- WF2→WF3 -->
     <div class="wf-connector">
       <div class="vc-line"></div>
-      <span class="vc-label">EPICs + Features + User Stories</span>
       <div class="vc-arrow"></div>
     </div>
 
@@ -640,7 +632,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A1</span>
             <span class="agent-name">L1 epic and story readiness review agent</span>
-            <span class="agent-desc-preview">Validate epics and user stories for completeness, clarity, and readiness, ensuring all required details are present for effective design and architecture handoff.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -654,7 +645,7 @@
 
               <div class="field">
                 <span class="field-label">Input Location</span>
-                <div class="chips"><span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span></div>
               </div>
 
               <div class="field">
@@ -677,7 +668,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -697,7 +688,6 @@
         <!-- A1→A2 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">Validation Report</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -706,7 +696,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A2</span>
             <span class="agent-name">L1 system discovery and assessment agent</span>
-            <span class="agent-desc-preview">Conduct comprehensive discovery and assessment of existing technical systems and all related documentation, providing a clear, actionable report.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -720,21 +709,21 @@
 
               <div class="field">
                 <span class="field-label">Input Location</span>
-                <div class="chips"><span class="chip tool"><img src="github_icon.png" alt="GitHub">Github</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Existing Github Codebase</span></div>
               </div>
 
               <div class="field">
                 <span class="field-label">Output</span>
                 <div class="chips">
-                  <span class="chip out">Discovery Report - Executive Summary</span>
-                  <span class="chip out">System Inventory</span>
-                  <span class="chip out">Architecture Map</span>
+                  <span class="chip out">Discovery Reports 1.Executive Summary</span>
+                  <span class="chip out">2. System Inventory</span>
+                  <span class="chip out">3. Architecture Map</span>
                 </div>
               </div>
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -747,7 +736,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -767,7 +756,6 @@
         <!-- A2→A3 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">Validation Report + Discovery Report - Executive Summary, System Inventory, Architecture Map</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -776,7 +764,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A3</span>
             <span class="agent-name">L1 inception technical architecture creation agent</span>
-            <span class="agent-desc-preview">Create or modify comprehensive technical, solution, and integration architecture documentation for a specified epic, ensuring alignment with enterprise standards.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -794,8 +781,8 @@
               <div class="field">
                 <span class="field-label">Input Location</span>
                 <div class="chips">
-                  <span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span>
-                  <span class="chip tool"><img src="github_icon.png" alt="GitHub">Github (optional)</span>
+                  <span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span>
+                  <span class="chip in-loc"><img src="github_icon.png" alt="GitHub">(Optional) Github 2: loan-app-documentation</span>
                 </div>
               </div>
 
@@ -809,7 +796,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -825,7 +812,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -845,7 +832,6 @@
         <!-- A3→A4 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">Technical Architecture + Solution Architecture</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -854,7 +840,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A4</span>
             <span class="agent-name">L1 inception api specification generator agent</span>
-            <span class="agent-desc-preview">Generate detailed, production-ready API specifications from provided epics and user stories, ensuring security, compliance, and engineering standards.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -872,8 +857,8 @@
               <div class="field">
                 <span class="field-label">Input Location</span>
                 <div class="chips">
-                  <span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span>
-                  <span class="chip tool"><img src="github_icon.png" alt="GitHub">Github (optional)</span>
+                  <span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span>
+                  <span class="chip in-loc"><img src="github_icon.png" alt="GitHub">(Optional) Github 2: loan-app-documentation</span>
                 </div>
               </div>
 
@@ -884,7 +869,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -898,7 +883,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -918,7 +903,6 @@
         <!-- A4→A5 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">OpenAPI 3.0 YAML file (api-spec.yaml)</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -927,7 +911,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A5</span>
             <span class="agent-name">L1 inception test creation agent</span>
-            <span class="agent-desc-preview">Generate comprehensive test scenarios, manual test cases, and automation-ready scripts from requirements or feature descriptions.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -945,8 +928,8 @@
               <div class="field">
                 <span class="field-label">Input Location</span>
                 <div class="chips">
-                  <span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span>
-                  <span class="chip tool"><img src="github_icon.png" alt="GitHub">Github (optional)</span>
+                  <span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span>
+                  <span class="chip in-loc"><img src="github_icon.png" alt="GitHub">(Optional) Github 2: loan-app-documentation</span>
                 </div>
               </div>
 
@@ -962,9 +945,9 @@
               <div class="field">
                 <span class="field-label">Output Location</span>
                 <div class="chips">
-                  <span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span>
-                  <span class="chip tool">Xray</span>
-                  <span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 3: loan-app-tests repo</span>
+                  <span class="chip out-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span>
+                  <span class="chip out-loc"><img src="xray_icon.png" alt="Xray">Xray</span>
+                  <span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 3: loan-app-tests repo</span>
                 </div>
               </div>
 
@@ -981,7 +964,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -1001,7 +984,6 @@
         <!-- A5→A6 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">EPICs, Features, Stories, Validation report</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -1010,7 +992,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A6</span>
             <span class="agent-name">L1 ui design generator</span>
-            <span class="agent-desc-preview">Transform system and architecture documents into detailed, actionable UX and UI design documentation that meets enterprise standards and compliance requirements.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -1028,8 +1009,8 @@
               <div class="field">
                 <span class="field-label">Input Location</span>
                 <div class="chips">
-                  <span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span>
-                  <span class="chip tool"><img src="github_icon.png" alt="GitHub">Github (optional)</span>
+                  <span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span>
+                  <span class="chip in-loc"><img src="github_icon.png" alt="GitHub">(Optional) Github 2: loan-app-documentation</span>
                 </div>
               </div>
 
@@ -1040,7 +1021,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -1053,7 +1034,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -1073,7 +1054,6 @@
         <!-- A6→A7 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">Wireframes + OpenAPI Specs</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -1082,7 +1062,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A7</span>
             <span class="agent-name">L1 inception lld generator agent</span>
-            <span class="agent-desc-preview">Generate a complete, validated Low-Level Design document for a software epic using provided UI designs and API specifications.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -1092,7 +1071,8 @@
               <div class="field">
                 <span class="field-label">Input</span>
                 <div class="chips">
-                  <span class="chip in">EPICs, Features, Stories, Validation report, OpenAPI Specs</span>
+                  <span class="chip in">EPICs, Features, Stories, Validation report</span>
+                  <span class="chip in">OpenAPI Specs</span>
                   <span class="chip in">Optional – Discovery Report</span>
                 </div>
               </div>
@@ -1100,8 +1080,8 @@
               <div class="field">
                 <span class="field-label">Input Location</span>
                 <div class="chips">
-                  <span class="chip tool"><img src="jira_icon.png" alt="JIRA">JIRA</span>
-                  <span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span>
+                  <span class="chip in-loc"><img src="jira_icon.png" alt="JIRA">JIRA</span>
+                  <span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span>
                 </div>
               </div>
 
@@ -1115,7 +1095,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -1130,7 +1110,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -1153,7 +1133,6 @@
     <!-- WF3→WF4 -->
     <div class="wf-connector">
       <div class="vc-line"></div>
-      <span class="vc-label">OpenAPI Specs, HLD, LLD</span>
       <div class="vc-arrow"></div>
     </div>
 
@@ -1175,7 +1154,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A1</span>
             <span class="agent-name">L1 construction tech stack discovery agent</span>
-            <span class="agent-desc-preview">Automatically discover, analyze, and document the technical architecture and technology stack of a given codebase to support code generation and modernization.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -1192,7 +1170,7 @@
 
               <div class="field">
                 <span class="field-label">Input Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field">
@@ -1215,7 +1193,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -1235,7 +1213,6 @@
         <!-- A1→A2 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">Technical Architecture Discovery</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -1244,7 +1221,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A2</span>
             <span class="agent-name">L1 construction api code generator agent</span>
-            <span class="agent-desc-preview">Automatically generate secure, production-ready API code and documentation from provided specifications, supporting multiple languages and frameworks.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -1268,7 +1244,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 4: loan-app-api repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 4: loan-app-api repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -1287,7 +1263,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -1310,7 +1286,6 @@
     <!-- WF4→WF5 -->
     <div class="wf-connector">
       <div class="vc-line"></div>
-      <span class="vc-label">Wireframes, HLD, LLD</span>
       <div class="vc-arrow"></div>
     </div>
 
@@ -1332,7 +1307,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A1</span>
             <span class="agent-name">L1 construction mobile tech stack discovery agent</span>
-            <span class="agent-desc-preview">Automatically discover and report all technologies, frameworks, and tools used in a mobile development project by analyzing codebases and technical documentation.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -1349,7 +1323,7 @@
 
               <div class="field">
                 <span class="field-label">Input Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 2: loan-app-documentation repo</span></div>
               </div>
 
               <div class="field">
@@ -1373,7 +1347,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
@@ -1393,7 +1367,6 @@
         <!-- A1→A2 -->
         <div class="agent-connector">
           <div class="ac-line"></div>
-          <span class="ac-label">UI Tech Stack Summary</span>
           <div class="ac-arrow"></div>
         </div>
 
@@ -1402,7 +1375,6 @@
           <div class="agent-header" onclick="toggleAgent(this)">
             <span class="agent-num">A2</span>
             <span class="agent-name">L1 construction mobile code generator agent Using Specifications</span>
-            <span class="agent-desc-preview">Generate secure, production-ready mobile application code from specifications, with documentation and compliance features.</span>
             <span class="chevron">▼</span>
           </div>
           <div class="agent-body">
@@ -1426,7 +1398,7 @@
 
               <div class="field">
                 <span class="field-label">Output Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 5: loan-app-ui repo</span></div>
+                <div class="chips"><span class="chip out-loc"><img src="github_icon.png" alt="GitHub">Github 5: loan-app-ui repo</span></div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
@@ -1444,7 +1416,7 @@
 
               <div class="field">
                 <span class="field-label">KB Location</span>
-                <div class="chips"><span class="chip loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
+                <div class="chips"><span class="chip in-loc"><img src="github_icon.png" alt="GitHub">Github 1: Agent Factory repo</span></div>
               </div>
 
               <div class="field">
