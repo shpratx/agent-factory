@@ -1,8 +1,4 @@
-SKILL.md
-markdown
-
-Save
-# Skill: AI-DLC Methodology PPTX Generator
+# Skill: PPTX Generator
 
 ## Description
 Generates professional PowerPoint presentations following the TP ICAP AI-DLC visual design system. Ensures uniform branding, layout patterns, and styling across all methodology decks — whether for customer presentations, internal workshops, or stakeholder briefings.
