@@ -1,10 +1,10 @@
 template.js
 javascript
 /**
- * AI-DLC Methodology PPTX Template
+ * PPTX Template
  * 
  * This is the reusable template for generating presentations in the
- * TP ICAP AI-DLC design system. Import and use the helper functions
+ * Ascendion design system. Import and use the helper functions
  * to build consistent slides.
  * 
  * Usage:
@@ -35,7 +35,7 @@ const COLORS = {
 };
 
 const FONTS = {
-  heading: 'Trebuchet MS',
+  heading: 'Calibri',
   body: 'Calibri',
 };
 
@@ -54,10 +54,10 @@ const SIZES = {
 
 function createPresentation() {
   const prs = new pptxgen();
-  prs.defineLayout({ name: 'AIDLC_WIDE', width: SIZES.slideW, height: SIZES.slideH });
+  prs.defineLayout({ name: 'PPTX', width: SIZES.slideW, height: SIZES.slideH });
   prs.layout = 'AIDLC_WIDE';
-  prs.author = 'AI-DLC Methodology';
-  prs.subject = 'Generated with AI-DLC PPTX Skill';
+  prs.author = 'Ascendion';
+  prs.subject = 'Generated with PPTX Skill';
   return prs;
 }
 
