@@ -1,11 +1,7 @@
-steering.md
-markdown
-
-Save
-# AI-DLC Presentation Design Guardrails
+# Presentation Design Guardrails
 
 ## Purpose
-This steering file enforces the TP ICAP AI-DLC visual design system for all generated PowerPoint presentations. It acts as an immutable constraint — the AI MUST follow these rules without deviation.
+This steering file enforces the Ascendion visual design system for all generated PowerPoint presentations. It acts as an immutable constraint — the AI MUST follow these rules without deviation.
 
 ## Immutable Design Rules
 
