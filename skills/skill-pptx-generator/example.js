@@ -1,7 +1,5 @@
-example.js
-javascript
 /**
- * Example: Generate an AI-DLC Methodology presentation
+ * Example: Generate an Ascendion presentation
  * 
  * This demonstrates how to use the template to create a full deck.
  * Copy and modify this file for each new presentation.
@@ -32,10 +30,10 @@ const prs = createPresentation();
 // ── Slide 1: Title ───────────────────────────────────────────
 createTitleSlide(
   prs,
-  'AI-Driven Development Lifecycle (AI-DLC)',  // Main title
+  'Ascendion Presentation',  // Main title
   'Technical Methodology',                      // Subtitle
   'How [Customer] built an AI-augmented SDLC for their platform',  // Description
-  '[Customer]  |  AWS'                          // Attribution
+  '[Customer]  |  Ascendion'                          // Attribution
 );
 
 // ── Slide 2: The Problem (Grid Cards) ────────────────────────
