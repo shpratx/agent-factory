@@ -21,6 +21,10 @@ prompt:
   description: "Generates the fact in plain text"
 
 contract:
+  # Schemas: schemas/agent-input-contract-schema.json & schemas/agent-output-schema.json
+  input_schema: "$ref: schemas/agent-input-contract-schema.json"
+  output_schema: "$ref: schemas/agent-output-schema.json"
+
   input:
     accepts_from_agents: [any]
     accepts_direct_input: true
