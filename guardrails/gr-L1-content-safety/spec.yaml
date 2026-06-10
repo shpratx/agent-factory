@@ -1,0 +1,36 @@
+spec_version: "1.0"
+artifact_type: guardrail
+metadata:
+  name: gr-L1-content-safety
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+
+purpose:
+  description: "Block toxic, harmful, offensive, or unsafe content in input and output"
+
+triggers_on:
+  - pre_execution
+  - post_execution
+
+on_fail: block_immediately
+applies_to: all_agents
+
+rules:
+  - name: toxicity-check
+    description: "Block content scoring above toxicity threshold"
+    action: block
+    severity: critical
+
+  - name: harmful-content
+    description: "Block content promoting violence, self-harm, or illegal activity"
+    action: block
+    severity: critical
+
+  - name: profanity-filter
+    description: "Flag excessive profanity in professional context"
+    action: flag
+    severity: medium
+
+evaluation:
+  false_positive_threshold: 0.05

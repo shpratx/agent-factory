@@ -1,1 +1,36 @@
+spec_version: "1.0"
+artifact_type: guardrail
+metadata:
+  name: gr-L1-pii-detection
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
 
+purpose:
+  description: "Detect and mask personally identifiable information in input and output"
+
+triggers_on:
+  - pre_execution
+  - post_execution
+
+on_fail: mask_and_continue
+applies_to: all_agents
+
+rules:
+  - name: pii-patterns
+    description: "Detect email, phone, SSN, credit card, passport numbers"
+    action: block
+    severity: critical
+
+  - name: name-detection
+    description: "Flag real person names outside of role descriptions"
+    action: flag
+    severity: high
+
+  - name: address-detection
+    description: "Block real physical addresses in output"
+    action: block
+    severity: high
+
+evaluation:
+  false_positive_threshold: 0.05

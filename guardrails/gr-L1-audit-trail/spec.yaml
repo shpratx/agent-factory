@@ -1,0 +1,35 @@
+spec_version: "1.0"
+artifact_type: guardrail
+metadata:
+  name: gr-L1-audit-trail
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+
+purpose:
+  description: "Ensure every agent execution produces a complete audit record for compliance and traceability"
+
+triggers_on:
+  - post_execution
+
+on_fail: log_failure_continue
+applies_to: all_agents
+
+rules:
+  - name: execution-logged
+    description: "Every execution must produce an audit log entry"
+    action: block
+    severity: critical
+
+  - name: input-recorded
+    description: "Input summary must be recorded (PII masked)"
+    action: block
+    severity: high
+
+  - name: output-recorded
+    description: "Output summary and status must be recorded"
+    action: block
+    severity: high
+
+evaluation:
+  false_positive_threshold: 0.05
