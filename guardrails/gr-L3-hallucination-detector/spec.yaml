@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L3
   owner: project-lead
+  implementation: colang
 
 purpose:
   description: "Check that agent outputs are grounded in input and KB content — no fabricated claims"

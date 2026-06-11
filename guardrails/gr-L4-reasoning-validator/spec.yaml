@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L4
   owner: squad
+  implementation: colang
 
 purpose:
   description: "Validate that the reasoning field is non-empty, structured, and contains decision rationale"

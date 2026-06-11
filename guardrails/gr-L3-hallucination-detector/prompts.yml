@@ -1,0 +1,13 @@
+prompts:
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Check if the output is grounded in the provided input and knowledge base:
+      1. Every factual claim must trace back to input data or attached KB content
+      2. No invented entities, statistics, dates, or references that aren't in source material
+      3. No fabricated URLs, API endpoints, or document references
+      4. Low-confidence items must have explicit uncertainty markers (e.g., "likely", "may")
+      5. Numbers and metrics must match source data exactly
+
+      Answer "yes" if ALL claims are grounded. Answer "no" if ANY fabrication or ungrounded claim is detected.

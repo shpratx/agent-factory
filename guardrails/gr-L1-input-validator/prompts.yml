@@ -1,0 +1,11 @@
+prompts:
+  - task: self_check_input
+    content: |
+      User input: {{ user_input }}
+
+      Check the input against these validation rules:
+      1. All required fields declared in the agent schema must be present
+      2. All field values must match their declared types (string, number, boolean, array, object)
+      3. String fields must not exceed max_length (default 10000 chars)
+
+      Answer "yes" if ALL rules pass. Answer "no" if ANY rule is violated.

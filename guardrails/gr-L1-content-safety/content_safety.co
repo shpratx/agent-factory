@@ -1,0 +1,34 @@
+# gr-L1-content-safety — Colang Implementation
+# Layer: L1 Enterprise — applies to ALL agents
+# Triggers: pre_execution + post_execution (both rails)
+
+define flow check input content safety
+  """Check input for toxic/harmful content."""
+  $unsafe = execute check_content_safety(text=$user_message)
+
+  if $unsafe
+    bot block unsafe content
+    stop
+
+  $result = execute self_check_input
+
+  if not $result
+    bot block unsafe content
+    stop
+
+define flow check output content safety
+  """Check output for toxic/harmful content."""
+  $unsafe = execute check_content_safety(text=$bot_message)
+
+  if $unsafe
+    bot block unsafe content
+    stop
+
+  $result = execute self_check_output
+
+  if not $result
+    bot block unsafe content
+    stop
+
+define bot block unsafe content
+  "Content blocked: unsafe, toxic, or harmful content detected. This system only produces professional, safe content."

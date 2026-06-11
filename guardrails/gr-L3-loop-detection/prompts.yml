@@ -1,0 +1,11 @@
+prompts:
+  - task: self_check_input
+    content: |
+      Execution context: {{ user_input }}
+
+      Check if this execution shows signs of infinite loops or runaway behavior:
+      1. Has the same action been repeated more than the configured max iterations?
+      2. Has the execution exceeded the configured timeout?
+      3. Is recursion depth beyond the configured maximum?
+
+      Answer "yes" if execution is NORMAL. Answer "no" if loop, timeout, or excessive recursion detected.

@@ -1,0 +1,13 @@
+prompts:
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Validate payments domain compliance:
+      1. All cited regulations (PSD2, SCA, PCI-DSS, etc.) must be real and correctly referenced
+      2. Payment stories involving card-not-present transactions must reference SCA requirements
+      3. Domain terminology must match payments KB definitions (e.g., PSP, acquirer, issuer, scheme)
+      4. Regulatory article numbers must be accurate (e.g., PSD2 Article 97 for SCA)
+      5. No invented compliance requirements or fabricated regulation names
+
+      Answer "yes" if ALL compliance rules are met. Answer "no" if ANY violation is found.

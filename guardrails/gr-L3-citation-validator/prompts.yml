@@ -1,0 +1,13 @@
+prompts:
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Validate citation completeness and resolvability:
+      1. Every item in output.items must have a non-empty citation array
+      2. Each citation must have a source_reference field
+      3. source_reference must point to an attached KB or valid source document
+      4. At least 1 citation per item (minimum)
+      5. Citations must be relevant to the item's content
+
+      Answer "yes" if ALL citation rules are met. Answer "no" if ANY item lacks valid citations.

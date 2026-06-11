@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L2
   owner: agentic-ai-coe
+  implementation: colang
 
 purpose:
   description: "Prevent memory poisoning, cross-agent leakage, and unauthorised memory writes"

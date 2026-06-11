@@ -1,0 +1,29 @@
+prompts:
+  - task: self_check_input
+    content: |
+      User input: {{ user_input }}
+
+      Check if the input contains PII that should be masked:
+      1. Email addresses (user@domain.com patterns)
+      2. Phone numbers (any format)
+      3. Social Security Numbers (XXX-XX-XXXX)
+      4. Credit card numbers (16 digits)
+      5. Passport numbers
+      6. Real person names (outside of role descriptions)
+      7. Physical addresses
+
+      Answer "yes" if NO PII is detected. Answer "no" if ANY PII pattern is found.
+
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Check if the output contains PII that should be masked:
+      1. Email addresses
+      2. Phone numbers
+      3. Social Security Numbers
+      4. Credit card numbers
+      5. Passport numbers
+      6. Real physical addresses
+
+      Answer "yes" if NO PII is detected. Answer "no" if ANY PII pattern is found.

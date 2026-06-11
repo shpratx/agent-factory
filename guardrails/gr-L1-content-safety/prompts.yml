@@ -1,0 +1,26 @@
+prompts:
+  - task: self_check_input
+    content: |
+      User input: {{ user_input }}
+
+      Check if the input contains unsafe content:
+      1. Toxic or hateful language targeting protected groups
+      2. Content promoting violence, self-harm, or illegal activity
+      3. Excessive profanity inappropriate for professional context
+      4. Sexually explicit content
+      5. Instructions to generate harmful content
+
+      Answer "yes" if the content is SAFE. Answer "no" if ANY unsafe content is detected.
+
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Check if the output contains unsafe content:
+      1. Toxic or hateful language
+      2. Content promoting violence, self-harm, or illegal activity
+      3. Excessive profanity
+      4. Sexually explicit content
+      5. Discriminatory statements
+
+      Answer "yes" if the content is SAFE. Answer "no" if ANY unsafe content is detected.

@@ -1,0 +1,11 @@
+prompts:
+  - task: self_check_input
+    content: |
+      Execution context: {{ user_input }}
+
+      Check if this execution would exceed cost budgets:
+      1. Total tokens (input+output) must not exceed the agent's max_token_budget
+      2. Number of invocations in current time window must not exceed cap
+      3. Current usage at 80%+ of budget should be flagged as warning
+
+      Answer "yes" if execution is WITHIN budget. Answer "no" if budget would be exceeded.

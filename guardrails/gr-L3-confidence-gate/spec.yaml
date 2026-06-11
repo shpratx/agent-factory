@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L3
   owner: project-lead
+  implementation: colang
 
 purpose:
   description: "Escalate to HITL when agent confidence is below threshold"

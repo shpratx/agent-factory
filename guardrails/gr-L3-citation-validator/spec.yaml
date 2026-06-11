@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L3
   owner: project-lead
+  implementation: colang
 
 purpose:
   description: "Ensure every output item has at least one resolvable citation to a source"

@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L1
   owner: agentic-ai-coe
+  implementation: colang
 
 purpose:
   description: "Detect and mask personally identifiable information in input and output"
@@ -13,7 +14,7 @@ triggers_on:
   - pre_execution
   - post_execution
 
-on_fail: mask_and_continue
+on_fail: block
 applies_to: all_agents
 
 rules:

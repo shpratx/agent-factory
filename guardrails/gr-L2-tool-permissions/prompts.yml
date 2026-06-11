@@ -1,0 +1,15 @@
+prompts:
+  - task: self_check_input
+    content: |
+      Tool call request: {{ user_input }}
+
+      Agent's allowed tools: {{ tools_allowed }}
+      Agent's denied tools: {{ tools_denied }}
+      Agent's org scope: {{ org_scope }}
+
+      Check if this tool call is permitted:
+      1. Is the tool in the agent's tools_allowed list?
+      2. Is the tool NOT in the tools_denied list?
+      3. Is the tool call within the agent's org_scope?
+
+      Answer "yes" if the tool call is PERMITTED. Answer "no" if it violates any permission rule.

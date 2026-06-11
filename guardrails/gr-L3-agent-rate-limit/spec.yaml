@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L3
   owner: project-lead
+  implementation: colang
 
 purpose:
   description: "Limit the number of tool calls and downstream agent invocations per execution"

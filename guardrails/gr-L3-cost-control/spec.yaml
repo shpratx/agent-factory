@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L3
   owner: project-lead
+  implementation: colang
 
 purpose:
   description: "Enforce token and invocation budget caps per agent execution"

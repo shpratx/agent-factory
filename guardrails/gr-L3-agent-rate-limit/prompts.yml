@@ -1,0 +1,11 @@
+prompts:
+  - task: self_check_input
+    content: |
+      Execution context: {{ user_input }}
+
+      Check if this agent call respects rate limits:
+      1. Total tool calls in this execution must not exceed configured max
+      2. Downstream agent invocations must not exceed configured max
+      3. Minimum cooldown interval between repeated same-tool calls must be respected
+
+      Answer "yes" if within rate limits. Answer "no" if ANY limit would be exceeded.

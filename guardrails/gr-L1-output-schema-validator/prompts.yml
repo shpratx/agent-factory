@@ -1,0 +1,15 @@
+prompts:
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Validate the output conforms to AgentOutput v1.0 schema:
+      1. agent_id must be present (format: L[0-4]-*-agent)
+      2. agent_version must be present (format: x.y.z)
+      3. execution_id must be present (format: exec-*)
+      4. input_summary must be present with source and parameters
+      5. output must be present with type, schema_version, and items array
+      6. output.items must not be empty (unless output.status = "failure")
+      7. Each item must have metadata.reasoning and metadata.citation
+
+      Answer "yes" if the output is FULLY compliant. Answer "no" if ANY rule is violated.

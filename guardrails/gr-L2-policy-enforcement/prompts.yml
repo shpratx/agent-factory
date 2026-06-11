@@ -1,0 +1,26 @@
+prompts:
+  - task: self_check_input
+    content: |
+      User input: {{ user_input }}
+
+      This agent's declared domain scope: {{ domain_scope }}
+
+      Check if the request is within the agent's domain scope:
+      1. Is the topic relevant to the declared domain?
+      2. Is it a request the agent is designed to handle?
+      3. Does it fall outside scope and require OUT_OF_SCOPE response?
+
+      Answer "yes" if the request is WITHIN scope. Answer "no" if it is OUT OF SCOPE.
+
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Domain policies: {{ domain_policies }}
+
+      Check if the output complies with domain-specific business policies:
+      1. Does the output stay within declared domain boundaries?
+      2. Does it comply with all domain-specific rules?
+      3. Does it avoid making claims outside its authority?
+
+      Answer "yes" if COMPLIANT. Answer "no" if ANY policy is violated.

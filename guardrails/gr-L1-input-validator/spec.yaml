@@ -5,6 +5,7 @@ metadata:
   version: "1.0.0"
   layer: L1
   owner: agentic-ai-coe
+  implementation: colang
 
 purpose:
   description: "Validate incoming requests match expected structure — required fields, types, length limits"

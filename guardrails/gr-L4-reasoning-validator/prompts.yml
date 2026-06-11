@@ -1,0 +1,13 @@
+prompts:
+  - task: self_check_output
+    content: |
+      Agent output: {{ bot_response }}
+
+      Validate the reasoning field quality on each output item:
+      1. metadata.reasoning must not be null or empty
+      2. Reasoning must be at least 20 characters long
+      3. Reasoning should reference input data or KB sources (not be generic filler)
+      4. Reasoning should contain decision rationale (WHY this output was produced)
+      5. Reasoning should not be a repetition of the output content itself
+
+      Answer "yes" if ALL items have valid, substantive reasoning. Answer "no" if ANY item has missing, short, or generic reasoning.
