@@ -1,0 +1,23 @@
+# gr-L1-content-safety — LLM-Driven Colang Implementation
+# Layer: L1 — Content Safety
+# Validation: LLM self_check (pure Colang)
+# Python actions preserved in actions.py for reference/hybrid mode
+
+define flow check input content safety
+  """LLM validates content safety rules on input."""
+  $result = execute self_check_input
+
+  if not $result
+    bot block L1 content safety
+    stop
+
+define flow check output content safety
+  """LLM validates content safety rules on output."""
+  $result = execute self_check_output
+
+  if not $result
+    bot block L1 content safety
+    stop
+
+define bot block L1 content safety
+  "Content blocked: unsafe material detected. This content violates safety policies and cannot be processed or delivered."

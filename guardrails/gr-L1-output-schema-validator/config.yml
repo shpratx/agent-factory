@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check output schema compliance
+      - check output schema

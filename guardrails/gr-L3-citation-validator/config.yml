@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check citation validity
+      - check output citations

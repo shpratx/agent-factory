@@ -2,28 +2,28 @@ prompts:
   - task: self_check_input
     content: |
       User input: {{ user_input }}
-
-      Check if the input contains PII that should be masked:
+      
+      Does this input contain personally identifiable information (PII)? Check for:
       1. Email addresses (user@domain.com patterns)
-      2. Phone numbers (any format)
-      3. Social Security Numbers (XXX-XX-XXXX)
-      4. Credit card numbers (16 digits)
-      5. Passport numbers
-      6. Real person names (outside of role descriptions)
-      7. Physical addresses
-
-      Answer "yes" if NO PII is detected. Answer "no" if ANY PII pattern is found.
-
+      2. Phone numbers (with or without country codes)
+      3. Social security numbers / national insurance numbers
+      4. Credit card or debit card numbers
+      5. Passport or ID document numbers
+      6. Physical addresses (street + city/postcode)
+      7. Dates of birth combined with names
+      
+      Note: Generic examples (user@example.com, 555-0100) are acceptable. Real, specific PII is not.
+      
+      Answer "yes" if the input is clean (no real PII). Answer "no" if real PII is detected.
   - task: self_check_output
     content: |
       Agent output: {{ bot_response }}
-
-      Check if the output contains PII that should be masked:
-      1. Email addresses
-      2. Phone numbers
-      3. Social Security Numbers
-      4. Credit card numbers
-      5. Passport numbers
-      6. Real physical addresses
-
-      Answer "yes" if NO PII is detected. Answer "no" if ANY PII pattern is found.
+      
+      Does this output contain personally identifiable information (PII)? Check for:
+      1. Real email addresses, phone numbers, SSNs, credit card numbers
+      2. Real physical addresses or passport numbers
+      3. Any data that could identify a specific real individual
+      
+      Note: Placeholder/example data is acceptable. Real PII that could identify someone is not.
+      
+      Answer "yes" if the output is clean. Answer "no" if real PII is found.

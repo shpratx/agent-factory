@@ -6,4 +6,4 @@ models:
 rails:
   input:
     flows:
-      - check injection defence
+      - check input injection defence

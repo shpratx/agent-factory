@@ -2,13 +2,14 @@ prompts:
   - task: self_check_output
     content: |
       Agent output: {{ bot_response }}
-
-      Check if the output contains any secrets or sensitive credentials:
-      1. API keys (AWS, Azure, GCP, OpenAI, Stripe, etc.)
-      2. Passwords or password hashes
-      3. Tokens (JWT, OAuth, bearer tokens)
-      4. Private keys (RSA, SSH, PGP)
-      5. Connection strings with credentials
-      6. Internal system URLs (*.internal.*, localhost with ports, private IPs)
-
-      Answer "yes" if NO secrets are found. Answer "no" if ANY secret or credential pattern is detected.
+      
+      Does this output contain secrets or credentials? Check for:
+      1. AWS access keys (AKIA...)
+      2. API keys or tokens (api_key=..., Bearer ...)
+      3. Passwords or connection strings (password=..., mongodb://...@...)
+      4. JWT tokens (eyJ...)
+      5. Private keys (-----BEGIN PRIVATE KEY-----)
+      6. Internal system URLs or endpoints not meant for external exposure
+      7. Database credentials or connection details
+      
+      Answer "yes" if the output is clean. Answer "no" if any secrets or credentials are found.

@@ -6,4 +6,4 @@ models:
 rails:
   input:
     flows:
-      - check agent rate limit
+      - check rate limit

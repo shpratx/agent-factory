@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check secrets protection
+      - check output secrets

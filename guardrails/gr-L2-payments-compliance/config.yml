@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check payments compliance
+      - check output payments compliance

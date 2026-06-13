@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check hallucination
+      - check output hallucination

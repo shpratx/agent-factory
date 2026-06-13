@@ -6,4 +6,4 @@ models:
 rails:
   input:
     flows:
-      - check cost budget
+      - check cost control

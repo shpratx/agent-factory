@@ -2,14 +2,13 @@ prompts:
   - task: self_check_output
     content: |
       Agent output: {{ bot_response }}
-
-      Validate the output conforms to AgentOutput v1.0 schema:
-      1. agent_id must be present (format: L[0-4]-*-agent)
-      2. agent_version must be present (format: x.y.z)
-      3. execution_id must be present (format: exec-*)
-      4. input_summary must be present with source and parameters
-      5. output must be present with type, schema_version, and items array
-      6. output.items must not be empty (unless output.status = "failure")
-      7. Each item must have metadata.reasoning and metadata.citation
-
-      Answer "yes" if the output is FULLY compliant. Answer "no" if ANY rule is violated.
+      
+      Validate this output against the AgentOutput schema:
+      1. Has root fields: agent_id, agent_version, execution_id, input_summary, output
+      2. input_summary has: source (enum: agent_output|direct_input|file_upload), parameters (object)
+      3. output has: type (valid enum), schema_version (non-empty string)
+      4. If output.items exists: each item has id, title, content, metadata
+      5. If metadata exists: has confidence (0-1), reasoning (non-empty, 20+ chars), citation (array), trajectory (array)
+      6. No null or empty required fields
+      
+      Answer "yes" if schema is valid. Answer "no" if any required field is missing or malformed.

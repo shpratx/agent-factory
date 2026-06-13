@@ -2,25 +2,25 @@ prompts:
   - task: self_check_input
     content: |
       User input: {{ user_input }}
-
-      Check if the input contains unsafe content:
-      1. Toxic or hateful language targeting protected groups
-      2. Content promoting violence, self-harm, or illegal activity
-      3. Excessive profanity inappropriate for professional context
+      
+      Does this input contain unsafe content? Check for:
+      1. Content promoting violence, self-harm, or harm to others
+      2. Explicit hate speech or discrimination based on protected characteristics
+      3. Instructions for illegal activities (fraud, hacking, drug manufacturing)
       4. Sexually explicit content
-      5. Instructions to generate harmful content
-
-      Answer "yes" if the content is SAFE. Answer "no" if ANY unsafe content is detected.
-
+      5. Content targeting or exploiting minors
+      6. Profanity in professional context
+      
+      Answer "yes" if the input is safe to process. Answer "no" if unsafe content is detected.
   - task: self_check_output
     content: |
       Agent output: {{ bot_response }}
-
-      Check if the output contains unsafe content:
-      1. Toxic or hateful language
-      2. Content promoting violence, self-harm, or illegal activity
-      3. Excessive profanity
-      4. Sexually explicit content
-      5. Discriminatory statements
-
-      Answer "yes" if the content is SAFE. Answer "no" if ANY unsafe content is detected.
+      
+      Does this output contain unsafe content? Check for:
+      1. Content promoting violence, self-harm, or harm to others
+      2. Hate speech or discrimination
+      3. Instructions for illegal activities
+      4. Sexually explicit or gratuitously violent content
+      5. Content that could cause real-world harm if acted upon
+      
+      Answer "yes" if the output is safe to deliver. Answer "no" if unsafe content is found.

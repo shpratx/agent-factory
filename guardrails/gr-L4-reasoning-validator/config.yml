@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check reasoning quality
+      - check output reasoning

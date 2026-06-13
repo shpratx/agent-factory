@@ -6,4 +6,4 @@ models:
 rails:
   output:
     flows:
-      - check confidence gate
+      - check output confidence

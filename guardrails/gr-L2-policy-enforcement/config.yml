@@ -6,7 +6,7 @@ models:
 rails:
   input:
     flows:
-      - check topic adherence
+      - check input policy
   output:
     flows:
-      - check policy compliance
+      - check output policy

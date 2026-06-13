@@ -1,11 +1,17 @@
 prompts:
   - task: self_check_input
     content: |
-      Execution context: {{ user_input }}
-
-      Check if this execution shows signs of infinite loops or runaway behavior:
-      1. Has the same action been repeated more than the configured max iterations?
-      2. Has the execution exceeded the configured timeout?
-      3. Is recursion depth beyond the configured maximum?
-
-      Answer "yes" if execution is NORMAL. Answer "no" if loop, timeout, or excessive recursion detected.
+      Agent: {{ agent_id }}
+      Iteration count: {{ iteration_count }}
+      Elapsed seconds: {{ elapsed_seconds }}
+      Max iterations: {{ max_iterations }}
+      Timeout seconds: {{ timeout_seconds }}
+      Recursion depth: {{ recursion_depth }}
+      Max recursion: {{ max_recursion }}
+      
+      Has this execution entered a dangerous state?
+      1. Has iteration_count exceeded max_iterations?
+      2. Has elapsed_seconds exceeded timeout_seconds?
+      3. Has recursion_depth exceeded max_recursion?
+      
+      Answer "yes" if within safe limits. Answer "kill" if execution should be terminated.

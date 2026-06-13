@@ -2,12 +2,12 @@ prompts:
   - task: self_check_output
     content: |
       Agent output: {{ bot_response }}
-
-      Check for internal consistency across all output items:
-      1. All item IDs must be unique — no duplicates
-      2. The same field must not have conflicting enum values across items
-      3. The same entity referenced in multiple items must be consistent (same name, same attributes)
-      4. No contradictory statements between items
-      5. Temporal ordering must be logical if present
-
-      Answer "yes" if output is internally CONSISTENT. Answer "no" if ANY contradiction or duplicate is found.
+      
+      For multi-item outputs, check internal consistency:
+      1. Are all item IDs unique (no duplicates)?
+      2. Are there contradictions between items (conflicting claims about the same entity)?
+      3. Is the same field given conflicting enum values across items?
+      4. Are entities referenced consistently (same name/format throughout)?
+      5. Do items contradict each other logically?
+      
+      Answer "yes" if output is internally consistent. Answer "no" if contradictions or duplicates are found.
