@@ -329,3 +329,64 @@ When creating agents that form a pipeline, ensure:
 - Input parameters match what the upstream agent produces
 - Output type flows logically (requirements → epics → stories)
 - Each agent's prompt documents Upstream/Downstream in Back Story
+
+## INSUFFICIENT_CONTEXT Pattern
+
+When input is empty, gibberish, or too vague to process:
+- Return the standard AgentOutput structure with empty items arrays
+- Add a single gap explaining what's missing and what question to ask
+- execution_summary must state "INSUFFICIENT_CONTEXT" with reason
+- Never hallucinate output from vague input — fail gracefully
+
+```json
+{
+  "output": {
+    "type": "{type}",
+    "schema_version": "1.0",
+    "items": { "category_1": [], "category_2": [] },
+    "execution_summary": "• Produced 0 items — INSUFFICIENT_CONTEXT.\n• Input too vague to extract actionable content.\n• Suggested: ask stakeholder for more detail."
+  }
+}
+```
+
+## Guardrails Selection Guide
+
+| Agent Type | Mandatory Guardrails |
+|-----------|---------------------|
+| All agents (L1+) | gr-L1-output-schema-validator, gr-L1-pii-detection |
+| Content generators | + gr-L3-hallucination-detector, gr-L3-citation-validator, gr-L3-consistency-checker |
+| Code generators | + gr-L1-secrets-protection, gr-L3-hallucination-detector |
+| Agents with tool access | + gr-L2-tool-permissions, gr-L3-agent-rate-limit |
+| Agents with memory | + gr-L2-memory-safety |
+| Domain-specific (L2+) | + gr-L2-policy-enforcement |
+| Payments domain | + gr-L2-payments-compliance |
+
+## Examples Requirements
+
+Minimum 2 input/output pairs:
+1. **Happy path** — realistic, detailed input producing full output
+2. **Edge case** — empty, vague, or boundary input showing graceful handling
+
+Each example must:
+- Be valid JSON matching the contract schema
+- Show complete AgentOutput structure (not partial)
+- Include metadata (confidence, reasoning, citation, trajectory) on all items
+- Include execution_summary as plain text
+
+## Shared Schemas
+
+Agents reference shared schemas at the repository level:
+- `schemas/agent-input-contract-schema.json` — standard input contract
+- `schemas/agent-output-schema.json` — standard AgentOutput envelope
+
+The agent-specific `output_schema.json` defines the items structure unique to that agent, nested within the standard AgentOutput envelope.
+
+## Versioning Rules
+
+| Change | Version Bump | Action |
+|--------|-------------|--------|
+| Prompt wording tweak (same behaviour) | Patch (1.0.0 → 1.0.1) | Update instruction_hash |
+| New output field added (backward compatible) | Minor (1.0.0 → 1.1.0) | New golden set in golden/v1.1.0/ |
+| Output structure change (breaking) | Major (1.0.0 → 2.0.0) | New golden set, update output_schema.json |
+| New guardrail added | No version bump | Update spec.yaml guardrails list |
+| KB added/removed | No version bump | Update spec.yaml context |
