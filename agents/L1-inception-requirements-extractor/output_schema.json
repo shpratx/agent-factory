@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-inception-requirements-extractor-output-v1.0",
+  "title": "Requirements Extractor Output",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "output"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L1-inception-requirements-extractor-agent"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "input_summary": {
+      "type": "object",
+      "required": ["source", "parameters"],
+      "properties": {
+        "source": {"type": "string", "enum": ["direct_input", "agent_output", "file_upload"]},
+        "source_agent_id": {"type": ["string", "null"]},
+        "parameters": {"type": "object"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "execution_summary"],
+      "properties": {
+        "type": {"type": "string", "const": "requirements"},
+        "schema_version": {"type": "string", "const": "1.0"},
+        "items": {
+          "type": "object",
+          "required": ["functional_requirements", "non_functional_requirements", "constraints", "assumptions", "gaps"],
+          "properties": {
+            "functional_requirements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "title", "description", "user_facing", "priority", "metadata"],
+                "properties": {
+                  "id": {"type": "string", "pattern": "^FR-\\d{2}$"},
+                  "title": {"type": "string"},
+                  "description": {"type": "string"},
+                  "user_facing": {"type": "boolean"},
+                  "priority": {"type": "string", "enum": ["Must-Have", "Should-Have", "Could-Have", "Won't-Have"]},
+                  "tags": {"type": "array", "items": {"type": "string"}},
+                  "metadata": {"$ref": "#/$defs/ItemMetadata"}
+                }
+              }
+            },
+            "non_functional_requirements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "category", "title", "description", "priority", "metadata"],
+                "properties": {
+                  "id": {"type": "string", "pattern": "^NFR-\\d{2}$"},
+                  "category": {"type": "string", "enum": ["Performance", "Security", "Scalability", "Reliability", "Usability"]},
+                  "title": {"type": "string"},
+                  "description": {"type": "string"},
+                  "priority": {"type": "string", "enum": ["Must-Have", "Should-Have", "Could-Have"]},
+                  "metadata": {"$ref": "#/$defs/ItemMetadata"}
+                }
+              }
+            },
+            "constraints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "type", "description", "metadata"],
+                "properties": {
+                  "id": {"type": "string", "pattern": "^CON-\\d{2}$"},
+                  "type": {"type": "string", "enum": ["Technology", "Business", "Regulatory", "Timeline"]},
+                  "description": {"type": "string"},
+                  "metadata": {
+                    "type": "object",
+                    "required": ["confidence", "reasoning", "citation"],
+                    "properties": {
+                      "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                      "reasoning": {"type": "string", "minLength": 10},
+                      "citation": {"$ref": "#/$defs/Citation"}
+                    }
+                  }
+                }
+              }
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "description", "needs_confirmation", "metadata"],
+                "properties": {
+                  "id": {"type": "string", "pattern": "^ASM-\\d{2}$"},
+                  "description": {"type": "string"},
+                  "needs_confirmation": {"type": "boolean"},
+                  "metadata": {
+                    "type": "object",
+                    "required": ["confidence", "reasoning"],
+                    "properties": {
+                      "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                      "reasoning": {"type": "string", "minLength": 10}
+                    }
+                  }
+                }
+              }
+            },
+            "gaps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "description", "impact", "suggested_question", "metadata"],
+                "properties": {
+                  "id": {"type": "string", "pattern": "^GAP-\\d{2}$"},
+                  "description": {"type": "string"},
+                  "impact": {"type": "string"},
+                  "suggested_question": {"type": "string"},
+                  "metadata": {
+                    "type": "object",
+                    "required": ["reasoning"],
+                    "properties": {
+                      "reasoning": {"type": "string", "minLength": 10}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "execution_summary": {"type": "string", "minLength": 50}
+      }
+    }
+  },
+  "$defs": {
+    "ItemMetadata": {
+      "type": "object",
+      "required": ["confidence", "reasoning", "citation", "trajectory"],
+      "properties": {
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "reasoning": {"type": "string", "minLength": 20},
+        "citation": {"$ref": "#/$defs/Citation"},
+        "trajectory": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["step", "action", "tool", "detail"],
+            "properties": {
+              "step": {"type": "integer"},
+              "action": {"type": "string", "enum": ["retrieve", "reason", "generate", "validate"]},
+              "tool": {"type": ["string", "null"]},
+              "detail": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "Citation": {
+      "type": "object",
+      "required": ["source_reference", "source_location"],
+      "properties": {
+        "source_reference": {"type": "string", "minLength": 5},
+        "source_location": {"type": "string"}
+      }
+    }
+  }
+}

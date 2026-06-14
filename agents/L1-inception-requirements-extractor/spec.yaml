@@ -2,23 +2,23 @@
 spec_version: "1.0"
 artifact_type: agent
 metadata:
-  name: L1-inception-template-agent
+  name: L1-inception-requirements-extractor-agent
   version: "1.0.0"
   layer: L1
   phase: inception
   owner: agentic-ai-coe
-  created: 2026-04-09
+  created: 2026-06-14
 
 purpose:
-  description: "Generates one exciting fact for the topic mentioned"
-  input: "Topic to state a fact for"
-  output: "A unique fact for the topic mentioned in the input"
-  business_value: "To know a new fact for the mentioned topic"
+  description: "Extracts structured functional and non-functional requirements from a product idea or vision document"
+  input: "Plain-text product idea, feature description, or vision document"
+  output: "Categorised requirements (functional, non-functional, constraints, assumptions, gaps)"
+  business_value: "Transforms unstructured ideas into actionable, structured requirements that downstream agents can consume for story generation, design, and architecture"
 
 prompt:
-  ref: "prompts/L1-inception-template-agent/instructions.md"  # External prompt file
+  ref: "prompts/L1-inception-requirements-extractor-agent/instructions.md"
   version: "1.0.0"
-  description: "Generates the fact in plain text"
+  description: "Extracts and categorises requirements with MoSCoW prioritisation"
 
 contract:
   # Schemas: schemas/agent-input-contract-schema.json & schemas/agent-output-schema.json
@@ -32,20 +32,37 @@ contract:
       enabled: false
     required_parameters:
       topic: {type: string, max_length: 5000, description: "Topic to state the fact about"}
-  
+
   output:
-    $ref: "output_schema.json"
+    type: fact
+    schema_version: "1.0"
+    items_schema:
+      type: object
+      required: [title, description]
+      properties:
+        title: {type: string}
+        description: {type: string, format: "A unique fact is: "}
+    metadata_per_item:
+      confidence: {type: float, range: "0.7"}
+      reasoning: {type: string, description: "Explanation of how the agent arrived at this item"}
+      sources_cited: {type: array, items: {type: string}}
 
 context:
-  knowledge_bases: []
-  guardrails: []
+  knowledge_bases:
+    - kb-L1-enterprise-architecture
+  guardrails:
+    - gr-L1-output-schema-validator
+    - gr-L1-pii-detection
+    - gr-L3-hallucination-detector
+    - gr-L3-citation-validator
+    - gr-L3-consistency-checker
   tools: []
 
 quality:
-  evaluation_rubric: story-quality-rubric-v1
+  evaluation_rubric: requirements-quality-rubric-v1
   min_score: 7.0
   hallucination_check: true
-  consistency_check: true  # same input → same structure output
+  consistency_check: true
 
 #performance:
 #  target_latency_seconds: 30
@@ -61,7 +78,7 @@ quality:
 #  role: content-generator                            # content-generator | orchestrator | verifier | tool-executor
 #  service_account: "sa-agt-story-gen-001"
 #  credential_path: "platform/agents/sa-agt-story-gen-001"
-  
+
 #  permissions:
 #    tools_allowed: [L1-jira-fetch-issue]             # only tools this agent can invoke
 #    tools_denied: [L1-jira-delete-issue]             # explicit deny list
@@ -73,7 +90,7 @@ quality:
  #   data_classification_max: Confidential            # max data sensitivity this agent can process
 #    org_scope: ["*"]                                 # L1 agents serve all orgs
 #    can_write_external: false                        # only orchestrators can write to Jira/GitHub
-  
+
 versioning:
   input_version: "1.0"   # schema version of input
   output_version: "1.0"  # schema version of output
