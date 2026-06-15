@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-inception-epics-generator-output-v1.0",
+  "title": "Epics Generator Output",
+  "description": "Output schema for the epics generator agent — structured epics with features and traceability",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "output"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L1-inception-epics-generator-agent"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "input_summary": {
+      "type": "object",
+      "required": ["source", "parameters"],
+      "properties": {
+        "source": {"type": "string", "enum": ["agent_output", "direct_input", "file_upload"]},
+        "source_agent_id": {"type": ["string", "null"]},
+        "parameters": {"type": "object"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "execution_summary"],
+      "properties": {
+        "type": {"type": "string", "const": "epics"},
+        "schema_version": {"type": "string", "const": "1.0"},
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "description", "priority", "size", "requirements_covered", "features", "metadata"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^EPIC-\\d{2}$"},
+              "title": {"type": "string"},
+              "description": {"type": "string"},
+              "priority": {"type": "string", "enum": ["Must-Have", "Should-Have", "Could-Have", "Won't-Have"]},
+              "size": {"type": "string", "enum": ["S", "M", "L", "XL"]},
+              "estimated_cycles": {"type": "integer", "minimum": 1, "maximum": 4},
+              "requirements_covered": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+              "nfrs_applicable": {"type": "array", "items": {"type": "string"}},
+              "constraints_applicable": {"type": "array", "items": {"type": "string"}},
+              "risks": {"type": "array", "items": {"type": "string"}},
+              "depends_on": {"type": "array", "items": {"type": "string"}},
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "title", "description", "implements", "acceptance_summary", "estimated_effort"],
+                  "properties": {
+                    "id": {"type": "string", "pattern": "^FEAT-\\d{2}-\\d{2}$"},
+                    "title": {"type": "string"},
+                    "description": {"type": "string"},
+                    "implements": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+                    "supports": {"type": "array", "items": {"type": "string"}},
+                    "acceptance_summary": {"type": "string"},
+                    "estimated_effort": {"type": "string"}
+                  }
+                },
+                "minItems": 2
+              },
+              "metadata": {
+                "type": "object",
+                "required": ["confidence", "reasoning", "citation", "trajectory"],
+                "properties": {
+                  "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                  "reasoning": {"type": "string", "minLength": 20},
+                  "citation": {"type": "object"},
+                  "trajectory": {"type": "array", "minItems": 1}
+                }
+              }
+            }
+          }
+        },
+        "execution_summary": {"type": "string", "minLength": 50}
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "golden-01-expense-capture",
+  "description": "Stories generated from 2 features with correct tiering, sequencing, and dependencies",
+  "input": "examples/input-01-expense-capture.json",
+  "evaluation_criteria": {
+    "min_stories_per_feature": 2,
+    "max_story_points": 5,
+    "min_acceptance_criteria": 3,
+    "max_acceptance_criteria": 5,
+    "all_features_decomposed": true,
+    "foundation_stories_no_intra_feature_dependencies": true,
+    "cross_feature_dependencies_allowed_for_foundation": true,
+    "dependencies_acyclic": true,
+    "tiers_ordered": [1, 2, 3, 4],
+    "given_when_then_format": true,
+    "faithfulness": ">= 0.90",
+    "hallucination": "<= 0.10",
+    "consistency": ">= 0.90",
+    "has_execution_summary": true,
+    "nfr_addressed": "NFR-01 reflected in at least one story"
+  },
+  "expected_sequence": {
+    "cycle_1": ["foundation stories (camera SDK, basic setup)"],
+    "cycle_2": ["core stories (capture flow, OCR pipeline)"],
+    "cycle_3": ["enhancement stories (quality checks, offline)"]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "agent_id": "L1-inception-requirements-extractor",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-",
+  "input_summary": {
+    "source": "direct_input | agent_output | file_upload",
+    "source_agent_id": " | null",
+    "parameters": {"idea": "<first 100 chars of input>..."}
+  },
+  "output": {
+    "type": "requirements",
+    "schema_version": "1.0",
+    "items": {
+    "functional_requirements": [
+    {
+      "id": "FR-01",
+      "title": "",
+      "description": "The system shall ",
+      "user_facing": true|false,
+      "priority": "Must-Have|Should-Have|Could-Have|Won't-Have",
+      "tags": ["", ""],
+      "metadata": {
+        "confidence": 0.0-1.0,
+        "reasoning": "<why this is an FR, why this priority>",
+        "citation": {
+          "source_reference": "",
+          "source_location": "<paragraph/section reference>"
+        },
+        "trajectory": [
+          {"step": 1, "action": "retrieve", "tool": null, "detail": ""},
+          {"step": 2, "action": "reason", "tool": null, "detail": ""},
+          {"step": 3, "action": "generate", "tool": null, "detail": ""}
+        ]
+      }
+    }],
+    "non_functional_requirements": [
+    {
+      "id": "NFR-01",
+      "category": "Performance|Security|Scalability|Reliability|Usability",
+      "title": "",
+      "description": "",
+      "priority": "Must-Have|Should-Have|Could-Have",
+      "citation": {
+          "source_reference": "...", "source_location": "..."
+      },
+      "reasoning": "",
+      "trajectory": [...]
+      }
+    ],
+  "constraints": [
+  {
+    "id": "CON-01",
+    "type": "Technology|Business|Regulatory|Timeline",
+    "description": "",
+    "citation": {"source_reference": "...", "source_location": "..."},
+    "reasoning": "<why this is a constraint, not a requirement>"
+    }
+  ],
+  "assumptions": [
+  {
+    "id": "ASM-01",
+    "description": "",
+    "needs_confirmation": true|false,
+    "reasoning": ""
+    }
+  ],
+  "gaps": [
+  {
+    "id": "GAP-01",
+    "description": "",
+    "impact": "<what can't be done without this>",
+    "suggested_question": "",
+    "reasoning": ""
+    }
+  ]
+},
+  "execution_summary": {
+    "items_produced": {"FR": 0, "NFR": 0, "CON": 0, "ASM": 0, "GAP": 0},
+    "key_decisions": ["", ""],
+    "gaps_flagged": 0,
+    "assumptions_made": 0,
+    "coverage_assessment": ""
+  }
+  }
+}

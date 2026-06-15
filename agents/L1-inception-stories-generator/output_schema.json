@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-inception-stories-generator-output-v1.0",
+  "title": "Stories Generator Output",
+  "description": "Output schema for the stories generator agent. Stories are the smallest unit of delivery — each represents a single implementable capability that a developer can complete within one sprint. Stories follow 'As a / I want / So that' format with Given/When/Then acceptance criteria, ordered by implementation tier (Foundation → Core → Enhancement → Polish).",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "output"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L1-inception-stories-generator-agent"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "input_summary": {
+      "type": "object",
+      "required": ["source", "parameters"],
+      "properties": {
+        "source": {"type": "string", "enum": ["agent_output", "direct_input", "file_upload"]},
+        "source_agent_id": {"type": ["string", "null"]},
+        "parameters": {"type": "object"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "execution_summary"],
+      "properties": {
+        "type": {"type": "string", "const": "stories"},
+        "schema_version": {"type": "string", "const": "1.0"},
+        "items": {
+          "type": "array",
+          "description": "Array of user stories ordered by tier within each feature",
+          "items": {"$ref": "#/$defs/Story"}
+        },
+        "execution_summary": {
+          "type": "string",
+          "minLength": 50,
+          "description": "Plain-text summary: story count per tier, recommended sprint sequence, effort estimate, and reflection findings"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Story": {
+      "type": "object",
+      "description": "A single implementable user story. Represents one developer's work within one sprint. Must be independently testable and deliverable.",
+      "required": ["id", "epic_id", "feature_id", "tier", "tier_label", "title", "acceptance_criteria", "story_points", "data_sensitivity", "depends_on", "implements", "metadata"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^STORY-.+$",
+          "description": "Unique story ID. Format: STORY-{epic_ref}-{feature_ref}-{sequence}"
+        },
+        "epic_id": {
+          "type": "string",
+          "pattern": "^EPIC-\\d{2}$",
+          "description": "Parent epic this story belongs to"
+        },
+        "feature_id": {
+          "type": "string",
+          "pattern": "^FEAT-\\d{2}-\\d{2}$",
+          "description": "Parent feature this story decomposes"
+        },
+        "tier": {
+          "type": "integer",
+          "enum": [1, 2, 3, 4],
+          "description": "Implementation tier: 1=Foundation (setup, data models, SDK integration), 2=Core (happy path, primary UI), 3=Enhancement (validations, error handling, edge cases), 4=Polish (performance, UX refinement). Lower tiers implemented first."
+        },
+        "tier_label": {
+          "type": "string",
+          "enum": ["Foundation", "Core", "Enhancement", "Polish"],
+          "description": "Human-readable tier name"
+        },
+        "title": {
+          "type": "string",
+          "pattern": "^As a ",
+          "description": "Story title in 'As a <role>, I want <capability> so that <benefit>' format"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 3,
+          "maxItems": 5,
+          "description": "Testable acceptance criteria in 'Given <context>, When <action>, Then <outcome>' format. Must be specific enough for QA to write tests from."
+        },
+        "story_points": {
+          "type": "integer",
+          "enum": [1, 2, 3, 5],
+          "description": "Complexity estimate. Max 5 — if larger, story must be split. 1=trivial config, 2=simple CRUD, 3=moderate logic, 5=complex integration/multi-component."
+        },
+        "data_sensitivity": {
+          "type": "string",
+          "enum": ["Public", "Internal", "Confidential", "Restricted"],
+          "description": "Data classification. Public=catalog/rates/terms. Internal=app status/config. Confidential=name/email/employment. Restricted=national ID/income/biometric."
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Story IDs this story depends on. Tier 1 (Foundation) stories within the same feature must have no intra-feature dependencies. Cross-feature dependencies allowed."
+        },
+        "implements": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "FR IDs this story implements. Traces back to original requirements via feature → epic → FR chain."
+        },
+        "metadata": {"$ref": "#/$defs/StoryMetadata"}
+      }
+    },
+    "StoryMetadata": {
+      "type": "object",
+      "description": "Reasoning, confidence, citation, and decision trajectory explaining why this story exists in this form",
+      "required": ["confidence", "reasoning", "citation", "trajectory"],
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Self-assessed confidence. 0.9+ for stories directly from explicit feature acceptance summaries. 0.7-0.9 for inferred decompositions."
+        },
+        "reasoning": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Explains: why this tier, why these story points, why this sequence position, what it depends on and why"
+        },
+        "citation": {
+          "type": "object",
+          "required": ["source_reference", "source_location"],
+          "description": "Traces this story back to its source feature",
+          "properties": {
+            "source_reference": {
+              "type": "string",
+              "description": "Feature ID (e.g., FEAT-01-01) or FR ID that this story derives from"
+            },
+            "source_location": {
+              "type": "string",
+              "description": "Path in input (e.g., input.epics[0].features[0])"
+            }
+          }
+        },
+        "trajectory": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Decision-making steps showing how this story was derived from the parent feature",
+          "items": {
+            "type": "object",
+            "required": ["step", "action", "tool", "detail"],
+            "properties": {
+              "step": {"type": "integer", "description": "Step number in sequence"},
+              "action": {"type": "string", "enum": ["retrieve", "reason", "generate", "validate"]},
+              "tool": {"type": ["string", "null"], "description": "Tool used (null for reasoning steps)"},
+              "detail": {"type": "string", "description": "What happened in this step"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

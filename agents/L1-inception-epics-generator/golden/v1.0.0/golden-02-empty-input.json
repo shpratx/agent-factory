@@ -1,0 +1,24 @@
+{
+  "test_id": "golden-02-empty-input",
+  "description": "Correct handling of empty requirements — returns empty items with INSUFFICIENT_CONTEXT",
+  "agent_id": "L1-inception-epics-generator-agent",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-golden-002",
+  "input_summary": {
+    "source": "direct_input",
+    "source_agent_id": null,
+    "parameters": {"requirements_count": {"FR": 0, "NFR": 0, "CON": 0}}
+  },
+  "output": {
+    "type": "epics",
+    "schema_version": "1.0",
+    "items": [],
+    "execution_summary": "• Produced 0 epics — INSUFFICIENT_CONTEXT.\n• No functional requirements provided in input.\n• Cannot generate epics without at least one functional requirement to implement.\n• Suggested: run L1-inception-requirements-extractor-agent first to produce structured requirements."
+  },
+  "evaluation_criteria": {
+    "items_empty": true,
+    "has_execution_summary": true,
+    "no_hallucination": true,
+    "no_invented_epics": true
+  }
+}

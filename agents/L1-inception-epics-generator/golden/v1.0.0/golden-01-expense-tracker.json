@@ -1,0 +1,439 @@
+{
+  "test_id": "golden-01-expense-tracker",
+  "description": "Production-grade epic generation from 12 FRs \u2014 groups into capability clusters with correct traceability and dependencies",
+  "agent_id": "L1-inception-epics-generator-agent",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-epics-001",
+  "input_summary": {
+    "source": "agent_output",
+    "source_agent_id": "L1-inception-requirements-extractor-agent",
+    "parameters": {
+      "requirements_count": {
+        "FR": 6,
+        "NFR": 1,
+        "CON": 2
+      }
+    }
+  },
+  "output": {
+    "type": "epics",
+    "schema_version": "1.0",
+    "items": [
+      {
+        "id": "EPIC-01",
+        "title": "Expense Capture & Processing",
+        "description": "Enable users to capture expenses via receipt photography with automatic data extraction and categorisation",
+        "priority": "Must-Have",
+        "size": "M",
+        "estimated_cycles": 2,
+        "requirements_covered": [
+          "FR-01",
+          "FR-02",
+          "FR-03"
+        ],
+        "nfrs_applicable": [
+          "NFR-01"
+        ],
+        "constraints_applicable": [
+          "CON-01",
+          "CON-02"
+        ],
+        "risks": [
+          "ASM-01"
+        ],
+        "depends_on": [],
+        "features": [
+          {
+            "id": "FEAT-01-01",
+            "title": "Receipt Photo Capture",
+            "description": "Camera integration for capturing receipt images with crop and quality validation",
+            "implements": [
+              "FR-01"
+            ],
+            "acceptance_summary": "User can photograph a receipt; image is stored locally and queued for processing",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-01-02",
+            "title": "OCR Data Extraction",
+            "description": "Automatic extraction of amount, date, and vendor from receipt images using OCR",
+            "implements": [
+              "FR-02"
+            ],
+            "acceptance_summary": "Amount, date, and vendor extracted with >90% accuracy; user can correct errors",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-01-03",
+            "title": "Auto-Categorisation Engine",
+            "description": "Automatic expense categorisation into predefined categories with user override",
+            "implements": [
+              "FR-03"
+            ],
+            "acceptance_summary": "Expenses auto-categorised; user can recategorise; categories are extensible",
+            "estimated_effort": "1 cycle"
+          }
+        ],
+        "metadata": {
+          "confidence": 0.93,
+          "reasoning": "FR-01, FR-02, FR-03 form a natural capability cluster \u2014 all relate to getting expense data into the system. They share a common user journey: photo \u2192 extract \u2192 categorise.",
+          "citation": {
+            "source_reference": "FR-01, FR-02, FR-03",
+            "source_location": "input.functional_requirements"
+          },
+          "trajectory": [
+            {
+              "step": 1,
+              "action": "retrieve",
+              "tool": null,
+              "detail": "Identified capture/processing cluster from FR-01 to FR-03"
+            },
+            {
+              "step": 2,
+              "action": "reason",
+              "tool": null,
+              "detail": "These form a single user journey \u2014 capture to categorise"
+            },
+            {
+              "step": 3,
+              "action": "generate",
+              "tool": null,
+              "detail": "Created epic with 3 features, one per FR"
+            }
+          ]
+        }
+      },
+      {
+        "id": "EPIC-02",
+        "title": "Expense Customisation",
+        "description": "Allow users to extend the expense system with custom categories",
+        "priority": "Should-Have",
+        "size": "S",
+        "estimated_cycles": 1,
+        "requirements_covered": [
+          "FR-04"
+        ],
+        "nfrs_applicable": [
+          "NFR-01"
+        ],
+        "constraints_applicable": [
+          "CON-01"
+        ],
+        "risks": [],
+        "depends_on": [
+          "EPIC-01"
+        ],
+        "features": [
+          {
+            "id": "FEAT-02-01",
+            "title": "Custom Category CRUD",
+            "description": "Create, edit, delete custom expense categories",
+            "implements": [
+              "FR-04"
+            ],
+            "acceptance_summary": "User manages custom categories beyond the predefined set",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-02-02",
+            "title": "Category Merge & Remap",
+            "description": "Merge custom categories or remap expenses when categories change",
+            "implements": [
+              "FR-04"
+            ],
+            "supports": [
+              "FR-03"
+            ],
+            "acceptance_summary": "Existing expenses can be remapped when categories are reorganised",
+            "estimated_effort": "1 cycle"
+          }
+        ],
+        "metadata": {
+          "confidence": 0.91,
+          "reasoning": "FR-04 (custom categories) is a standalone extension of the categorisation system. Separated from core capture (EPIC-01) as it's Should-Have and independently deliverable.",
+          "citation": {
+            "source_reference": "FR-05, FR-06",
+            "source_location": "input.functional_requirements"
+          },
+          "trajectory": [
+            {
+              "step": 1,
+              "action": "retrieve",
+              "tool": null,
+              "detail": "Budget + alerts are coupled capabilities"
+            },
+            {
+              "step": 2,
+              "action": "reason",
+              "tool": null,
+              "detail": "Alerts require budgets \u2014 same epic. Dashboard adds visibility."
+            },
+            {
+              "step": 3,
+              "action": "generate",
+              "tool": null,
+              "detail": "Created 3 features: config, alerts, dashboard"
+            }
+          ]
+        }
+      },
+      {
+        "id": "EPIC-03",
+        "title": "Reporting & Tax Compliance",
+        "description": "Generate monthly/quarterly reports, export as PDF/CSV, and produce HMRC-aligned year-end tax summaries",
+        "priority": "Should-Have",
+        "size": "M",
+        "estimated_cycles": 2,
+        "requirements_covered": [
+          "FR-05",
+          "FR-06",
+          "FR-07"
+        ],
+        "nfrs_applicable": [],
+        "constraints_applicable": [
+          "CON-01"
+        ],
+        "risks": [
+          "ASM-02"
+        ],
+        "depends_on": [
+          "EPIC-01"
+        ],
+        "features": [
+          {
+            "id": "FEAT-03-01",
+            "title": "Monthly & Quarterly Report Generation",
+            "description": "Automated report generation with category breakdowns and trends",
+            "implements": [
+              "FR-05"
+            ],
+            "acceptance_summary": "Reports generated monthly/quarterly with totals and trend comparisons",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-03-02",
+            "title": "Report Export (PDF/CSV)",
+            "description": "Export reports in PDF and CSV formats for accountants",
+            "implements": [
+              "FR-06"
+            ],
+            "acceptance_summary": "User exports report as PDF or CSV suitable for accountant",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-03-03",
+            "title": "Year-End HMRC Tax Summary",
+            "description": "Generate tax summary matching HMRC self-assessment categories",
+            "implements": [
+              "FR-07"
+            ],
+            "acceptance_summary": "Year-end report maps expenses to HMRC categories",
+            "estimated_effort": "1 cycle"
+          }
+        ],
+        "metadata": {
+          "confidence": 0.91,
+          "reasoning": "FR-05, FR-06, FR-07 form a natural reporting cluster \u2014 all relate to generating and exporting expense summaries. Depends on EPIC-01 (needs categorised expenses to report on). Should-Have per stakeholder guidance.",
+          "citation": {
+            "source_reference": "FR-05, FR-06, FR-07",
+            "source_location": "input.functional_requirements"
+          },
+          "trajectory": [
+            {
+              "step": 1,
+              "action": "retrieve",
+              "tool": null,
+              "detail": "Identified reporting/export cluster"
+            },
+            {
+              "step": 2,
+              "action": "reason",
+              "tool": null,
+              "detail": "All three are report-related, same priority tier"
+            },
+            {
+              "step": 3,
+              "action": "generate",
+              "tool": null,
+              "detail": "Created epic with 3 features, one per FR"
+            }
+          ]
+        }
+      },
+      {
+        "id": "EPIC-04",
+        "title": "Budget Management & Alerts",
+        "description": "Enable users to set spending budgets per category and receive proactive alerts when approaching limits",
+        "priority": "Must-Have",
+        "size": "M",
+        "estimated_cycles": 2,
+        "requirements_covered": [
+          "FR-08",
+          "FR-09",
+          "FR-10"
+        ],
+        "nfrs_applicable": [
+          "NFR-01"
+        ],
+        "constraints_applicable": [
+          "CON-01"
+        ],
+        "risks": [],
+        "depends_on": [
+          "EPIC-01"
+        ],
+        "features": [
+          {
+            "id": "FEAT-04-01",
+            "title": "Budget Configuration",
+            "description": "Set and manage monthly spending limits per category",
+            "implements": [
+              "FR-08"
+            ],
+            "acceptance_summary": "User sets/edits budget per category; persists across sessions",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-04-02",
+            "title": "Budget Threshold Alerts",
+            "description": "Push notifications at 80% and 100% of budget",
+            "implements": [
+              "FR-09"
+            ],
+            "acceptance_summary": "User receives push at 80% and 100% thresholds",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-04-03",
+            "title": "Weekly Spending Summary",
+            "description": "Weekly digest notification every Sunday evening",
+            "implements": [
+              "FR-10"
+            ],
+            "acceptance_summary": "Weekly summary push sent Sunday evening",
+            "estimated_effort": "1 cycle"
+          }
+        ],
+        "metadata": {
+          "confidence": 0.93,
+          "reasoning": "FR-08, FR-09, FR-10 are tightly coupled \u2014 alerts (FR-09) depend on budgets (FR-08); weekly summary (FR-10) also relates to spending visibility. Depends on EPIC-01 (needs categorised expenses for budget tracking).",
+          "citation": {
+            "source_reference": "FR-08, FR-09, FR-10",
+            "source_location": "input.functional_requirements"
+          },
+          "trajectory": [
+            {
+              "step": 1,
+              "action": "retrieve",
+              "tool": null,
+              "detail": "Budget + alerts + summary are coupled"
+            },
+            {
+              "step": 2,
+              "action": "reason",
+              "tool": null,
+              "detail": "Alerts depend on budgets; weekly summary is spending visibility"
+            },
+            {
+              "step": 3,
+              "action": "generate",
+              "tool": null,
+              "detail": "Created 3 features \u2014 config, threshold alerts, weekly digest"
+            }
+          ]
+        }
+      },
+      {
+        "id": "EPIC-05",
+        "title": "Authentication & Security",
+        "description": "User registration, login, and biometric authentication for secure access",
+        "priority": "Must-Have",
+        "size": "S",
+        "estimated_cycles": 1,
+        "requirements_covered": [
+          "FR-11",
+          "FR-12"
+        ],
+        "nfrs_applicable": [
+          "NFR-04"
+        ],
+        "constraints_applicable": [
+          "CON-02",
+          "CON-03"
+        ],
+        "risks": [],
+        "depends_on": [],
+        "features": [
+          {
+            "id": "FEAT-05-01",
+            "title": "Email/Password Registration & Login",
+            "description": "User account creation and authentication via email/password",
+            "implements": [
+              "FR-11"
+            ],
+            "acceptance_summary": "User registers with email/password and can log in",
+            "estimated_effort": "1 cycle"
+          },
+          {
+            "id": "FEAT-05-02",
+            "title": "Biometric Login",
+            "description": "Optional Face ID / fingerprint for returning users",
+            "implements": [
+              "FR-12"
+            ],
+            "acceptance_summary": "Returning user logs in via biometric without typing password",
+            "estimated_effort": "1 cycle"
+          }
+        ],
+        "metadata": {
+          "confidence": 0.95,
+          "reasoning": "FR-11 and FR-12 are both authentication \u2014 tightly coupled. No dependencies on other epics (auth is foundational). GDPR compliance (NFR-04) applies to user data handling.",
+          "citation": {
+            "source_reference": "FR-11, FR-12",
+            "source_location": "input.functional_requirements"
+          },
+          "trajectory": [
+            {
+              "step": 1,
+              "action": "retrieve",
+              "tool": null,
+              "detail": "Auth features identified"
+            },
+            {
+              "step": 2,
+              "action": "reason",
+              "tool": null,
+              "detail": "Foundational \u2014 no dependencies, all other epics need authenticated users"
+            },
+            {
+              "step": 3,
+              "action": "generate",
+              "tool": null,
+              "detail": "Split into email/password (Must) + biometric (Should)"
+            }
+          ]
+        }
+      }
+    ],
+    "execution_summary": "\u2022 Produced 5 epics with 13 features total\n\u2022 Requirements coverage: 12/12 FRs assigned (100%)\n\u2022 Grouping strategy: capability clusters (capture \u2192 customisation \u2192 reporting \u2192 budget \u2192 auth)\n\u2022 Key decisions: Auth (EPIC-05) has no dependencies \u2014 foundational. Reporting/budget both depend on EPIC-01 (need categorised data). Custom categories split from core capture (different priority).\n\u2022 Reflection: initially grouped FR-04 with EPIC-01 \u2014 split into separate epic as it's Should-Have and independently deliverable. Verified all 12 FRs covered.\n\u2022 Dependencies: EPIC-05 (auth) is independent and should be delivered first. EPIC-01 (capture) next. EPIC-02, 03, 04 can run in parallel after EPIC-01."
+  },
+  "evaluation_criteria": {
+    "min_epics": 3,
+    "max_epics": 6,
+    "all_frs_covered": true,
+    "no_orphan_requirements": true,
+    "epic_size_range": [
+      2,
+      8
+    ],
+    "has_dependencies": true,
+    "has_nfr_assignment": true,
+    "has_constraint_mapping": true,
+    "faithfulness": ">= 0.90",
+    "hallucination": "<= 0.10",
+    "consistency": ">= 0.90",
+    "has_execution_summary": true,
+    "features_independently_testable": true,
+    "priorities_reflect_source": true
+  }
+}
