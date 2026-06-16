@@ -314,13 +314,19 @@ Golden responses MUST be:
 1. **Every item has metadata** — confidence, reasoning, citation, trajectory in a `metadata` wrapper
 2. **execution_summary is plain text** — bullet points, NOT JSON object
 3. **Reflection is mandatory** — agent must reflect, find issues, fix silently, deliver final
-4. **IDs are sequential** — FR-01, FR-02... / EPIC-01, EPIC-02...
+4. **IDs are sequential** — FR-01, FR-02... / EP-01, EP-02... / US-001, US-002...
 5. **Citations trace to input** — exact phrase or ID from the source
 6. **Confidence is self-assessed** — 0.9+ explicit, 0.7-0.8 inferred, <0.7 uncertain
 7. **Don'ts section is mandatory** — explicit prohibitions prevent common failures
 8. **Input validation first** — reject empty/gibberish before processing
 9. **evaluation.md referenced from spec AND prompt** — single source of truth
 10. **Golden inputs are detailed and realistic** — not one-liners
+11. **Enterprise architecture adherence** — agents must verify output against EA KB during reflection
+12. **Prompts should be concise** — delegate detail to evaluation.md, avoid duplicating rules in prompt and evaluation
+13. **output_schema.json must match actual output** — validate golden against schema, fix mismatches immediately
+14. **Feature IDs use F-{epic}.{seq}** format (e.g., F-01.1, F-02.3) — not FEAT-XX-XX
+15. **Story IDs use US-XXX** format (e.g., US-001) — not STORY-XX-XX
+16. **Epic IDs use EP-XX** format (e.g., EP-01) — not EPIC-XX
 
 ## Agent Pipeline Chain Pattern
 
@@ -329,6 +335,42 @@ When creating agents that form a pipeline, ensure:
 - Input parameters match what the upstream agent produces
 - Output type flows logically (requirements → epics → stories)
 - Each agent's prompt documents Upstream/Downstream in Back Story
+- ID formats are consistent across the chain (F-XX.X in epics, referenced in stories)
+
+## Output Schema Alignment Rules
+
+- Schema `$defs` must describe every nested type with descriptions on all fields
+- Schema must accommodate all fields found in the actual output (validate golden against schema)
+- If output uses `items` as an object (not array), schema must reflect that
+- Required fields in schema must match what the prompt's EXPECTED OUTPUT shows
+- Run golden through schema validation before finalising
+
+## Prompt Optimisation Rules
+
+- Keep prompts concise — under 150 lines where possible
+- Delegate evaluation detail to evaluation.md (don't duplicate rubrics in prompt)
+- Evaluation section in prompt should reference evaluation.md and list only key principles
+- Examples should be brief (1-3 lines showing pattern, not full JSON)
+- EXPECTED OUTPUT schema shows structure with placeholders, not full examples
+
+## Knowledge Base References
+
+- Spec must list all KBs the agent needs under `context.knowledge_bases`
+- Include enterprise architecture KB for agents that generate code or architecture
+- Include domain KB (L2) for domain-specific agents
+- Include best practices KB relevant to the output type (story-best-practices, epics-best-practices)
+- Prompt should mention KBs are "attached at runtime" — agent doesn't fetch them
+
+## Sprint/Delivery Structure (for Epics Generator)
+
+When decomposing into epics:
+- Structure for 4 x 2-week sprints (production-deployable at each sprint end)
+- Sprint 1: Foundation (auth, design system, data models)
+- Sprint 2: Core flows (primary capabilities)
+- Sprint 3: Value-add (secondary capabilities)
+- Sprint 4: Polish & cross-cutting (error handling, resilience)
+- Include `sprint_allocation`, `nfr_mapping`, `traceability_matrix`, `coverage_matrix` in output
+- Epics must be business capabilities (not technical layers)
 
 ## INSUFFICIENT_CONTEXT Pattern
 
