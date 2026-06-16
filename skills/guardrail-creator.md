@@ -1,5 +1,5 @@
 ---
-name: guardrail-standards
+name: guardrail-creator
 description: Standard structure, patterns, and conventions for creating guardrails in the Agent Factory. Use this whenever asked to create, modify, or review a guardrail — apply this exact structure, naming, and implementation pattern.
 trigger: When the user asks to create a guardrail, implement a guardrail, review guardrail code, or asks about guardrail patterns and standards.
 ---
