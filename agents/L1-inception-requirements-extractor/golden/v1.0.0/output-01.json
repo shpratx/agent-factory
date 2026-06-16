@@ -5,7 +5,7 @@
   "input_summary": {
     "source": "file_upload",
   },
-  "output": {
+  "content": {
     "type": "requirements",
     "items": {
       "functional_requirements": [

@@ -9,7 +9,7 @@
     "source_agent_id": null,
     "parameters": {"idea": "something with AI"}
   },
-  "output": {
+  "content": {
     "type": "requirements",
     "schema_version": "1.0",
     "items": {

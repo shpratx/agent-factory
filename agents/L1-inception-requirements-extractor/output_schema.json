@@ -17,7 +17,7 @@
         "parameters": {"type": "object"}
       }
     },
-    "output": {
+    "content": {
       "type": "object",
       "required": ["type", "schema_version", "items", "execution_summary"],
       "properties": {

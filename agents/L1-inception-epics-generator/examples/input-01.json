@@ -48,11 +48,7 @@
             "id": "FR-05",
             "title": "Monthly Score Refresh",
             "description": "The system shall refresh the customer's credit score at least monthly, with refresh frequency configurable per CRA agreement.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall refresh score at least monthly (configurable per CRA agreement)",
               "source_location": "Section 6.1 Credit Score Dashboard & Monitoring (FR-1.5)"
@@ -63,11 +59,7 @@
             "id": "FR-06",
             "title": "Explain Score Changes",
             "description": "The system shall explain score changes between refresh periods by identifying and presenting the specific contributing factors.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall explain score changes with specific contributing factors",
               "source_location": "Section 6.1 Credit Score Dashboard & Monitoring (FR-1.6)"
@@ -78,11 +70,7 @@
             "id": "FR-07",
             "title": "Generate Ranked Improvement Actions",
             "description": "The system shall generate a ranked list of credit improvement actions based on the customer's specific credit profile, ordered by estimated impact.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall generate ranked improvement actions based on customer's credit profile",
               "source_location": "Section 6.2 Personalised Credit Improvement Action Plans (FR-2.1)"
@@ -93,11 +81,7 @@
             "id": "FR-08",
             "title": "Estimated Point Impact and Timeframe per Action",
             "description": "Each improvement action shall include an estimated credit score point impact and an estimated timeframe for the improvement to materialise.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Each action shall include estimated point impact and estimated timeframe",
               "source_location": "Section 6.2 Personalised Credit Improvement Action Plans (FR-2.2)"
@@ -108,11 +92,7 @@
             "id": "FR-09",
             "title": "Track Action Completion",
             "description": "The system shall track completion of improvement actions and update the action plan accordingly when actions are completed.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall track action completion and update plan accordingly",
               "source_location": "Section 6.2 Personalised Credit Improvement Action Plans (FR-2.3)"
@@ -123,11 +103,7 @@
             "id": "FR-10",
             "title": "Celebrate Milestones",
             "description": "The system shall celebrate milestones when score thresholds are reached or actions are completed, providing positive reinforcement to the customer.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall celebrate milestones (score thresholds reached, actions completed)",
               "source_location": "Section 6.2 Personalised Credit Improvement Action Plans (FR-2.4)"
@@ -138,11 +114,7 @@
             "id": "FR-11",
             "title": "Dynamic Plan Updates",
             "description": "The improvement action plans shall update dynamically as the customer's credit profile changes over time.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Plans shall update dynamically as the customer's profile changes",
               "source_location": "Section 6.2 Personalised Credit Improvement Action Plans (FR-2.5)"
@@ -153,11 +125,7 @@
             "id": "FR-12",
             "title": "Credit Score Simulation Scenarios",
             "description": "The system shall support simulation of the following scenarios: paying down debt, closing accounts, opening new credit, missed payments, and reducing utilisation.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall support simulation of: paying down debt, closing accounts, opening new credit, missed payments, reducing utilisation",
               "source_location": "Section 6.3 Credit Score Simulator (FR-3.1)"
@@ -168,11 +136,7 @@
             "id": "FR-13",
             "title": "Simulation Returns Score Impact and Confidence",
             "description": "Simulations shall return an estimated score impact value and a confidence level indicating the reliability of the estimate.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Simulations shall return estimated score impact and confidence level",
               "source_location": "Section 6.3 Credit Score Simulator (FR-3.2)"
@@ -183,11 +147,7 @@
             "id": "FR-14",
             "title": "Label Simulation Results as Estimates",
             "description": "The system shall clearly label all simulation results as estimates, not guarantees of future score changes.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall clearly label results as estimates, not guarantees",
               "source_location": "Section 6.3 Credit Score Simulator (FR-3.3)"
@@ -198,11 +158,7 @@
             "id": "FR-15",
             "title": "Natural Language Scenario Input",
             "description": "The system shall allow customers to input simulation scenarios using natural language (e.g., 'What if I pay off my overdraft?').",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall allow natural language scenario input ('What if I pay off my overdraft?')",
               "source_location": "Section 6.3 Credit Score Simulator (FR-3.4)"
@@ -213,11 +169,7 @@
             "id": "FR-16",
             "title": "Match Customer Profile Against Lending Criteria",
             "description": "The system shall match the customer's credit profile against Lloyds' lending product eligibility criteria to identify qualifying products.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall match customer credit profile against Lloyds lending criteria",
               "source_location": "Section 6.4 Pre-Approved Offers Engine (FR-4.1)"
@@ -228,11 +180,7 @@
             "id": "FR-17",
             "title": "Guaranteed Pre-Approved Offers",
             "description": "Offers presented to customers shall be guaranteed \u2014 the customer will not be declined if they apply within the offer validity period.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Offers presented shall be guaranteed (customer will not be declined if they apply)",
               "source_location": "Section 6.4 Pre-Approved Offers Engine (FR-4.2)"
@@ -243,11 +191,7 @@
             "id": "FR-18",
             "title": "Contextual Offer Presentation",
             "description": "The system shall present pre-approved offers at contextually appropriate moments within the customer's credit coaching journey.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall present offers at contextually appropriate moments",
               "source_location": "Section 6.4 Pre-Approved Offers Engine (FR-4.3)"
@@ -258,11 +202,7 @@
             "id": "FR-19",
             "title": "One-Tap Application with Pre-Filled Data",
             "description": "The system shall support one-tap application for pre-approved offers with customer data pre-filled from existing Lloyds records.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall support one-tap application with pre-filled customer data",
               "source_location": "Section 6.4 Pre-Approved Offers Engine (FR-4.4)"
@@ -273,11 +213,7 @@
             "id": "FR-20",
             "title": "Offer Audit Trail",
             "description": "The system shall maintain a full audit trail of all offers presented to customers and all customer actions taken on those offers.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall maintain full audit trail of offers presented and customer actions",
               "source_location": "Section 6.4 Pre-Approved Offers Engine (FR-4.5)"
@@ -288,11 +224,7 @@
             "id": "FR-21",
             "title": "Credit Utilisation Threshold Alerts",
             "description": "The system shall alert the customer when their credit utilisation approaches configurable thresholds (e.g., 50%, 75%, 90%).",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall alert when credit utilisation approaches configurable thresholds",
               "source_location": "Section 6.5 Proactive Credit Health Alerts (FR-5.1)"
@@ -318,11 +250,7 @@
             "id": "FR-23",
             "title": "Product Eligibility Notifications",
             "description": "The system shall notify the customer when score improvements unlock eligibility for new Lloyds lending products.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "System shall notify when score improvements unlock new product eligibility",
               "source_location": "Section 6.5 Proactive Credit Health Alerts (FR-5.3)"
@@ -333,11 +261,7 @@
             "id": "FR-24",
             "title": "Alert Preference Configuration and Opt-Out",
             "description": "The customer shall be able to configure alert preferences (types, frequency, channels) and opt out of any or all alerts.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Customer shall be able to configure alert preferences and opt out",
               "source_location": "Section 6.5 Proactive Credit Health Alerts (FR-5.4)"
@@ -348,11 +272,7 @@
             "id": "FR-25",
             "title": "CRA Score Normalisation",
             "description": "The system shall normalise credit scores from different CRA scales (Experian 0-1250, Equifax 0-1000, TransUnion 0-710) into a consistent customer-facing representation, or clearly label which bureau's score is displayed.",
-            "user_facing": true,
             "priority": "Should-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "The Credit Coach must normalise these into a consistent customer-facing representation, or clearly label which bureau's score is displayed",
               "source_location": "Section 9.1 CRA Score Context"
@@ -363,11 +283,7 @@
             "id": "FR-26",
             "title": "Conversational Credit Queries",
             "description": "The system shall support natural language queries about credit health through the existing Financial Assistant conversational interface.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Conversational interface (natural language queries about credit)",
               "source_location": "Section 4.1 In Scope"
@@ -378,11 +294,7 @@
             "id": "FR-27",
             "title": "Score History and Trend Visualisation",
             "description": "The system shall provide visual representation of credit score history showing trends over time.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Score history and trend visualisation",
               "source_location": "Section 4.1 In Scope"
@@ -393,11 +305,7 @@
             "id": "FR-28",
             "title": "Cross-Lender Debt Visibility",
             "description": "The system shall display cross-lender debt information sourced from CRA data, giving the customer a complete picture of their total indebtedness.",
-            "user_facing": true,
             "priority": "Should-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Cross-lender debt visibility (via CRA data)",
               "source_location": "Section 4.1 In Scope"
@@ -408,11 +316,7 @@
             "id": "FR-29",
             "title": "Explicit Consent Capture for CRA Data",
             "description": "The system shall capture explicit opt-in consent from the customer before retrieving any CRA data, with separate consent per CRA where multiple bureaux are used.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Explicit consent for CRA data retrieval (not legitimate interest \u2014 too intrusive for external credit data)",
               "source_location": "Section 8.3 UK GDPR (Lawful basis)"
@@ -423,11 +327,7 @@
             "id": "FR-30",
             "title": "Right to Erasure of Score History",
             "description": "The system shall allow the customer to delete their stored score history and opt out of the Credit Coach service at any time.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Customer can delete score history and opt out at any time; CRA data not retained beyond refresh cycle",
               "source_location": "Section 8.3 UK GDPR (Right to erasure)"
@@ -438,11 +338,7 @@
             "id": "FR-31",
             "title": "Automated Decision Explanation and Human Review",
             "description": "The system shall provide meaningful information about the logic, significance, and consequences of automated profiling for pre-approved offers, and shall offer a route to human review.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Must provide meaningful information about logic, significance, and consequences; must offer human review route",
               "source_location": "Section 8.3 UK GDPR (Automated decision-making)"
@@ -453,11 +349,7 @@
             "id": "FR-32",
             "title": "Pre-Contract Information for Offers (SECCI)",
             "description": "The system shall provide adequate pre-contract explanations via the Standard European Consumer Credit Information form (SECCI) for any pre-approved offer for a regulated credit agreement.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Pre-approved offers for regulated credit agreements must include adequate pre-contract explanations via the Standard European Consumer Credit Information form (SECCI)",
               "source_location": "Section 8.4 Consumer Credit Act 1974 (Pre-contract information)"
@@ -468,11 +360,7 @@
             "id": "FR-33",
             "title": "Cooling-Off Period Communication",
             "description": "The system shall clearly communicate the 14-day withdrawal right at the point of offer acceptance, including that the customer can cancel without giving a reason.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "14-day withdrawal right must be clearly communicated at point of offer acceptance. Customer can cancel without giving reason.",
               "source_location": "Section 8.4 Consumer Credit Act 1974 (Cooling-off period)"
@@ -483,11 +371,7 @@
             "id": "FR-34",
             "title": "Financial Promotion Compliance for Offers",
             "description": "Pre-approved offers that constitute financial promotions shall include representative APR, representative example, total amount payable, and give equal prominence to risks.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Pre-approved offers are financial promotions and must be clear, fair, and not misleading. Must include representative APR, representative example, and give equal prominence to risks.",
               "source_location": "Section 8.2 FCA CONC 3 \u2014 Financial promotions"
@@ -498,11 +382,7 @@
             "id": "FR-35",
             "title": "Affordability Assessment for Pre-Approved Offers",
             "description": "Pre-approved offers shall be based on adequate creditworthiness assessment covering both credit risk (likelihood of default) and affordability (ability to repay without hardship), not just credit score.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Pre-approved offers must be based on adequate creditworthiness assessment covering both credit risk and affordability \u2014 not just credit score",
               "source_location": "Section 8.2 FCA CONC 5 \u2014 Creditworthiness"
@@ -513,11 +393,7 @@
             "id": "FR-36",
             "title": "Vulnerability Detection and Debt Advice Signposting",
             "description": "The system shall detect vulnerability indicators and signpost customers in financial difficulty to free debt advice services (StepChange, Citizens Advice, National Debtline). Alerts must not pressure customers showing signs of financial distress.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Alerts must not pressure customers in financial difficulty; must signpost to free debt advice (StepChange, Citizens Advice). Credit Coach must detect vulnerability indicators.",
               "source_location": "Section 8.2 FCA CONC 7 \u2014 Arrears and default"
@@ -528,11 +404,7 @@
             "id": "FR-37",
             "title": "Suppress Offers During Financial Distress",
             "description": "The system shall not present pre-approved offers to customers showing signs of financial distress, to avoid encouraging over-borrowing.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Simulator must not encourage over-borrowing; pre-approved offers must include affordability warnings; must not present offers to customers showing signs of financial distress",
               "source_location": "Section 8.1 FCA Consumer Duty (Avoid causing foreseeable harm)"
@@ -543,11 +415,7 @@
             "id": "FR-38",
             "title": "Unbiased Improvement Recommendations",
             "description": "Credit improvement action plans shall genuinely benefit the customer and not be biased toward driving Lloyds lending revenue.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Improvement plans must genuinely benefit the customer, not just drive lending revenue. Recommendations must be unbiased.",
               "source_location": "Section 8.1 FCA Consumer Duty (Act in good faith)"
@@ -558,11 +426,7 @@
             "id": "FR-39",
             "title": "Orchestrator Integration",
             "description": "The Credit Coach agent shall integrate with the existing Financial Assistant agentic orchestrator, which routes credit-related queries to the Credit Coach agent.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Credit Coach is a module within FA, not a separate chat. Orchestrator routes credit queries to Credit Coach agent",
               "source_location": "Section 10 Overlap Resolution"
@@ -573,11 +437,7 @@
             "id": "FR-40",
             "title": "Transparency at Point of Data Collection",
             "description": "The system shall inform customers at the point of data collection about automated processing, including profiling for credit purposes, the logic involved, and consequences.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Must inform customers at point of data collection about automated processing, including profiling for credit purposes",
               "source_location": "Section 8.3 UK GDPR (Transparency)"
@@ -588,11 +448,7 @@
             "id": "FR-41",
             "title": "Human Escalation Path",
             "description": "The system shall provide an escalation path to a human adviser for complex credit situations and edge cases.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Escalation path to human adviser for complex credit situations; human-in-the-loop for edge cases",
               "source_location": "Section 8.5 BoE/PRA/FCA Joint Feedback on AI/ML (Human oversight)"
@@ -603,11 +459,7 @@
             "id": "FR-42",
             "title": "Data Separation Between Bank and CRA Data",
             "description": "The system shall keep Lloyds transaction data and CRA data in separate data domains, combining them only in the presentation/coaching layer and never co-mingling in storage.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Lloyds transaction data and CRA data are kept in separate domains. They are combined only in the presentation/coaching layer, never co-mingled in storage.",
               "source_location": "Section 9.2 Data Domains (Key principle)"
@@ -618,11 +470,7 @@
             "id": "FR-43",
             "title": "Purpose Limitation for CRA Data",
             "description": "CRA data retrieved by the Credit Coach shall be used only for credit coaching purposes and shall not be cross-sold to marketing without separate explicit consent.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "CRA data used only for credit coaching; not cross-sold to marketing without separate consent",
               "source_location": "Section 8.3 UK GDPR (Purpose limitation)"
@@ -633,11 +481,7 @@
             "id": "FR-44",
             "title": "Data Minimisation for CRA Retrieval",
             "description": "The system shall retrieve only the credit score and factors needed for coaching, not the full credit report, unless the customer explicitly requests it.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Retrieve only score and factors needed, not full credit report unless customer requests",
               "source_location": "Section 8.3 UK GDPR (Data minimisation)"
@@ -648,11 +492,7 @@
             "id": "FR-45",
             "title": "Pre-Qualification Gate for FA Product Recommendations",
             "description": "The Credit Coach shall act as a pre-qualification gate \u2014 the Financial Assistant shall only show lending products the customer actually qualifies for based on their credit profile, eliminating embarrassing declines.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Credit Coach acts as a pre-qualification gate \u2014 FA only shows products the customer actually qualifies for",
               "source_location": "Section 10: Overlap Resolution with Existing Financial Assistant"
@@ -663,11 +503,7 @@
             "id": "FR-46",
             "title": "Unified Recommendation Engine",
             "description": "The system shall implement a unified recommendation engine that weighs both spending/savings perspectives (from existing FA) and credit health perspectives (from Credit Coach). Credit health shall take priority when the customer's score is below a configurable threshold.",
-            "user_facing": false,
             "priority": "Should-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Unified recommendation engine weighs both perspectives. Credit health takes priority when score is below threshold.",
               "source_location": "Section 10: Overlap Resolution with Existing Financial Assistant"
@@ -678,11 +514,7 @@
             "id": "FR-47",
             "title": "Spending-to-Credit Impact Connection",
             "description": "The Credit Coach shall connect spending insights from the existing Financial Assistant to credit impact \u2014 e.g., 'Reducing dining by \u00a3150/month improves affordability by 12%' \u2014 providing actionable credit improvement context to existing spending data.",
-            "user_facing": true,
             "priority": "Should-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "\"Reducing dining by \u00a3150/month improves affordability by 12%\" \u2014 Spending insight \u2192 actionable credit improvement",
               "source_location": "Section 3.2: How It Augments the Existing Assistant"
@@ -693,11 +525,7 @@
             "id": "FR-48",
             "title": "Breathing Space Compliance",
             "description": "The system shall detect when a customer enters Breathing Space (Debt Respite Scheme 2021) and automatically: freeze all credit-related alerts, suppress pre-approved offers, stop proactive communications about credit, and freeze any interest/charges on Lloyds products surfaced through the Credit Coach.",
-            "user_facing": false,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Alerts must not pressure customers in financial difficulty; must signpost to debt advice",
               "source_location": "Section 8.2: FCA CONC 7 \u2014 Arrears and default"
@@ -708,11 +536,7 @@
             "id": "FR-49",
             "title": "Data Subject Access Request Support",
             "description": "The system shall support Data Subject Access Requests (DSARs) by enabling export of all credit coaching data held about a customer \u2014 including score history, action plans, simulation history, offers presented, consent records, and alert history \u2014 within 1 calendar month of request.",
-            "user_facing": true,
             "priority": "Must-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Customer can delete score history and opt out at any time",
               "source_location": "Section 8.3: UK GDPR, Data Protection Act 2018 & Data (Use and Access) Act 2025"
@@ -723,11 +547,7 @@
             "id": "FR-50",
             "title": "Multi-Bureau Score Comparison",
             "description": "The system shall support retrieval and display of credit scores from multiple CRAs (Experian, Equifax, TransUnion) simultaneously, enabling customers to compare their scores across bureaus.",
-            "user_facing": true,
             "priority": "Nice-to-Have",
-            "baseline_classification": "new",
-            "baseline_reference": null,
-            "baseline_impact": null,
             "citation": {
               "source_reference": "Phase 5 \u2014 Optimise: Multi-bureau comparison, advanced alerts, cross-product recommendations",
               "source_location": "Section 12: Phased Delivery Roadmap"

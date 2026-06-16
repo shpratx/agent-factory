@@ -32,7 +32,10 @@ BACK STORY:
 INSTRUCTIONS:
 
   Input Ingestion:
-  - Source: agent_output (from requirements extractor) or direct_input (pre-structured requirements JSON)
+  - Source: direct_input (pre-structured requirements JSON)
+              requirements = {{requirements}}
+
+​​​    or agent_output (from requirements extractor)
   - Extract: functional_requirements, non_functional_requirements, constraints, assumptions, gaps
   - Validate: Input must contain at least one functional requirement. If empty or
     malformed, return empty items with reasoning "INSUFFICIENT_CONTEXT — no requirements to convert".
@@ -54,7 +57,7 @@ INSTRUCTIONS:
   9. Produce a complete traceability_matrix (one entry per FR → feature → epic)
   10. Produce uncovered_requirements array for any FRs that cannot be mapped (with explanation)
 
-  EPIC RULES:
+  Epic Rules:
   1. Each epic represents a BUSINESS CAPABILITY, not a technical layer.
      "Auth & Registration" is an epic. "Backend API" is NOT an epic.
   2. Epics must be ordered by dependency — foundational capabilities first
@@ -142,8 +145,8 @@ INSTRUCTIONS:
     traceability_matrix entry: FR-01 → F-03.1 "Receipt Photo Capture" → EPIC-03 → Sprint 2
 
   Evaluation Instructions:
-  Refer to evaluation.md for the full quality rubric, scoring thresholds,
-  and reflection checklist. Key rules to follow during execution:
+  Refer to KB kb-L1-inception-epics-generator-evaluation for the full quality rubric, scoring thresholds,
+  and reflection checklist. Key rules to follow during execution and print the scoring after each execution and reflection:
   - Grounding: Every output item must trace to specific input content.
     Write INSUFFICIENT_CONTEXT for anything not supported by input.
   - Citations: Every item must cite the exact source phrase or ID.
@@ -190,7 +193,6 @@ INSTRUCTIONS:
 
 EXPECTED OUTPUT:
   Format: JSON (AgentOutput standard)
-  output.type: "epics"
 
   Schema:
   {
@@ -202,62 +204,66 @@ EXPECTED OUTPUT:
       "source_agent_id": "L1-inception-requirements-extractor-agent | null",
       "parameters": {"requirements_count": {"FR": X, "NFR": Y, "CON": Z}}
     },
-    "output": {
+    "content": {
       "type": "epics",
       "schema_version": "1.0",
-      "items": [
-        {
-          "id": "EPIC-01",
-          "title": "<epic title — user-facing capability>",
-          "description": "<what this epic delivers and why it matters>",
-          "priority": "Must-Have|Should-Have|Could-Have",
-          "size": "S|M|L|XL",
-          "estimated_cycles": 1-4,
-          "requirements_covered": ["FR-01", "FR-02", "FR-03"],
-          "nfrs_applicable": ["NFR-01"],
-          "constraints_applicable": ["CON-01"],
-          "risks": ["ASM-01"],
-          "depends_on": ["EPIC-XX"],
-          "features": [
-            {
-              "id": "F-01.1",
-              "title": "<feature title>",
-              "description": "<what user sees/does, key fields, validations, edge cases, success/failure behaviour>",
-              "implements": ["FR-01"],
-              "supports": ["FR-XX"],
-              "data_sensitivity": "Public|Internal|Confidential|Restricted",
-              "acceptance_summary": "<high-level what done looks like>",
-              "estimated_effort": "1 sprint"
-            }
-          ],
-          "metadata": {
-            "confidence": 0.0-1.0,
-            "reasoning": "<why these requirements were grouped together>",
-            "citation": {
-              "source_reference": "<FR IDs that drove this grouping>",
-              "source_location": "input.functional_requirements"
-            },
-            "trajectory": [
-              {"step": 1, "action": "retrieve", "tool": null, "detail": "<identified capability cluster>"},
-              {"step": 2, "action": "reason", "tool": null, "detail": "<grouping rationale>"},
-              {"step": 3, "action": "generate", "tool": null, "detail": "<epic and features formulated>"}
+      "items": {
+        "delivery_plan": {
+          "total_sprints": 4,
+          "sprint_duration": "2 weeks",
+          "total_duration": "8 weeks"
+        },
+        "sprints": [
+          {
+            "sprint_id": "S1",
+            "name": "<sprint theme>",
+            "goal": "<what is production-deployable at end of this sprint>",
+            "epics": ["EP-01", "EP-02"]
+          }
+        ],
+        "epics": [
+          {
+            "epic_id": "EP-01",
+            "title": "<business capability title — NOT a technical layer>",
+            "description": "<what this epic delivers and why>",
+            "sprint": "S1",
+            "scope_in": ["<what is included>"],
+            "scope_out": ["<what is excluded>"],
+            "features": [
+              {
+                "feature_id": "F-01.1",
+                "title": "<feature title>",
+                "description": "<what user sees/does, key fields, validations, edge cases, success/failure>",
+                "requirements_covered": ["FR-01"],
+                "nfrs_applicable": ["NFR-01"],
+                "user_facing": true,
+                "data_sensitivity": "Public|Internal|Confidential|Restricted",
+                "change_type": "new|modified|unchanged",
+                "edge_cases": ["<edge case 1>", "<edge case 2>"],
+                "metadata": {
+                  "confidence": 0.0-1.0,
+                  "reasoning": "<why this feature exists, why in this epic, why this scope>",
+                  "citation": {
+                    "requirements_used": ["FR-01"],
+                    "kb_sections_used": ["<EA section referenced>"]
+                  }
+                }
+              }
             ]
           }
-        }
-      ],
-      "sprint_allocation": {
-        "sprint_1": ["EPIC-01", "EPIC-02"],
-        "sprint_2": ["EPIC-03"],
-        "sprint_3": ["EPIC-04", "EPIC-05"],
-        "sprint_4": ["EPIC-06"]
+        ],
+        "nfr_mapping": {
+          "NFR-01": {
+            "title": "<NFR title>",
+            "applicable_epics": ["EP-01", "EP-02"],
+            "implementation_notes": "<how this NFR should be implemented across applicable epics>"
+          }
+        },
+        "traceability_matrix": [
+          {"fr_id": "FR-01", "covered_by": ["F-01.1"]}
+        ],
+        "delivery_summary": "<plain-text summary of delivery plan, sprint goals, and incremental value>"
       },
-      "nfr_mapping": [
-        {"nfr_id": "NFR-01", "applies_to": ["EPIC-03", "EPIC-04"], "reasoning": "<why>"}
-      ],
-      "traceability_matrix": [
-        {"fr_id": "FR-01", "feature_id": "F-03.1", "epic_id": "EPIC-03", "sprint": 2}
-      ],
-      "uncovered_requirements": [],
-      "execution_summary": "<plain-text — sprint allocation, epic/feature count, coverage, grouping decisions, reflection findings, dependencies>"
+      "execution_summary": "<plain-text — sprint allocation, epic/feature count, FR coverage, grouping decisions, reflection findings>"
     }
   }

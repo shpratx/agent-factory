@@ -41,8 +41,9 @@ contract:
 
 context:
   knowledge_bases:
-    - kb-L1-enterprise-architecture    # Enterprise architecture standards and technology constraints
-    - kb-L0-epics-best-practices       # Epic and feature decomposition best practices
+    - kb-L1-ntuc-enterprise-architecture    # Enterprise architecture standards and technology constraints
+    - kb-L1-epics-best-practices       # Epic and feature decomposition best practices
+    - kb-L1-inception-epics-generator-evaluation
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection

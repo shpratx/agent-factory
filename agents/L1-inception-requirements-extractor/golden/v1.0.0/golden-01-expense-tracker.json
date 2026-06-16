@@ -9,7 +9,7 @@
     "source_agent_id": null,
     "parameters": {"idea": "We want to build a mobile expense tracker app for small business owners..."}
   },
-  "output": {
+  "content": {
     "type": "requirements",
     "schema_version": "1.0",
     "items": {

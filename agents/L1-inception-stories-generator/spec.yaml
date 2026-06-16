@@ -2,7 +2,7 @@
 spec_version: "1.0"
 artifact_type: agent
 metadata:
-  name: L1-inception-stories-generator-agent
+  name: L1-inception-stories-generator
   version: "1.0.0"
   layer: L1
   phase: inception
@@ -41,7 +41,9 @@ contract:
 
 context:
   knowledge_bases:
-    - kb-L1-enterprise-architecture
+    - kb-L1-ntuc-enterprise-architecture
+    - kb-L1-story-best-practices
+    - kb-L1-inception-stories-generator-evaluation
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection
