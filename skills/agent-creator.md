@@ -9,7 +9,7 @@ trigger: When the user asks to create a new agent, build an agent, implement an 
 ## Naming Convention
 
 ```
-L{layer}-{phase}-{function}-agent
+L{layer}-{phase}-{function}
 ```
 
 - `L1` = Enterprise (generic, works for any domain)
@@ -19,10 +19,20 @@ L{layer}-{phase}-{function}-agent
 - `{phase}` = SDLC phase: inception | design | construction | testing | deployment
 - `{function}` = kebab-case description of what the agent does
 
+**Reference:** See `01-agent-development-naming-standard.html` for the full naming guide.
+
+Patterns per layer:
+- L1: `L1-{phase}-{function}`
+- L2: `L2-{domain}-{phase}-{function}`
+- L3: `L3-{project}-{phase}-{function}`
+- L4: `L4-{squad}-{phase}-{function}`
+
 Examples:
-- `L1-inception-requirements-extractor-agent`
-- `L1-inception-epics-generator-agent`
-- `L2-payments-inception-story-generator-agent`
+- `L1-inception-requirements-extractor`
+- `L1-inception-epics-generator`
+- `L2-payments-inception-story-generator`
+- `L3-kyc-inception-story-generator`
+- `L4-squad-alpha-inception-story-generator`
 
 ## File Structure (mandatory for every agent)
 
@@ -77,7 +87,7 @@ contract:
   output_schema: "$ref: schemas/agent-output-schema.json"
 
   input:
-    accepts_from_agents: [{upstream-agent} | any]
+    accepts_from_agents: [{upstream-agent-name} | any]
     accepts_direct_input: true
     accepts_file_upload:
       enabled: true|false

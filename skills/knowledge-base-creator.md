@@ -13,20 +13,28 @@ kb-L{layer}-{scope}
 ```
 
 - `kb-` prefix always
-- `L0` = Agent platform standards (applies to ALL agents regardless of domain)
-- `L1` = Enterprise standards (technology, architecture, coding, testing)
+- `L1` = Enterprise standards (technology, architecture, coding, testing, agent platform standards)
 - `L2` = Domain/LOB (domain-specific business rules, regulations, terminology)
 - `L3` = Project/Initiative (project baselines, ADRs, API contracts)
 - `L4` = Squad/Local (team conventions, repo structure)
 - `{scope}` = kebab-case description of what the KB covers
 
+**Reference:** See `01-agent-development-naming-standard.html` for the full naming guide.
+
+Patterns per layer:
+- L1: `kb-L1-{scope}`
+- L2: `kb-L2-{domain}-{scope}`
+- L3: `kb-L3-{project}-{scope}`
+- L4: `kb-L4-{squad}-{scope}`
+
 Examples:
-- `kb-L0-agent-quality-standards`
 - `kb-L1-golang-api-standards`
 - `kb-L1-enterprise-architecture`
+- `kb-L2-payments-domain-model`
 - `kb-L2-early-childhood-education-domain`
-- `kb-L2-payments-lending-domain`
+- `kb-L3-kyc-api-contracts`
 - `kb-L3-application-baseline`
+- `kb-L4-squad-alpha-conventions`
 
 ## Folder Structure
 
@@ -182,7 +190,7 @@ visibility:
 9. Terminology glossary
 10. Compliance rules (what system MUST enforce)
 
-### Enterprise Architecture KB (L0/L1)
+### Enterprise Architecture KB (L1)
 1. Organisation overview
 2. Technology stack (full table)
 3. Core application details (users, stats, SLAs)
@@ -220,13 +228,12 @@ visibility:
 
 | Layer | Scope | Owned By | Accessible By |
 |-------|-------|----------|---------------|
-| L0 | Platform-wide (all agents) | Agentic-AI CoE | All layers |
-| L1 | Enterprise (any domain) | Agentic-AI CoE | L1, L2, L3, L4 |
+| L1 | Enterprise (any domain, platform standards) | Agentic-AI CoE | All layers |
 | L2 | Domain-specific | Domain AI Champion | L2, L3, L4 |
 | L3 | Project-specific | Project Lead | L3, L4 |
 | L4 | Squad-specific | Squad | L4 only |
 
-An L4 agent sees: L0 + L1 + L2 + L3 + L4 KBs (all layers at or above).
+An L4 agent sees: L1 + L2 + L3 + L4 KBs (all layers at or above).
 
 ## Quality Checklist Before Publishing
 

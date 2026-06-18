@@ -9,7 +9,7 @@ trigger: When the user asks to create a tool, implement a tool integration, or a
 ## Naming Convention
 
 ```
-L{layer}-{platform}-{action}
+tool-L{layer}-{platform}-{action}
 ```
 
 - `L1` = Enterprise (shared across all agents — Jira, GitHub, Confluence, etc.)
@@ -19,13 +19,23 @@ L{layer}-{platform}-{action}
 - `{platform}` = target system (jira, github, confluence, sendgrid, ecda)
 - `{action}` = kebab-case operation (create-issue, fetch-user, send-email)
 
+**Reference:** See `01-agent-development-naming-standard.html` for the full naming guide.
+
+Patterns per layer:
+- L1: `tool-L1-{platform}-{action}`
+- L2: `tool-L2-{domain}-{platform}-{action}`
+- L3: `tool-L3-{project}-{platform}-{action}`
+- L4: `tool-L4-{squad}-{platform}-{action}`
+
 Examples:
-- `L1-jira-create-issue`
-- `L1-jira-fetch-issue`
-- `L1-github-create-pr`
-- `L1-sendgrid-send-email`
-- `L2-ecda-submit-attendance`
-- `L2-payments-initiate-transfer`
+- `tool-L1-jira-create-issue`
+- `tool-L1-jira-fetch-issue`
+- `tool-L1-github-create-pr`
+- `tool-L1-sendgrid-send-email`
+- `tool-L2-payments-swift-send-message`
+- `tool-L2-ecda-submit-attendance`
+- `tool-L3-kyc-lexisnexis-verify-identity`
+- `tool-L4-squad-alpha-jenkins-trigger-build`
 
 ## Core Principles
 
@@ -43,7 +53,7 @@ Examples:
 ## Folder Structure
 
 ```
-tools/{tool-name}/
+tools/tool-L{n}-{platform}-{action}/
 ├── spec.yaml              # Tool specification (interface, credentials, resilience)
 ├── tool.py                # Implementation (Python)
 ├── tool_test.py           # Unit tests (mocked API calls)
@@ -56,7 +66,7 @@ tools/{tool-name}/
 spec_version: "1.0"
 artifact_type: tool
 metadata:
-  name: L{n}-{platform}-{action}
+  name: tool-L{n}-{platform}-{action}
   version: "1.0.0"
   layer: L{n}
   owner: agentic-ai-coe
