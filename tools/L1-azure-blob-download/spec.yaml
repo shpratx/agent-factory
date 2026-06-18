@@ -1,0 +1,54 @@
+spec_version: "1.0"
+artifact_type: tool
+metadata:
+  name: L1-azure-blob-download
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+
+purpose:
+  description: "Downloads a document from a specific folder in Azure Blob Storage"
+  platform: azure-blob
+  operation: download-file
+
+interface:
+  parameters:
+    container_name: {type: string, required: true, description: "Azure Blob container name"}
+    folder_path: {type: string, required: true, description: "Virtual folder path (e.g., 'reports/2026')"}
+    file_name: {type: string, required: true, description: "Name of the file to download"}
+
+  returns:
+    type: ToolResult
+    fields:
+      success: boolean
+      data: {file_content: string, content_type: string, size_bytes: integer, last_modified: string}
+      error: {type: string, nullable: true}
+
+credentials:
+  source: secrets-sdk
+  path: "azure-blob"
+  fields_used: [connection_string]
+
+identity:
+  tool_id: "tool-L1-azure-blob-download-001"
+  role: tool-executor
+  invocable_by:
+    roles: [content-generator, orchestrator]
+    agents: []
+  permissions:
+    operation: read
+    platform: azure-blob
+    scope: "container-level"
+  credential_scoping:
+    method: org-from-context
+    vault_path_template: "/secrets/{org_id}/azure-blob"
+
+resilience:
+  timeout_seconds: 60
+  retry: {max: 2, backoff: exponential, retry_on: [timeout, 429, 502, 503]}
+  circuit_breaker: {failure_threshold: 5, reset_seconds: 60}
+
+security:
+  input_validation: "container_name, folder_path, and file_name validated for path traversal attacks"
+  output_sanitization: "Connection string never exposed; file_content returned as base64"
+  logging: "Log container, folder, file_name, size. Never log file_content or credentials."
