@@ -63,6 +63,7 @@ metadata:
   version: "1.0.0"
   layer: L{n}
   owner: {owner}
+  created: "{YYYY-MM-DD}"
   implementation: colang
 
 purpose:
@@ -80,9 +81,12 @@ rules:
     description: "{What this rule checks}"
     action: {block | flag}
     severity: {critical | high | medium}
+    detection: {regex | llm | regex + llm}
 
 evaluation:
   false_positive_threshold: 0.05
+  tuning_notes: |
+    {Notes on pattern disambiguation, edge cases, and false positive mitigations}
 ```
 
 ## config.yml Template
@@ -332,6 +336,158 @@ The two .co modes use **opposite boolean logic**:
 | **Python-hybrid** | `detect_pii()`, `detect_injection()` returns `True` | Violation FOUND | `if $result` → block |
 
 Always check which mode you're in before writing the `if` condition.
+
+## Prompt-Only Mode
+
+For guardrails that run without Python actions — using only `config.yml`, `prompts.yml`, and a `.co` file:
+
+### config.yml Pattern
+
+```yaml
+models:
+  - type: main
+    engine: openai
+    model: gpt-4.1
+    parameters:
+      temperature: 0    # Always 0 for deterministic yes/no
+
+rails:
+  output:
+    flows:
+      - self check output    # NeMo's built-in flow name
+```
+
+### Key Rules for Prompt-Only Mode
+
+1. **Use `self check output` (with spaces)** — this is NeMo's built-in flow name. Custom flow names require a matching `define flow` in the `.co` file.
+2. **NeMo's built-in self_check_output convention:**
+   - LLM answers "yes" → content is **safe**, passes through unchanged
+   - LLM answers "no" → content **violates**, NeMo emits a bot refusal message
+3. **Safe content passes through untouched** — the built-in flow has no "on pass" hook. Only blocked content triggers a bot message.
+4. **Override NeMo's default refusal** — without override, NeMo emits "I'm sorry! I can't respond to this question." Override with `define bot refuse to respond` in the `.co` file.
+5. **Set `temperature: 0`** — ensures deterministic yes/no responses. Without this, the LLM may produce reasoning text that NeMo can't parse, causing blanket blocking.
+6. **Prompt must end with clear yes/no instruction** — no chain-of-thought, no "think step by step". NeMo parses only the first word of the response.
+7. **Input rails are aggressive** — `self check input` tends to over-block in prompt-only mode. Prefer output-only rails unless input filtering is critical.
+
+### .co Override Pattern (Structured JSON on Block)
+
+```colang
+# Override NeMo's default refusal with structured JSON
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"...\", \"severity\": \"high\", \"category\": \"...\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"...\", \"severity\": \"high\", \"category\": \"...\", \"rail\": \"output\"}"
+```
+
+### prompts.yml Rules for Prompt-Only
+
+```yaml
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response contains {violation type}.
+
+      Bot response: "{{ bot_response }}"
+
+      Flag ONLY if: {specific criteria}
+
+      Do NOT flag: {explicit carve-outs to reduce false positives}
+
+      Answer "yes" if the response is safe.
+      Answer "no" if the response contains violations.
+```
+
+Critical prompt rules:
+- **No chain-of-thought** — "Think step by step" causes the LLM to emit reasoning before yes/no, which NeMo can't parse
+- **Explicit carve-outs** — list what is acceptable to prevent false positives on edge cases
+- **"Flag ONLY if"** phrasing — makes the LLM conservative (fewer false positives)
+- **Last two lines must be the yes/no instruction** — NeMo reads the first word of the response
+
+### Common Pitfalls (Prompt-Only Mode)
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Blocks every input | Input rail too sensitive | Remove input rail, use output-only |
+| "I'm sorry! I can't respond" | Default bot message not overridden | Add `define bot refuse to respond` in .co |
+| Blocks safe content | yes/no inverted in prompt | Ensure: yes=safe, no=violation |
+| Inconsistent blocking | Temperature > 0 | Set `temperature: 0` in config |
+| Blocks on reasoning text | "Think step by step" in prompt | Remove chain-of-thought instructions |
+
+## Structured JSON Output Pattern
+
+When guardrails should produce machine-readable output (for dashboards, audit, or downstream processing):
+
+### Block Response Schema
+
+```json
+{
+  "detected": true,
+  "verdict": "rejected",
+  "reason": "Human-readable explanation of what was found",
+  "severity": "critical | high | medium",
+  "category": "slur | stereotype | competence_denial | role_enforcement | ...",
+  "rail": "input | output"
+}
+```
+
+### Implementation Options
+
+| Approach | JSON on Block | JSON on Pass | Requires Python |
+|----------|:---:|:---:|:---:|
+| Built-in `self check output` + bot override | ✅ | ❌ (original passes through) | No |
+| Custom flow with `self_check_output` call | ✅ | ✅ | No |
+| Python-hybrid with `analyse_*` action | ✅ | ✅ | Yes |
+
+For JSON on **both** outcomes, use a custom flow:
+
+```colang
+define flow check output {name}
+  $allowed = execute self_check_output
+
+  if $allowed
+    bot express safe
+    stop
+  else
+    bot express blocked
+    stop
+
+define bot express safe
+  "{\"detected\": false, \"verdict\": \"accepted\", \"reason\": \"No violations found\", ...}"
+
+define bot express blocked
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"...\", ...}"
+```
+
+**Note:** This replaces the original bot response entirely. Use only when the guardrail IS the primary output (e.g., content moderation service), not when it's a pass-through gate.
+
+## Severity-Tiered Detection Pattern
+
+For guardrails with regex detection, organise patterns by severity:
+
+```python
+CRITICAL_PATTERNS = [
+    (r"...", "category", "Human-readable reason"),
+]
+HIGH_PATTERNS = [...]
+MEDIUM_PATTERNS = [...]
+```
+
+This enables:
+- Differentiated logging (`logger.warning("CRITICAL | category=%s", ...)`)
+- Future: severity-based routing (critical=block, medium=warn)
+- Tuning: adjust thresholds per severity without touching all patterns
+
+## False Positive Mitigation
+
+When creating detection patterns:
+
+| Technique | Example |
+|-----------|---------|
+| Require context prefix | `"hoe"` alone → false positive (gardening). Require `"she's a hoe"` |
+| Require negative predicate | `"all women are"` alone → matches "all women are welcome". Require negative adjective after |
+| Explicit carve-outs in prompt | "Do NOT flag: factual discussion, quotes for analysis, diverse personas" |
+| Word boundaries | Always use `\b` to prevent substring matches |
 
 ## Guardrails vs Evaluations
 
