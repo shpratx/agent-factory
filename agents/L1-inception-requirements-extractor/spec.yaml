@@ -2,7 +2,7 @@
 spec_version: "1.0"
 artifact_type: agent
 metadata:
-  name: L1-inception-requirements-extractor-agent
+  name: L1-inception-requirements-extractor
   version: "1.0.0"
   layer: L1
   phase: inception
@@ -16,12 +16,11 @@ purpose:
   business_value: "Transforms unstructured ideas into actionable, structured requirements that downstream agents can consume for story generation, design, and architecture"
 
 prompt:
-  ref: "prompts/L1-inception-requirements-extractor-agent/instructions.md"
+  ref: "prompts/L1-inception-requirements-extractor/instructions.md"
   version: "1.0.0"
   description: "Extracts and categorises requirements with MoSCoW prioritisation"
 
 contract:
-  # Schemas: schemas/agent-input-contract-schema.json & schemas/agent-output-schema.json
   input_schema: "$ref: schemas/agent-input-contract-schema.json"
   output_schema: "$ref: schemas/agent-output-schema.json"
 
@@ -29,23 +28,16 @@ contract:
     accepts_from_agents: [any]
     accepts_direct_input: true
     accepts_file_upload:
-      enabled: false
+      enabled: true
+      formats: [".md", ".txt", ".json", ".pdf"]
     required_parameters:
-      topic: {type: string, max_length: 5000, description: "Topic to state the fact about"}
+      idea: {type: string, description: "Plain-text product idea or vision document"}
+    optional_parameters:
+      domain: {type: string, default: "general", description: "Domain context for prioritisation"}
+      priority_guidance: {type: string, description: "Additional priority context from stakeholder"}
 
   output:
-    type: fact
-    schema_version: "1.0"
-    items_schema:
-      type: object
-      required: [title, description]
-      properties:
-        title: {type: string}
-        description: {type: string, format: "A unique fact is: "}
-    metadata_per_item:
-      confidence: {type: float, range: "0.7"}
-      reasoning: {type: string, description: "Explanation of how the agent arrived at this item"}
-      sources_cited: {type: array, items: {type: string}}
+    $ref: "output_schema.json"
 
 context:
   knowledge_bases:
@@ -59,40 +51,12 @@ context:
   tools: []
 
 quality:
-  evaluation_rubric: requirements-quality-rubric-v1
+  evaluation_ref: "evaluation.md"
   min_score: 7.0
   hallucination_check: true
   consistency_check: true
 
-#performance:
-#  target_latency_seconds: 30
-#  max_token_budget: 8000  # input + output combined
-
-#security:
-#  pii_handling: "Never include real PII in output; use placeholders"
-#  data_classification: "Agent processes Confidential data"
-#  audit_logging: required
-
-#identity:
-#  agent_id: "agt-L1-inception-story-gen-001"       # globally unique, assigned at registration
-#  role: content-generator                            # content-generator | orchestrator | verifier | tool-executor
-#  service_account: "sa-agt-story-gen-001"
-#  credential_path: "platform/agents/sa-agt-story-gen-001"
-
-#  permissions:
-#    tools_allowed: [L1-jira-fetch-issue]             # only tools this agent can invoke
-#    tools_denied: [L1-jira-delete-issue]             # explicit deny list
-#    knowledge_bases_allowed:                          # only KBs this agent can read
-#      - kb-L1-enterprise-security
-#      - kb-L1-sdlc-templates
-#      - kb-L2-payments-domain
-#    agents_can_invoke: []                            # content-generators don't invoke other agents
- #   data_classification_max: Confidential            # max data sensitivity this agent can process
-#    org_scope: ["*"]                                 # L1 agents serve all orgs
-#    can_write_external: false                        # only orchestrators can write to Jira/GitHub
-
 versioning:
-  input_version: "1.0"   # schema version of input
-  output_version: "1.0"  # schema version of output
-  instruction_hash: "sha256:abc123..."  # hash of instructions for drift detection
-#  kb_versions: {kb-L1-enterprise-security: "2.1", kb-L1-enterprise-architecture: "3.0"}
+  input_version: "1.0"
+  output_version: "1.0"
+  instruction_hash: "sha256:pending"

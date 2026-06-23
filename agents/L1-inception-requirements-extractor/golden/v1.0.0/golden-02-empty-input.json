@@ -1,9 +1,11 @@
 {
   "test_id": "golden-02-insufficient-input",
   "description": "Correct handling of vague, insufficient input — extracts nothing, flags the entire input as a gap",
-  "agent_id": "L1-inception-requirements-extractor-agent",
+  "agent_id": "L1-inception-requirements-extractor",
   "agent_version": "1.0.0",
   "execution_id": "exec-golden-002",
+  "workflow_execution_id": null,
+  "status": "failed",
   "input_summary": {
     "source": "direct_input",
     "source_agent_id": null,

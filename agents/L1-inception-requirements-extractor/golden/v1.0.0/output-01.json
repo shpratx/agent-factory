@@ -1,9 +1,11 @@
 {
-  "agent_id": "L2-inception-requirements-extractor",
-  "agent_version": "1.2.0",
+  "agent_id": "L1-inception-requirements-extractor",
+  "agent_version": "1.0.0",
   "execution_id": "exec-uuid-12345",
+  "workflow_execution_id": null,
+  "status": "success",
   "input_summary": {
-    "source": "file_upload",
+    "source": "file_upload"
   },
   "content": {
     "type": "requirements",

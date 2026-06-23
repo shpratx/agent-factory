@@ -96,9 +96,12 @@ idea = {{idea}}
   - Append a plain-text execution_summary:
     • Product name and what was generated
     • Section counts (features, MVP items, risks, questions)
-    • Domain KB used and grounding coverage estimate
+    • Grounding coverage estimate
     • What reflection found and fixed
     • Artifact upload location
+    • Knowledge bases consulted — list every KB accessed during this execution by name, and for each state what content was retrieved or used from it
+    • Guardrails evaluated (names and pass/fail)
+    • Tools invoked (names and outcome)
   - Summary is plain text bullet points, NOT JSON.
 
 EXPECTED OUTPUT:

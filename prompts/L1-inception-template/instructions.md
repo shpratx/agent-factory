@@ -85,8 +85,10 @@ INSTRUCTIONS:
   - Reflection: After generating, verify the fact is accurate, non-trivial, and
     on-topic. Revise if any check fails.
   - Execution Summary: After all processing is complete, append a brief summary
-    of the final output only — the topic addressed and fact produced. Do NOT
-    summarise interim reasoning, gaps found, or corrections made.
+    of the final output only — the topic addressed and fact produced, knowledge
+    bases consulted (names and what was retrieved), guardrails evaluated (names
+    and pass/fail), tools invoked (names and outcome). Do NOT summarise interim
+    reasoning, gaps found, or corrections made.
 
 EXPECTED OUTPUT:
   Format: JSON (AgentOutput standard)

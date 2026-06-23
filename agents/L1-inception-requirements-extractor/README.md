@@ -45,20 +45,20 @@ Every requirement is traceable to a specific phrase in the input, prioritised us
 ## Composition
 
 ```
-L1-inception-requirements-extractor/
+agents/L1-inception-requirements-extractor/
 ├── spec.yaml                 # Agent specification
 ├── evaluation.md             # Quality rubric and reflection checklist
 ├── output_schema.json        # JSON Schema for output validation
+├── README.md                 # This file
 ├── examples/                 # Input/output pairs
-│   ├── input-01.md
-│   ├── input-02-expense-tracker.json
-│   ├── output-01.json
-│   ├── output-02-expense-tracker.json
-│   └── dummy_output.json     # Structure reference
+│   ├── input-01-expense-tracker.json
+│   └── output-01-expense-tracker.json
 └── golden/v1.0.0/            # Benchmark responses
+    ├── input-golden-01-expense-tracker.json
     ├── golden-01-expense-tracker.json
+    ├── input-golden-02-insufficient.json
     └── golden-02-empty-input.json
 
-prompts/L1-inception-requirements-extractor-agent/
+prompts/L1-inception-requirements-extractor/
 └── instructions.md           # Agent prompt
 ```

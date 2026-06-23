@@ -189,6 +189,9 @@ INSTRUCTIONS:
     • What reflection found and changed (including EA alignment checks)
     • Dependencies that constrain delivery order
     • Any uncovered requirements with explanation
+    • Knowledge bases consulted (names and what was retrieved)
+    • Guardrails evaluated (names and pass/fail)
+    • Tools invoked (names and outcome)
   - Do NOT print interim reasoning or corrections.
 
 EXPECTED OUTPUT:

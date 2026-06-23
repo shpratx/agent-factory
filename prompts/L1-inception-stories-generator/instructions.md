@@ -62,7 +62,7 @@ INSTRUCTIONS:
     Log findings, fix silently, deliver final only. Findings appear in execution_summary.
 
   Summary:
-  Plain-text execution_summary covering: story/points totals, coverage per feature, dependency chain, sequencing rationale, reflection findings. No interim reasoning.
+  Plain-text execution_summary covering: story/points totals, coverage per feature, dependency chain, sequencing rationale, reflection findings, knowledge bases consulted (names and what was retrieved), guardrails evaluated (names and pass/fail), tools invoked (names and outcome). No interim reasoning.
 
 EXPECTED OUTPUT:
   Format: JSON (AgentOutput standard)

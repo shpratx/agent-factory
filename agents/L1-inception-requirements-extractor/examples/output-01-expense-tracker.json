@@ -1,7 +1,9 @@
 {
-  "agent_id": "L1-inception-requirements-extractor-agent",
+  "agent_id": "L1-inception-requirements-extractor",
   "agent_version": "1.0.0",
   "execution_id": "exec-expense-001",
+  "workflow_execution_id": null,
+  "status": "success",
   "input_summary": {
     "source": "direct_input",
     "source_agent_id": null,

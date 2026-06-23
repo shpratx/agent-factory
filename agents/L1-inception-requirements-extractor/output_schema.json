@@ -3,11 +3,13 @@
   "$id": "L1-inception-requirements-extractor-output-v1.0",
   "title": "Requirements Extractor Output",
   "type": "object",
-  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "output"],
+  "required": ["agent_id", "execution_id", "workflow_execution_id", "status", "content"],
   "properties": {
-    "agent_id": {"type": "string", "const": "L1-inception-requirements-extractor-agent"},
+    "agent_id": {"type": "string", "const": "L1-inception-requirements-extractor"},
     "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
     "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "workflow_execution_id": {"type": ["string", "null"], "pattern": "^wf-.+$", "description": "Workflow execution ID inherited from upstream or generated if standalone"},
+    "status": {"type": "string", "enum": ["success", "failed"], "description": "Whether the agent completed successfully or failed"},
     "input_summary": {
       "type": "object",
       "required": ["source", "parameters"],
@@ -121,7 +123,7 @@
             }
           }
         },
-        "execution_summary": {"type": "string", "minLength": 50}
+        "execution_summary": {"type": "string", "minLength": 50, "description": "Plain-text bullet summary of what was produced, decisions made, reflection findings"}
       }
     }
   },
@@ -130,8 +132,8 @@
       "type": "object",
       "required": ["confidence", "reasoning", "citation", "trajectory"],
       "properties": {
-        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-        "reasoning": {"type": "string", "minLength": 20},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Agent confidence: 0.9+ explicit, 0.7-0.8 inferred"},
+        "reasoning": {"type": "string", "minLength": 20, "description": "Explanation of how the agent arrived at this item"},
         "citation": {"$ref": "#/$defs/Citation"},
         "trajectory": {
           "type": "array",
@@ -153,8 +155,8 @@
       "type": "object",
       "required": ["source_reference", "source_location"],
       "properties": {
-        "source_reference": {"type": "string", "minLength": 5},
-        "source_location": {"type": "string"}
+        "source_reference": {"type": "string", "minLength": 5, "description": "Exact phrase from input or KB ID"},
+        "source_location": {"type": "string", "description": "Paragraph/section reference within the source"}
       }
     }
   }

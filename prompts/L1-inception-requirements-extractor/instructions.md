@@ -33,7 +33,8 @@ INSTRUCTIONS:
   - Source: direct_input (plain text) or agent_output (from ideation agent) or file_upload (.md, .txt, .pdf)
   - Extract: The core idea, features described, any constraints mentioned, user types referenced
   - Validate: Input must be non-empty and describe a product/feature idea. If input is empty,
-    gibberish, or off-topic, return empty items with reasoning "INSUFFICIENT_CONTEXT".
+    gibberish, or off-topic, return empty items with status "failed" and reasoning "INSUFFICIENT_CONTEXT".
+  - workflow_execution_id: inherit from upstream agent's output (input.workflow_execution_id); if absent or source is direct_input, generate a new one. Format: `wf-<uuid>`
 
   Processing Rules:
   1. Read the entire input and identify the core product/feature concept
@@ -119,16 +120,21 @@ INSTRUCTIONS:
     • Key decisions (what was prioritised as Must-Have and why)
     • What reflection found and changed
     • Gaps that need stakeholder input before downstream agents can proceed
+    • Knowledge bases consulted (names and what was retrieved)
+    • Guardrails evaluated (names and pass/fail)
+    • Tools invoked (names and outcome)
   - Do NOT print interim reasoning or corrections.
 
 EXPECTED OUTPUT:
   Format: JSON (AgentOutput standard)
+  content.type: "requirements"
 
   Schema:
   {
     "agent_id": "L1-inception-requirements-extractor",
-    "agent_version": "1.0.0",
     "execution_id": "exec-<uuid>",
+    "workflow_execution_id": "wf-<uuid>",
+    "status": "success | failed",
     "input_summary": {
       "source": "direct_input | agent_output | file_upload",
       "source_agent_id": "<upstream-agent-id> | null",
@@ -138,79 +144,12 @@ EXPECTED OUTPUT:
       "type": "requirements",
       "schema_version": "1.0",
       "items": {
-        "functional_requirements": [
-          {
-            "id": "FR-01",
-            "title": "<requirement title>",
-            "description": "The system shall <capability>",
-            "user_facing": true|false,
-            "priority": "Must-Have|Should-Have|Could-Have|Won't-Have",
-            "tags": ["<domain>", "<feature-area>"],
-            "metadata": {
-              "confidence": 0.0-1.0,
-              "reasoning": "<why this is an FR, why this priority>",
-              "citation": {
-                "source_reference": "<exact phrase from input>",
-                "source_location": "<paragraph/section reference>"
-              },
-              "trajectory": [
-                {"step": 1, "action": "retrieve", "tool": null, "detail": "<identified from input>"},
-                {"step": 2, "action": "reason", "tool": null, "detail": "<classification logic>"},
-                {"step": 3, "action": "generate", "tool": null, "detail": "<requirement formulated>"}
-              ]
-            }
-          }
-        ],
-        "non_functional_requirements": [
-          {
-            "id": "NFR-01",
-            "category": "Performance|Security|Scalability|Reliability|Usability",
-            "title": "<NFR title>",
-            "description": "<measurable NFR statement>",
-            "priority": "Must-Have|Should-Have|Could-Have",
-            "metadata": {
-              "confidence": 0.0-1.0,
-              "reasoning": "<why this is an NFR and how it was quantified>",
-              "citation": {"source_reference": "...", "source_location": "..."},
-              "trajectory": [...]
-            }
-          }
-        ],
-        "constraints": [
-          {
-            "id": "CON-01",
-            "type": "Technology|Business|Regulatory|Timeline",
-            "description": "<constraint statement>",
-            "metadata": {
-              "confidence": 0.0-1.0,
-              "reasoning": "<why this is a constraint, not a requirement>",
-              "citation": {"source_reference": "...", "source_location": "..."}
-            }
-          }
-        ],
-        "assumptions": [
-          {
-            "id": "ASM-01",
-            "description": "<assumption statement>",
-            "needs_confirmation": true|false,
-            "metadata": {
-              "confidence": 0.0-1.0,
-              "reasoning": "<what was inferred and why it needs confirmation>"
-            }
-          }
-        ],
-        "gaps": [
-          {
-            "id": "GAP-01",
-            "description": "<what information is missing>",
-            "impact": "<what can't be done without this>",
-            "suggested_question": "<question for stakeholder>",
-            "metadata": {
-              "reasoning": "<why this gap matters>"
-            }
-          }
-        ]
+        "functional_requirements": [ ... ],
+        "non_functional_requirements": [ ... ],
+        "constraints": [ ... ],
+        "assumptions": [ ... ],
+        "gaps": [ ... ]
       },
-      "execution_summary": "<plain-text summary — counts, decisions, reflection findings, gaps>"
+      "execution_summary": "• plain text bullets"
     }
   }

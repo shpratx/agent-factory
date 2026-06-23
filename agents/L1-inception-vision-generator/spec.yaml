@@ -11,7 +11,7 @@ metadata:
 purpose:
   description: "Converts a product idea into a comprehensive vision document grounded in domain knowledge."
   input: "A product idea (text description) and a domain knowledge base"
-  output: "A markdown vision document uploaded to Azure Blob Storage, with artifact location in standard AgentOutput"
+  output: "A markdown vision document uploaded to Blob Storage, with artifact location in standard AgentOutput"
   business_value: "Eliminates weeks of manual vision document drafting by generating industry-grade documents from an idea and domain context"
 
 prompt:
@@ -41,7 +41,9 @@ contract:
 
 context:
   knowledge_bases:
-    - kb-L2-{domain}  # Domain KB attached at runtime
+    - kb-L2-payments-lending-domain
+    - kb-L1-inception-vision-generator-evaluation
+    - kb-L1-vision-document-template
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection
