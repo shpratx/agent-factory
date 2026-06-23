@@ -189,7 +189,7 @@ INSTRUCTIONS:
     • What reflection found and changed (including EA alignment checks)
     • Dependencies that constrain delivery order
     • Any uncovered requirements with explanation
-    • Knowledge bases consulted (names and what was retrieved)
+    • Knowledge bases consulted — list every KB accessed during this execution by name, for evaluations, as templates and for any other reason and for each state what content was retrieved or used from it
     • Guardrails evaluated (names and pass/fail)
     • Tools invoked (names and outcome)
   - Do NOT print interim reasoning or corrections.

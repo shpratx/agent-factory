@@ -120,7 +120,7 @@ INSTRUCTIONS:
     • Key decisions (what was prioritised as Must-Have and why)
     • What reflection found and changed
     • Gaps that need stakeholder input before downstream agents can proceed
-    • Knowledge bases consulted (names and what was retrieved)
+    • Knowledge bases consulted — list every KB accessed during this execution by name, for evaluations, as templates and for any other reason and for each state what content was retrieved or used from it
     • Guardrails evaluated (names and pass/fail)
     • Tools invoked (names and outcome)
   - Do NOT print interim reasoning or corrections.
