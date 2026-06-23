@@ -1,36 +1,8 @@
 {
   "agent_id": "L1-inception-vision-generator",
-  "execution_id": "f7e8d9c0-b1a2-3456-7890-abcdef123456",
+  "execution_id": "exec-f7e8d9c0-b1a2-3456-7890-abcdef123456",
+  "workflow_execution_id": "wf-f7e8d9c0-b1a2-3456-7890-abcdef123456",
   "status": "success",
-  "output": {
-    "type": "vision_document",
-    "schema_version": "1.0",
-    "items": {
-      "product_name": "PaymentHub API",
-      "document_summary": {
-        "executive_summary": "PaymentHub API is an internal REST API that provides a unified payment initiation and reconciliation layer for the bank's lending platform, consolidating direct debit, card payment, and bank transfer logic into a single service consumed by all product teams. It addresses duplicated validation logic across three independent microservices, inconsistent error handling causing 2.3% payment failure misclassification, and the absence of a unified payment status view across 45,000 daily transactions. The expected outcome is a 60% reduction in payment integration effort for new products, elimination of duplicate payment incidents, and a single PSD2-compliant SCA enforcement point with PCI-DSS audit trail.",
-        "section_count": 5,
-        "feature_area_count": 5,
-        "mvp_feature_count": 9,
-        "risk_count": 7,
-        "open_question_count": 6
-      },
-      "artifact": {
-        "type": "vision_document",
-        "format": "markdown",
-        "location": "https://agentfactory.blob.core.windows.net/artifacts/f7e8d9c0-b1a2-3456-7890-abcdef123456/vision-doc/vision-paymenthub-api.md",
-        "filename": "vision-paymenthub-api.md",
-        "container": "artifacts",
-        "blob_path": "/f7e8d9c0-b1a2-3456-7890-abcdef123456/vision-doc/vision-paymenthub-api.md"
-      },
-      "metadata": {
-        "domain_kb_used": "kb-L2-payments-domain",
-        "confidence": 0.9,
-        "grounding_coverage": 0.88
-      }
-    },
-    "execution_summary": "\u2022 Generated vision document for PaymentHub API\n\u2022 5 sections: Executive Summary, Business Context, Full Scope Vision, MVP Scope, Risks & Dependencies\n\u2022 5 feature areas: Payment Initiation, Reconciliation & Settlement, SCA Orchestration, Payment Status & Events, Audit & Compliance\n\u2022 9 MVP features (Must Have: 7, Should Have: 2)\n\u2022 7 risks identified (migration without downtime: critical, PSD2 SCA timing: high, GoCardless rate limits: medium)\n\u2022 6 open questions flagged for requirements analysis\n\u2022 Grounded in kb-L2-payments-domain (88% coverage \u2014 PSD2 rules, payment types, settlement cycles, reconciliation patterns from KB)\n\u2022 Reflection: fixed 1 feature that prescribed a message queue (removed tech decision), added FCA CAB constraint to MVP Constraints, clarified that no new database is owned\n\u2022 Uploaded to /f7e8d9c0-b1a2-3456-7890-abcdef123456/vision-doc/vision-paymenthub-api.md"
-  },
   "_evaluation": {
     "_note": "This block is golden-file-only metadata for evaluation purposes. It is NOT part of the agent's actual output and is not validated against output_schema.json.",
     "expected_scores": {
@@ -54,5 +26,34 @@
       "No vague language: PASS",
       "FCA/CAB constraint mentioned: PASS"
     ]
+  },
+  "content": {
+    "type": "vision_document",
+    "schema_version": "1.0",
+    "items": {
+      "product_name": "PaymentHub API",
+      "document_summary": {
+        "executive_summary": "PaymentHub API is an internal REST API that provides a unified payment initiation and reconciliation layer for the bank's lending platform, consolidating direct debit, card payment, and bank transfer logic into a single service consumed by all product teams. It addresses duplicated validation logic across three independent microservices, inconsistent error handling causing 2.3% payment failure misclassification, and the absence of a unified payment status view across 45,000 daily transactions. The expected outcome is a 60% reduction in payment integration effort for new products, elimination of duplicate payment incidents, and a single PSD2-compliant SCA enforcement point with PCI-DSS audit trail.",
+        "section_count": 5,
+        "feature_area_count": 5,
+        "mvp_feature_count": 9,
+        "risk_count": 7,
+        "open_question_count": 6
+      },
+      "artifact": {
+        "type": "vision_document",
+        "format": "markdown",
+        "location": "https://agentfactory.blob.core.windows.net/artifacts/exec-f7e8d9c0-b1a2-3456-7890-abcdef123456/vision-doc/vision-paymenthub-api.md",
+        "filename": "vision-paymenthub-api.md",
+        "container": "artifacts",
+        "blob_path": "/exec-f7e8d9c0-b1a2-3456-7890-abcdef123456/vision-doc/vision-paymenthub-api.md"
+      },
+      "metadata": {
+        "domain_kb_used": "kb-L2-payments-domain",
+        "confidence": 0.9,
+        "grounding_coverage": 0.88
+      }
+    },
+    "execution_summary": "\u2022 Generated vision document for PaymentHub API\n\u2022 5 sections: Executive Summary, Business Context, Full Scope Vision, MVP Scope, Risks & Dependencies\n\u2022 5 feature areas: Payment Initiation, Reconciliation & Settlement, SCA Orchestration, Payment Status & Events, Audit & Compliance\n\u2022 9 MVP features (Must Have: 7, Should Have: 2)\n\u2022 7 risks identified (migration without downtime: critical, PSD2 SCA timing: high, GoCardless rate limits: medium)\n\u2022 6 open questions flagged for requirements analysis\n\u2022 Grounded in kb-L2-payments-domain (88% coverage \u2014 PSD2 rules, payment types, settlement cycles, reconciliation patterns from KB)\n\u2022 Reflection: fixed 1 feature that prescribed a message queue (removed tech decision), added FCA CAB constraint to MVP Constraints, clarified that no new database is owned\n\u2022 Uploaded to /f7e8d9c0-b1a2-3456-7890-abcdef123456/vision-doc/vision-paymenthub-api.md"
   }
 }
