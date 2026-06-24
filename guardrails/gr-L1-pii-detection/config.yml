@@ -2,11 +2,11 @@ models:
   - type: main
     engine: openai
     model: gpt-4.1
+    parameters:
+      temperature: 0
+      max_tokens: 1000
 
 rails:
-  input:
-    flows:
-      - check input pii
   output:
     flows:
-      - check output pii
+      - self check output

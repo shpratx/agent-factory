@@ -1,23 +1,12 @@
-# gr-L1-pii-detection — LLM-Driven Colang Implementation
-# Layer: L1 — PII Detection
-# Validation: LLM self_check (pure Colang)
-# Python actions preserved in actions.py for reference/hybrid mode
+# gr-L1-pii-detection — Prompt-Only Mode
+# Layer: L1 — Enterprise (all agents)
+# Triggers on: output
 
-define flow check input pii
-  """LLM validates pii detection rules on input."""
-  $result = execute self_check_input
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains real personally identifiable information (PII)\", \"severity\": \"high\", \"category\": \"pii\", \"rail\": \"output\"}"
 
-  if not $result
-    bot block L1 pii detection
-    stop
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains real personally identifiable information (PII)\", \"severity\": \"high\", \"category\": \"pii\", \"rail\": \"output\"}"
 
-define flow check output pii
-  """LLM validates pii detection rules on output."""
-  $result = execute self_check_output
-
-  if not $result
-    bot block L1 pii detection
-    stop
-
-define bot block L1 pii detection
-  "Content blocked: personally identifiable information detected. PII must be removed or masked before processing."
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains real personally identifiable information (PII)\", \"severity\": \"high\", \"category\": \"pii\", \"rail\": \"output\"}"
