@@ -1,15 +1,12 @@
-# gr-L3-hallucination-detector — LLM-Driven Colang Implementation
-# Layer: L3 — Hallucination Detector
-# Validation: LLM self_check (pure Colang)
-# Python actions preserved in actions.py for reference/hybrid mode
+# gr-L1-hallucination-detection — Prompt-Only Mode
+# Layer: L1 — Enterprise (all agents)
+# Uses NeMo's built-in self check output flow
 
-define flow check output hallucination
-  """LLM validates hallucination detector rules on output."""
-  $result = execute self_check_output
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains hallucinated, fabricated, or unverifiable claims\", \"severity\": \"high\", \"category\": \"hallucination\", \"rail\": \"output\"}"
 
-  if not $result
-    bot block L3 hallucination detector
-    stop
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains hallucinated, fabricated, or unverifiable claims\", \"severity\": \"high\", \"category\": \"hallucination\", \"rail\": \"output\"}"
 
-define bot block L3 hallucination detector
-  "Output blocked: ungrounded claims detected. Output contains fabricated information not traceable to input or knowledge base."
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains hallucinated, fabricated, or unverifiable claims\", \"severity\": \"high\", \"category\": \"hallucination\", \"rail\": \"output\"}"
