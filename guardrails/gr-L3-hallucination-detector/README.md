@@ -135,3 +135,22 @@ assert result == False
 result = await validate(...)
 assert result == True
 ```
+### Important: how to test the output rail correctly
+
+The output rail fires on **what the agent generates**, not on what the user sends. 
+A hallucinated statement pasted as a user message will NOT trigger the output rail — 
+the agent's reply to it will. To force hallucinated output for testing, use a system 
+instruction that causes the agent to assert specific invented details as fact.
+
+## Known Pitfalls
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Everything passes, rail never triggers | Custom flow name used instead of built-in | Use `self check output` in config.yml — not a custom flow name |
+| Everything passes | User message evaluated, not agent output | Output rails only fire on LLM-generated responses |
+| Everything blocks | `yes`/`no` inverted in prompt | `yes` = safe, `no` = violation — match this exactly |
+| Pass case returns JSON instead of original | Acceptance bot messages defined in `.co` | Remove all `define bot respond` / `define bot inform can answer` definitions |
+| Inconsistent blocking | Temperature above 0 | Set `temperature: 0` — judge must be deterministic |
+| Rail silently does nothing | Wrong action name in custom flow | Only `self_check_input` and `self_check_output` are built-in NeMo actions |
+| Judge always flags or always passes | Wrong template variable | Output rails require `{{ bot_response }}` — no other variable name works |
+| Over-tuned prompt causes inconsistency | Long flag lists confuse judge LLM | Keep prompt minimal — confirm it triggers before adding carve-outs |
