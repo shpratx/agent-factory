@@ -1,0 +1,56 @@
+spec_version: "1.0"
+artifact_type: tool
+metadata:
+  name: L1-azure-blob-upload
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+
+purpose:
+  description: "Creates a folder (virtual directory) in Azure Blob Storage if it doesn't exist, and uploads a file into it"
+  platform: azure-blob
+  operation: upload-file
+
+interface:
+  parameters:
+    container_name: {type: string, required: true, description: "Azure Blob container name"}
+    folder_path: {type: string, required: true, description: "Virtual folder path (e.g., 'reports/2026')"}
+    file_name: {type: string, required: true, description: "Name of the file to upload"}
+    file_content: {type: string, required: true, description: "Base64-encoded file content"}
+    content_type: {type: string, required: false, default: "application/octet-stream", description: "MIME type of the file"}
+
+  returns:
+    type: ToolResult
+    fields:
+      success: boolean
+      data: {blob_url: string, folder_path: string, file_name: string, size_bytes: integer}
+      error: {type: string, nullable: true}
+
+credentials:
+  source: secrets-sdk
+  path: "azure-blob"
+  fields_used: [connection_string]
+
+identity:
+  tool_id: "tool-L1-azure-blob-upload-001"
+  role: tool-executor
+  invocable_by:
+    roles: [content-generator, orchestrator]
+    agents: []
+  permissions:
+    operation: write
+    platform: azure-blob
+    scope: "container-level"
+  credential_scoping:
+    method: org-from-context
+    vault_path_template: "/secrets/{org_id}/azure-blob"
+
+resilience:
+  timeout_seconds: 60
+  retry: {max: 2, backoff: exponential, retry_on: [timeout, 429, 502, 503]}
+  circuit_breaker: {failure_threshold: 5, reset_seconds: 60}
+
+security:
+  input_validation: "container_name and folder_path validated for allowed characters; file_content must be valid base64"
+  output_sanitization: "Connection string never exposed in responses or logs"
+  logging: "Log container, folder, file_name, size. Never log file_content or credentials."

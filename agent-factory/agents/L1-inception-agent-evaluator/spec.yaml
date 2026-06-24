@@ -1,0 +1,60 @@
+# Agent Specification Document
+spec_version: "1.0"
+artifact_type: agent
+metadata:
+  name: L1-inception-agent-evaluator
+  version: "1.0.0"
+  layer: L1
+  phase: inception
+  owner: agentic-ai-coe
+  created: 2026-06-24
+
+purpose:
+  description: "Evaluates any agent against a reusable rubric using benchmark scenarios and returns a structured report"
+  input: "An agent description, benchmark cases, and optional scoring weights"
+  output: "A scored evaluation report with pass/fail status, evidence, and recommendations"
+  business_value: "Provides a repeatable quality gate for agent readiness, regression testing, and deployment review"
+
+prompt:
+  ref: "prompts/L1-inception-agent-evaluator/instructions.md"
+  version: "1.0.0"
+  description: "Evaluates a target agent using standard quality dimensions and benchmark cases"
+
+contract:
+  input_schema: "$ref: schemas/agent-input-contract-schema.json"
+  output_schema: "$ref: schemas/agent-output-schema.json"
+
+  input:
+    accepts_from_agents: [any]
+    accepts_direct_input: true
+    accepts_file_upload:
+      enabled: false
+    required_parameters:
+      agent_name: {type: string, description: "Name of the target agent"}
+      agent_spec: {type: object, description: "Description or specification of the target agent"}
+      evaluation_cases: {type: array, description: "Benchmark cases to run against the target agent"}
+    optional_parameters:
+      scoring_weights: {type: object, default: "{}", description: "Optional weights for each evaluation dimension"}
+      evaluation_mode: {type: string, default: "standard", description: "standard or strict"}
+
+  output:
+    $ref: "output_schema.json"
+
+context:
+  knowledge_bases: []
+  guardrails:
+    - gr-L1-output-schema-validator
+    - gr-L3-hallucination-detector
+    - gr-L3-consistency-checker
+  tools: []
+
+quality:
+  evaluation_ref: "evaluation.md"
+  min_score: 7.0
+  hallucination_check: true
+  consistency_check: true
+
+versioning:
+  input_version: "1.0"
+  output_version: "1.0"
+  instruction_hash: "sha256:pending"

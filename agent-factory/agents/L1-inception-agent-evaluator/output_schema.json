@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentEvaluationReport",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "evaluation_id", "input_summary", "output"],
+  "properties": {
+    "agent_id": {"type": "string"},
+    "agent_version": {"type": "string"},
+    "evaluation_id": {"type": "string"},
+    "input_summary": {
+      "type": "object",
+      "required": ["source", "parameters"],
+      "properties": {
+        "source": {"type": "string"},
+        "source_agent_id": {"type": ["string", "null"]},
+        "parameters": {"type": "object"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["type", "schema_version", "overall_score", "status", "dimensions", "summary"],
+      "properties": {
+        "type": {"const": "evaluation_report"},
+        "schema_version": {"const": "1.0"},
+        "overall_score": {"type": "number", "minimum": 0, "maximum": 10},
+        "status": {"enum": ["pass", "fail", "needs_review"]},
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "score", "status", "evidence"],
+            "properties": {
+              "name": {"type": "string"},
+              "score": {"type": "number", "minimum": 0, "maximum": 10},
+              "status": {"enum": ["pass", "fail", "needs_review"]},
+              "evidence": {"type": "string"}
+            }
+          }
+        },
+        "summary": {"type": "string"},
+        "recommendations": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}
