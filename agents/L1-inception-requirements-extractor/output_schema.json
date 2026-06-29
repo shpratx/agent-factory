@@ -23,140 +23,51 @@
       "type": "object",
       "required": ["type", "schema_version", "items", "execution_summary"],
       "properties": {
-        "type": {"type": "string", "const": "requirements"},
+        "type": {"type": "string", "const": "prd_document"},
         "schema_version": {"type": "string", "const": "1.0"},
         "items": {
           "type": "object",
-          "required": ["functional_requirements", "non_functional_requirements", "constraints", "assumptions", "gaps"],
+          "required": ["product_name", "document_summary", "artifact", "metadata"],
           "properties": {
-            "functional_requirements": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "title", "description", "user_facing", "priority", "metadata"],
-                "properties": {
-                  "id": {"type": "string", "pattern": "^FR-\\d{2}$"},
-                  "title": {"type": "string"},
-                  "description": {"type": "string"},
-                  "user_facing": {"type": "boolean"},
-                  "priority": {"type": "string", "enum": ["Must-Have", "Should-Have", "Could-Have", "Won't-Have"]},
-                  "tags": {"type": "array", "items": {"type": "string"}},
-                  "metadata": {"$ref": "#/$defs/ItemMetadata"}
-                }
+            "product_name": {"type": "string", "description": "Derived or stated product/feature name"},
+            "document_summary": {
+              "type": "object",
+              "required": ["total_requirements", "functional_requirements_count", "non_functional_requirements_count", "constraints_count", "assumptions_count", "gaps_count", "dependencies_count", "data_requirements_count", "integration_requirements_count", "success_metrics_count", "risks_count"],
+              "properties": {
+                "total_requirements": {"type": "integer", "minimum": 0},
+                "functional_requirements_count": {"type": "integer", "minimum": 0},
+                "non_functional_requirements_count": {"type": "integer", "minimum": 0},
+                "constraints_count": {"type": "integer", "minimum": 0},
+                "assumptions_count": {"type": "integer", "minimum": 0},
+                "gaps_count": {"type": "integer", "minimum": 0},
+                "dependencies_count": {"type": "integer", "minimum": 0},
+                "data_requirements_count": {"type": "integer", "minimum": 0},
+                "integration_requirements_count": {"type": "integer", "minimum": 0},
+                "success_metrics_count": {"type": "integer", "minimum": 0},
+                "risks_count": {"type": "integer", "minimum": 0}
               }
             },
-            "non_functional_requirements": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "category", "title", "description", "priority", "metadata"],
-                "properties": {
-                  "id": {"type": "string", "pattern": "^NFR-\\d{2}$"},
-                  "category": {"type": "string", "enum": ["Performance", "Security", "Scalability", "Reliability", "Usability"]},
-                  "title": {"type": "string"},
-                  "description": {"type": "string"},
-                  "priority": {"type": "string", "enum": ["Must-Have", "Should-Have", "Could-Have"]},
-                  "metadata": {"$ref": "#/$defs/ItemMetadata"}
-                }
+            "artifact": {
+              "type": "object",
+              "required": ["type", "format", "location"],
+              "properties": {
+                "type": {"type": "string", "const": "prd_document"},
+                "format": {"type": "string", "const": "markdown"},
+                "location": {"type": "string", "description": "Blob storage URL where the PRD was uploaded"}
               }
             },
-            "constraints": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "type", "description", "metadata"],
-                "properties": {
-                  "id": {"type": "string", "pattern": "^CON-\\d{2}$"},
-                  "type": {"type": "string", "enum": ["Technology", "Business", "Regulatory", "Timeline"]},
-                  "description": {"type": "string"},
-                  "metadata": {
-                    "type": "object",
-                    "required": ["confidence", "reasoning", "citation"],
-                    "properties": {
-                      "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-                      "reasoning": {"type": "string", "minLength": 10},
-                      "citation": {"$ref": "#/$defs/Citation"}
-                    }
-                  }
-                }
-              }
-            },
-            "assumptions": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "description", "needs_confirmation", "metadata"],
-                "properties": {
-                  "id": {"type": "string", "pattern": "^ASM-\\d{2}$"},
-                  "description": {"type": "string"},
-                  "needs_confirmation": {"type": "boolean"},
-                  "metadata": {
-                    "type": "object",
-                    "required": ["confidence", "reasoning"],
-                    "properties": {
-                      "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-                      "reasoning": {"type": "string", "minLength": 10}
-                    }
-                  }
-                }
-              }
-            },
-            "gaps": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "description", "impact", "suggested_question", "metadata"],
-                "properties": {
-                  "id": {"type": "string", "pattern": "^GAP-\\d{2}$"},
-                  "description": {"type": "string"},
-                  "impact": {"type": "string"},
-                  "suggested_question": {"type": "string"},
-                  "metadata": {
-                    "type": "object",
-                    "required": ["reasoning"],
-                    "properties": {
-                      "reasoning": {"type": "string", "minLength": 10}
-                    }
-                  }
-                }
+            "metadata": {
+              "type": "object",
+              "required": ["template_kb_used", "confidence", "extraction_coverage"],
+              "properties": {
+                "template_kb_used": {"type": "string"},
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                "extraction_coverage": {"type": "number", "minimum": 0, "maximum": 1, "description": "Proportion of input content that was captured in requirements"}
               }
             }
           }
         },
         "execution_summary": {"type": "string", "minLength": 50, "description": "Plain-text bullet summary of what was produced, decisions made, reflection findings"}
-      }
-    }
-  },
-  "$defs": {
-    "ItemMetadata": {
-      "type": "object",
-      "required": ["confidence", "reasoning", "citation", "trajectory"],
-      "properties": {
-        "confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Agent confidence: 0.9+ explicit, 0.7-0.8 inferred"},
-        "reasoning": {"type": "string", "minLength": 20, "description": "Explanation of how the agent arrived at this item"},
-        "citation": {"$ref": "#/$defs/Citation"},
-        "trajectory": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "required": ["step", "action", "tool", "detail"],
-            "properties": {
-              "step": {"type": "integer"},
-              "action": {"type": "string", "enum": ["retrieve", "reason", "generate", "validate"]},
-              "tool": {"type": ["string", "null"]},
-              "detail": {"type": "string"}
-            }
-          }
-        }
-      }
-    },
-    "Citation": {
-      "type": "object",
-      "required": ["source_reference", "source_location"],
-      "properties": {
-        "source_reference": {"type": "string", "minLength": 5, "description": "Exact phrase from input or KB ID"},
-        "source_location": {"type": "string", "description": "Paragraph/section reference within the source"}
       }
     }
   }

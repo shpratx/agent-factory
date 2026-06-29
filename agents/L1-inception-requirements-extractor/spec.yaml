@@ -10,10 +10,10 @@ metadata:
   created: 2026-06-14
 
 purpose:
-  description: "Extracts structured functional and non-functional requirements from a product idea or vision document"
+  description: "Extracts structured requirements from a product idea or vision document and generates a PRD markdown artifact uploaded to blob storage"
   input: "Plain-text product idea, feature description, or vision document"
-  output: "Categorised requirements (functional, non-functional, constraints, assumptions, gaps)"
-  business_value: "Transforms unstructured ideas into actionable, structured requirements that downstream agents can consume for story generation, design, and architecture"
+  output: "Categorised requirements (10 categories) + PRD document artifact in blob storage"
+  business_value: "Transforms unstructured ideas into actionable, structured requirements and a PRD document that downstream agents can consume for story generation, design, and architecture"
 
 prompt:
   ref: "prompts/L1-inception-requirements-extractor/instructions.md"
@@ -42,13 +42,15 @@ contract:
 context:
   knowledge_bases:
     - kb-L1-enterprise-architecture
+    - kb-L1-prd-document-template
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection
     - gr-L3-hallucination-detector
     - gr-L3-citation-validator
     - gr-L3-consistency-checker
-  tools: []
+  tools:
+    - blob-storage-upload
 
 quality:
   evaluation_ref: "evaluation.md"
