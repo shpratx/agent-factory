@@ -205,11 +205,11 @@ visibility:
 12. Operating model
 
 ### Evaluation KB (per agent)
-1. Quality gates (table: criterion, threshold, method)
-2. Evaluation scores (LLM-as-Judge thresholds)
-3. Quality rubric (scoring matrix)
-4. Reflection checklist (checkboxes)
-5. Reflection process (numbered steps)
+1. Quality gates (checklist: `- [ ]` format, not verbose tables)
+2. Scores table (Evaluator | ≥ threshold | What it checks)
+3. Reflection checklist (checkboxes only)
+4. Reflection process (single line: Generate → Check → Fix → Deliver)
+5. Total ≤ 50 lines — no verbose rubric descriptions or writing rules (those belong in prompt Don'ts)
 
 ## Key Rules
 
@@ -223,6 +223,42 @@ visibility:
 8. **Domain language** — Use the terminology the domain uses. Include a glossary section for non-obvious terms.
 9. **Validation rules explicit** — For data models, include type, format, constraints, and regulatory basis per field.
 10. **Token estimate in spec** — Helps agents/platforms manage context window budget.
+
+## Token Optimisation for Knowledge Bases
+
+### Target Budgets
+| KB Type | Target Tokens | Rationale |
+|---------|--------------|-----------|
+| Evaluation KB | ≤ 500 | Checklist only — no prose |
+| Template KB | ≤ 1,200 | Structural headings — consider embedding in prompt (S4) |
+| Domain KB (slim) | ≤ 8,000 | PM implications + journeys + glossary — for vision/inception agents |
+| Domain KB (full) | ≤ 25,000 | Full field-level detail — for LLD/code agents |
+| Enterprise Architecture KB | ≤ 15,000 | System landscape, patterns, standards |
+
+### Create Slim Variants (S3)
+For domain KBs consumed by inception-phase agents (vision, requirements, epics):
+- Create `{kb-name}-slim.md` alongside the full version
+- **Keep:** PM implications, user journeys (full), state machines (full), glossary, section headings
+- **Remove:** Field-level data models, validation regex, implementation guidance, regulatory full-text
+- Naming: `kb-L2-{domain}-slim.md`
+- Spec should list both variants with consumer mapping
+
+### When to Embed in Prompt (S4)
+If KB is ≤ 3,000 tokens AND is structural (headings + placeholder guidance):
+- Embed directly in the agent prompt as "Output Document Structure"
+- Eliminates a separate KB load entirely
+- Applicable to: template KBs, small evaluation KBs
+
+### Two-Phase Consumption (S5)
+When a KB > 2,000 words is attached:
+- Agent Phase 1: extract only relevant facts into internal brief
+- Agent Phase 2: generate from brief (KB no longer needed in active attention)
+- Prevents "lost in the middle" problem with large KBs
+
+### Measuring Token Size
+- Rule of thumb: 1 token ≈ 4 characters of English text
+- Add `total_tokens_estimate` to spec.yaml (chars / 4)
+- Red flag: if KB > 50% of target model's context window, slimming is mandatory
 
 ## Layering & Visibility
 

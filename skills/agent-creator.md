@@ -153,6 +153,7 @@ INSTRUCTIONS:
   - Source: {direct_input | agent_output | file_upload}
   - Extract: {what to extract from the input}
   - Validate: {validation rules — reject if invalid}
+  - workflow_execution_id: inherit from upstream agent's output (input.workflow_execution_id); if absent or source is direct_input, generate a new one. Format: `wf-<uuid>`
 
   Processing Rules:
   1. {step 1}
@@ -185,86 +186,82 @@ INSTRUCTIONS:
   Refer to evaluation.md for the full quality rubric, scoring thresholds, 
   and reflection checklist. Key rules:
   - Grounding: Every output item must trace to specific input content.
-  - Citations: Every item must cite the exact source phrase or ID.
+  - Citations: Primary output items must cite the exact source phrase or ID.
   - Reasoning: Every item must explain the decision logic.
   - Validation: Self-check IDs, required fields, enums, and counts.
-  - Reflection: After generating initial output, you MUST:
-    1. Log internally: "[REFLECTING] Checking output against evaluation.md criteria"
-    2. Review against every item in the Reflection Checklist
-    3. Identify gaps, inconsistencies, or missed items
-    4. Log findings: "[REFLECTING] Found: <issue>"
-    5. Fix each issue silently — amend the output
-    6. Log resolution: "[REFLECTING] Resolved: <what was fixed>"
-    7. Only deliver the final, corrected output
-    Do NOT print interim output, reflection logs, or draft versions.
+  - Reflection (basic self-check before delivery):
+    1. All required sections/items present
+    2. No placeholder text or vague language
+    3. IDs sequential and no duplicates
+    Do NOT print interim output or reflection logs.
+    If a separate evaluator agent exists downstream, detailed evaluation is delegated there.
 
   Summary:
   - Append a plain-text execution_summary after the structured output:
     • What was produced (item counts, types)
     • Key decisions made
     • What reflection found and changed
+    • Knowledge bases consulted — list every KB accessed during this execution by name, for evaluations, as templates and for any other reason, and for each state what content was retrieved or used from it
+    • Guardrails evaluated (names and pass/fail)
+    • Tools invoked (names and outcome)
     • Gaps or issues flagged
   - Do NOT print interim reasoning or corrections.
   - Summary is plain text bullet points, NOT JSON.
 
 EXPECTED OUTPUT:
   Format: JSON (AgentOutput standard)
-  output.type: "{type}"
+  content.type: "{type}"
 
   Schema:
-  {full schema showing structure with placeholders}
+  {
+    "agent_id": "{agent-name}",
+    "agent_version": "{version}",
+    "execution_id": "exec-<uuid>",
+    "workflow_execution_id": "wf-<uuid>",
+    "status": "success | failed",
+    "content": {
+      "type": "{type}",
+      "schema_version": "1.0",
+      "items": { ... },
+      "execution_summary": "• plain text bullets"
+    }
+  }
 ```
 
 ## evaluation.md Template
 
 ```markdown
-# Evaluation Criteria — {agent-name}
+# Evaluation — {agent-name}
 
-## Quality Gates (must pass)
+## Quality Gates
+- [ ] {gate 1 — binary pass/fail check}
+- [ ] {gate 2}
+- [ ] {gate 3}
 
-| Criterion | Threshold | Method |
-|-----------|-----------|--------|
-| {rule 1} | {threshold} | Automated: {how} |
-| {rule 2} | {threshold} | Automated: {how} |
-
-## Evaluation Scores (LLM-as-Judge)
-
-| Evaluator | Threshold | Direction |
-|-----------|-----------|-----------|
-| Faithfulness | ≥ 0.90 | Every item traces to input |
+## Scores (≥ threshold to pass)
+| Evaluator | ≥ | Checks |
+|-----------|---|--------|
+| Faithfulness | 0.90 | Every item traces to input |
 | Hallucination | ≤ 0.10 | No invented content |
-| Consistency | ≥ 0.90 | No contradictions |
-| Relevance | ≥ 0.85 | Output is actionable |
-| Reasoning quality | ≥ 0.80 | Decisions explained |
-| Citation completeness | ≥ 0.95 | Every item cites source |
-
-## Quality Rubric
-
-| Dimension | Score 9-10 | Score 7-8 | Score 5-6 | Score < 5 |
-|-----------|-----------|-----------|-----------|-----------|
-| {dimension 1} | {excellent} | {good} | {fair} | {poor} |
+| Consistency | 0.90 | No contradictions |
+| Relevance | 0.85 | Output is actionable |
+| Reasoning quality | 0.80 | Decisions explained |
+| Citation completeness | 0.95 | Primary items cite source |
 
 ## Reflection Checklist
-
-The agent must self-verify before delivering:
-
 - [ ] {check 1}
 - [ ] {check 2}
 - [ ] {check 3}
 
-## Reflection Process (mandatory)
-
-1. **Generate** initial output following processing rules
-2. **Log** `[REFLECTING] Checking output against evaluation criteria`
-3. **Check** every item in the Reflection Checklist above
-4. **Identify** gaps, errors, inconsistencies, or missed items
-5. **Log** each finding: `[REFLECTING] Found: <description>`
-6. **Fix** each issue — amend the output silently
-7. **Log** each resolution: `[REFLECTING] Resolved: <what was fixed>`
-8. **Deliver** only the final corrected output
-
-Reflection findings appear in execution_summary but interim output is never shown.
+## Reflection Process
+1. Generate → 2. Check all items above → 3. Fix silently → 4. Deliver final only
 ```
+
+**Evaluation template rules (S2 applied):**
+- Use checklist format, not verbose rubric tables with score-range descriptions
+- No "Writing Quality Rules" section (already covered by Don'ts in prompt)
+- Reflection process is one line (agents know how to reflect from the prompt)
+- Total evaluation.md should be ≤ 50 lines
 
 ## README.md Template
 
@@ -314,25 +311,26 @@ Golden responses MUST be:
 
 - Must be valid JSON Schema (draft 2020-12)
 - Must validate against the golden output without errors
-- Must use `$defs` for reusable types (ItemMetadata, Citation)
+- Must use `$defs` for reusable types where needed (e.g., Citation)
 - Must enforce ID patterns via regex
 - Must require `execution_summary` as string (not JSON)
-- Must match the metadata structure used in the prompt (consistent `metadata` wrapper)
+- Must match the metadata structure used in the prompt
+- Trajectory arrays are NOT required — reasoning field covers provenance
 
 ## Key Patterns to Always Follow
 
-1. **Every item has metadata** — confidence, reasoning, citation, trajectory in a `metadata` wrapper
+1. **Every item has metadata** — confidence + reasoning (mandatory); citation (for primary categories); no trajectory required
 2. **execution_summary is plain text** — bullet points, NOT JSON object
-3. **Reflection is mandatory** — agent must reflect, find issues, fix silently, deliver final
+3. **Reflection is mandatory** — at minimum: basic self-check (completeness, no placeholders, IDs valid). Full evaluation can be delegated to a downstream evaluator agent (S6).
 4. **IDs are sequential** — FR-01, FR-02... / EP-01, EP-02... / US-001, US-002...
-5. **Citations trace to input** — exact phrase or ID from the source
+5. **Citations for primary categories** — primary output categories (FRs, NFRs, constraints) require citation (source_reference + source_location); secondary categories require reasoning only
 6. **Confidence is self-assessed** — 0.9+ explicit, 0.7-0.8 inferred, <0.7 uncertain
 7. **Don'ts section is mandatory** — explicit prohibitions prevent common failures
 8. **Input validation first** — reject empty/gibberish before processing
-9. **evaluation.md referenced from spec AND prompt** — single source of truth
+9. **evaluation.md referenced from spec** — single source of truth. If S6 applied, evaluator agent loads this KB; generator only does basic self-check.
 10. **Golden inputs are detailed and realistic** — not one-liners
 11. **Enterprise architecture adherence** — agents must verify output against EA KB during reflection
-12. **Prompts should be concise** — delegate detail to evaluation.md, avoid duplicating rules in prompt and evaluation
+12. **Prompts should be concise** — ≤150 lines; delegate evaluation to KB or evaluator agent; embed small templates (S4); use two-phase for large KBs (S5)
 13. **output_schema.json must match actual output** — validate golden against schema, fix mismatches immediately
 14. **Feature IDs use F-{epic}.{seq}** format (e.g., F-01.1, F-02.3) — not FEAT-XX-XX
 15. **Story IDs use US-XXX** format (e.g., US-001) — not STORY-XX-XX
@@ -362,6 +360,37 @@ When creating agents that form a pipeline, ensure:
 - Evaluation section in prompt should reference evaluation.md and list only key principles
 - Examples should be brief (1-3 lines showing pattern, not full JSON)
 - EXPECTED OUTPUT schema shows structure with placeholders, not full examples
+- Do NOT include UUID format examples (e.g., `exec-7f3a2b1c-4d5e-...`) — models know UUID format. Just state `exec-<uuid>`
+
+## Token Optimisation Techniques (apply to all agents)
+
+| Technique | When to apply | How |
+|-----------|--------------|-----|
+| **S2: Condense evaluation** | Always | Checklist format only, ≤ 50 lines, no verbose rubrics |
+| **S3: Slim domain KB** | KB > 5,000 tokens | Keep PM implications, journeys, glossary; remove field-level schemas |
+| **S4: Template as instruction** | Template KB ≤ 3,000 tokens | Embed structure headings directly in prompt, eliminate KB load |
+| **S5: Two-phase generation** | Domain KB > 2,000 words | Phase 1: extract relevant brief from KB; Phase 2: generate from brief |
+| **S6: Evaluation at validation** | Context window tight | Create separate evaluator agent; generator does basic self-check only |
+
+**S5 Two-Phase Pattern (add to Processing section when applicable):**
+```
+Processing (Two-Phase):
+  PHASE 1 — Domain Extraction:
+  From KB, extract only what's relevant to this input:
+  a. Relevant entities/roles  b. Applicable rules/regulations
+  c. Domain terminology  d. Systems to integrate  e. Risks
+  Brief is internal — never shown to user.
+  Shortcut: if KB < 2,000 words, skip Phase 1.
+
+  PHASE 2 — Generation:
+  Generate output from brief + document structure.
+```
+
+**S6 Evaluator Agent Pattern:**
+- Generator prompt: basic 3-item self-check, no evaluation KB loaded
+- Separate evaluator agent: loads evaluation KB, scores, fixes, re-uploads
+- Evaluator references evaluation KB as SOURCE OF TRUTH (no rubric duplication in its prompt)
+- Evaluator's own `evaluation.md` covers meta-quality (are findings genuine? are fixes correct?)
 
 ## Knowledge Base References
 
@@ -392,7 +421,12 @@ When input is empty, gibberish, or too vague to process:
 
 ```json
 {
-  "output": {
+  "agent_id": "{agent-name}",
+  "agent_version": "{version}",
+  "execution_id": "exec-<uuid>",
+  "workflow_execution_id": "wf-<uuid>",
+  "status": "failed",
+  "content": {
     "type": "{type}",
     "schema_version": "1.0",
     "items": { "category_1": [], "category_2": [] },
@@ -422,7 +456,7 @@ Minimum 2 input/output pairs:
 Each example must:
 - Be valid JSON matching the contract schema
 - Show complete AgentOutput structure (not partial)
-- Include metadata (confidence, reasoning, citation, trajectory) on all items
+- Include metadata (confidence, reasoning; citation where applicable) on primary items
 - Include execution_summary as plain text
 
 ## Shared Schemas

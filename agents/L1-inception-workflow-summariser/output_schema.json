@@ -2,45 +2,34 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "L1-inception-workflow-summariser Output",
   "type": "object",
-  "required": ["agent_id", "execution_id", "workflow_execution_id", "status", "content"],
+  "required": ["agent_id", "agent_version", "execution_id", "workflow_execution_id", "status", "content"],
   "properties": {
     "agent_id": {"type": "string", "const": "L1-inception-workflow-summariser"},
+    "agent_version": {"type": "string"},
     "execution_id": {"type": "string", "pattern": "^exec-.+$"},
     "workflow_execution_id": {"type": ["string", "null"], "pattern": "^wf-.+$"},
     "status": {"type": "string", "enum": ["success", "failed"]},
     "content": {
       "type": "object",
-      "required": ["type", "schema_version", "items"],
+      "required": ["type", "schema_version", "items", "execution_summary"],
       "properties": {
         "type": {"type": "string", "const": "workflow_summary"},
         "schema_version": {"type": "string", "const": "1.0"},
         "items": {
           "type": "object",
-          "required": ["request_and_intent", "execution_flow", "artifacts_and_content", "outcome", "metadata"],
+          "required": ["request_and_intent", "execution_flow", "outcome"],
           "properties": {
-            "request_and_intent": {"type": "string", "minLength": 20, "description": "What triggered the workflow and what was the goal"},
+            "request_and_intent": {"type": "string", "description": "What triggered the workflow and the goal"},
             "execution_flow": {
               "type": "array",
               "minItems": 1,
               "items": {"type": "string"},
-              "description": "Ordered list of agents and what each did"
+              "description": "Ordered list: each entry is 'agent-id: what it produced (status)'"
             },
-            "artifacts_and_content": {
-              "type": "array",
-              "items": {"type": "string"},
-              "description": "Content or artifacts generated or modified"
-            },
-            "outcome": {"type": "string", "minLength": 10, "description": "Final status and what was delivered"},
-            "metadata": {
-              "type": "object",
-              "required": ["confidence", "reasoning"],
-              "properties": {
-                "confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Agent confidence in summary accuracy"},
-                "reasoning": {"type": "string", "minLength": 20, "description": "How the agent arrived at this summary"}
-              }
-            }
+            "outcome": {"type": "string", "description": "Final verdict: what was delivered, any failures or gaps"}
           }
-        }
+        },
+        "execution_summary": {"type": "string", "description": "Operational audit only: KBs consulted, guardrails evaluated, tools invoked"}
       }
     }
   }
