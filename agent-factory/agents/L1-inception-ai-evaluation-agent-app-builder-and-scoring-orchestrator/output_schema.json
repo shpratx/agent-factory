@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-inception-ai-evaluation-agent-app-builder-and-scoring-orchestrator-output-v1.0",
+  "title": "AI Evaluation App Specification Output",
+  "type": "object",
+  "required": ["agent_id", "execution_id", "workflow_execution_id", "status", "content"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L1-inception-ai-evaluation-agent-app-builder-and-scoring-orchestrator"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "workflow_execution_id": {"type": ["string", "null"], "pattern": "^wf-.+$"},
+    "status": {"type": "string", "enum": ["success", "failed"]},
+    "input_summary": {
+      "type": "object",
+      "required": ["source", "parameters"],
+      "properties": {
+        "source": {"type": "string", "enum": ["direct_input", "agent_output", "file_upload"]},
+        "source_agent_id": {"type": ["string", "null"]},
+        "parameters": {"type": "object"}
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "execution_summary"],
+      "properties": {
+        "type": {"type": "string", "const": "app_specification"},
+        "schema_version": {"type": "string", "const": "1.0"},
+        "items": {
+          "type": "object",
+          "required": ["app_blueprint", "evaluation_logic", "data_model", "ui_specification", "reliability_controls", "security_and_compliance_notes", "delivery_checklist"],
+          "properties": {
+            "app_blueprint": {
+              "type": "object",
+              "required": ["screens", "component_responsibilities"],
+              "properties": {
+                "screens": {"type": "array", "items": {"type": "object"}},
+                "component_responsibilities": {"type": "array", "items": {"type": "object"}}
+              }
+            },
+            "evaluation_logic": {
+              "type": "object",
+              "required": ["programmatic_checks", "judge_prompt_strategy", "scoring_formula", "thresholds"],
+              "properties": {
+                "programmatic_checks": {"type": "array", "items": {"type": "object"}},
+                "judge_prompt_strategy": {"type": "object"},
+                "scoring_formula": {"type": "object"},
+                "thresholds": {"type": "object"}
+              }
+            },
+            "data_model": {
+              "type": "object",
+              "required": ["result_object_schema", "state_shape", "aggregation_schema"],
+              "properties": {
+                "result_object_schema": {"type": "object"},
+                "state_shape": {"type": "object"},
+                "aggregation_schema": {"type": "object"}
+              }
+            },
+            "ui_specification": {
+              "type": "object",
+              "required": ["component_map", "layout_guidance", "responsive_states"],
+              "properties": {
+                "component_map": {"type": "array", "items": {"type": "object"}},
+                "layout_guidance": {"type": "object"},
+                "responsive_states": {"type": "array", "items": {"type": "object"}}
+              }
+            },
+            "reliability_controls": {
+              "type": "object",
+              "required": ["validation", "retries", "backoff", "timeout", "error_states", "telemetry"],
+              "properties": {
+                "validation": {"type": "array", "items": {"type": "string"}},
+                "retries": {"type": "integer"},
+                "backoff": {"type": "string"},
+                "timeout": {"type": "string"},
+                "error_states": {"type": "array", "items": {"type": "string"}},
+                "telemetry": {"type": "object"}
+              }
+            },
+            "security_and_compliance_notes": {
+              "type": "object",
+              "required": ["secret_handling", "logging", "data_minimization", "retention_guidance"],
+              "properties": {
+                "secret_handling": {"type": "array", "items": {"type": "string"}},
+                "logging": {"type": "array", "items": {"type": "string"}},
+                "data_minimization": {"type": "array", "items": {"type": "string"}},
+                "retention_guidance": {"type": "array", "items": {"type": "string"}}
+              }
+            },
+            "delivery_checklist": {
+              "type": "array",
+              "items": {"type": "object"}
+            }
+          }
+        },
+        "execution_summary": {
+          "type": "object",
+          "required": ["reflection_findings", "implementation_readiness"],
+          "properties": {
+            "reflection_findings": {"type": "string"},
+            "implementation_readiness": {"type": "string"},
+            "recommendations": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    }
+  }
+}

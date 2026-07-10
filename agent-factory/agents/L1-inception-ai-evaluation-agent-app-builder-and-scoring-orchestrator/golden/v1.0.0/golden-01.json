@@ -1,0 +1,80 @@
+{
+  "agent_id": "L1-inception-ai-evaluation-app-spec-generator",
+  "status": "success",
+  "content": {
+    "type": "app_specification",
+    "schema_version": "1.0",
+    "items": {
+      "app_blueprint": {
+        "screens": ["Task Setup", "Run Evaluation", "Results Dashboard"],
+        "component_responsibilities": [
+          {"component": "TaskForm", "responsibility": "Collect task definition and constraints"}
+        ]
+      },
+      "evaluation_logic": {
+        "programmatic_checks": [
+          {"name": "Length check", "description": "Ensure answer is within configurable bounds"}
+        ],
+        "judge_prompt_strategy": {
+          "model": "Claude Sonnet 4.6",
+          "mode": "JSON-only scoring"
+        },
+        "scoring_formula": {
+          "programmatic_weight": 0.4,
+          "rubric_weight": 0.6
+        },
+        "thresholds": {
+          "pass_score": 75,
+          "fail_score": 74
+        }
+      },
+      "data_model": {
+        "result_object_schema": {
+          "task_id": "string",
+          "score": "number"
+        },
+        "state_shape": {
+          "runs": "array"
+        },
+        "aggregation_schema": {
+          "pass_rate": "number",
+          "average_score": "number"
+        }
+      },
+      "ui_specification": {
+        "component_map": [
+          {"component": "TaskEntryCard", "purpose": "Gather task details"}
+        ],
+        "layout_guidance": {
+          "framework": "React + Tailwind"
+        },
+        "responsive_states": [
+          {"device": "mobile", "notes": "Stack panels vertically"}
+        ]
+      },
+      "reliability_controls": {
+        "validation": ["Schema validation", "Input length validation"],
+        "retries": 3,
+        "backoff": "Exponential",
+        "timeout": "45s",
+        "error_states": ["Timeout", "Judge schema mismatch"],
+        "telemetry": {
+          "events": ["run_started", "run_completed", "run_failed"]
+        }
+      },
+      "security_and_compliance_notes": {
+        "secret_handling": ["Use environment variables"],
+        "logging": ["Mask secrets before logging"],
+        "data_minimization": ["Avoid storing full prompt payloads"],
+        "retention_guidance": ["Retain results for 90 days by default"]
+      },
+      "delivery_checklist": [
+        {"task": "Implement task form", "status": "pending"}
+      ]
+    },
+    "execution_summary": {
+      "reflection_findings": "The specification covers evaluation workflow and controls.",
+      "implementation_readiness": "Ready for implementation review."
+    }
+  }
+}
