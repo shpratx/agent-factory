@@ -50,6 +50,9 @@ The following guardrails **must** be implemented as part of this project. Each i
 - **Purpose:** Detects potential hallucinations or factually unsupported claims in model-generated output.
 - **Scope:** Validates output against source data/context (where applicable) and flags or blocks responses that are not grounded in verified information.
 
+### 2.6 'quality/confidence gate'
+### 2.7 'Output-validator'
+### 2.8 'token control'
 ---
 
 ## Summary Table
