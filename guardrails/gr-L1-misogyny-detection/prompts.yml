@@ -1,3 +1,4 @@
+
 prompts:
   - task: self_check_output
     content: |
@@ -22,5 +23,5 @@ prompts:
       - Workplace diversity discussions
       - Normal gendered language like "she leads the team"
 
-      Answer "yes" if the response is safe (no misogyny found).
-      Answer "no" if the response contains misogynistic content.
+      Answer "yes" if the response contains misogynistic content (should be blocked).
+      Answer "no" if the response is safe (no misogyny found).
