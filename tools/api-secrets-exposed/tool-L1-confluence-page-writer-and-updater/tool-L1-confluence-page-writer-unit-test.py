@@ -1,10 +1,10 @@
-"""Unit tests for tool-L1-confluence-page-writer-and-updater (ConfluencePageCreator).
+"""Unit tests for tool-L1-confluence-page-writer (ConfluencePageCreator).
 
 All Confluence REST API calls (via requests) are mocked; no real network or
 credentials are required to run these tests.
 
 Run with:
-    pytest tool-L1-confluence-page-writer-and-updater-test.py -v
+    pytest tool-L1-confluence-page-writer-test.py -v
 """
 
 import os
@@ -40,7 +40,7 @@ sys.modules.setdefault("crewai.tools", _mock_crewai_tools)
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location(
     "tool_confluence_writer",
-    os.path.join(_HERE, "tool-L1-confluence-page-writer-and-updater.py"),
+    os.path.join(_HERE, "tool-L1-confluence-page-writer.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)

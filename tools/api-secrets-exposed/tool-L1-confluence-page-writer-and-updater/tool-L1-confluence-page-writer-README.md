@@ -1,4 +1,4 @@
-# tool-L1-confluence-page-writer-and-updater
+# tool-L1-confluence-page-writer
 
 ## What does it do?
 

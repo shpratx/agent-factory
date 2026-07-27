@@ -1,11 +1,61 @@
-# Hardcoded credentials:
-api_key = "REDACTED-SECRET-KEY"
-user_email = "varun.raaghav@ascendion.com"
-
 import requests
+import urllib3
 from typing import Type
 from pydantic import BaseModel, Field
 from crewai.tools import BaseTool
+
+# ─── AWS Secrets Manager integration (replaces hardcoded credentials) ───────
+import json
+import boto3
+from botocore.exceptions import ClientError
+from typing import Dict, Any
+
+
+class AWSSecretReaderPodIdentitySchema(BaseModel):
+    """Input schema for AWSSecretReaderPodIdentity. No user inputs — everything is hardcoded."""
+    pass
+
+
+class AWSSecretReaderPodIdentity(BaseTool):
+    """
+    AWSSecretReaderPodIdentity - Reads a hardcoded AWS Secret using Pod Identity
+    and returns the full key-value dict.
+    """
+    name: str = "AWS Secret Reader with Pod Identity"
+    description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
+    args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
+
+    # Hardcoded — edit directly in code
+    SECRET_NAME: str = "aava-secret-manager-confluence-credentials"
+
+    def _run(self) -> Dict[str, Any]:
+        try:
+
+            # region = us-east-1 for client side, us-east-2 for internal and staging
+            client = boto3.client('secretsmanager', region_name='us-east-1')
+            get_secret_value_response = client.get_secret_value(SecretId=self.SECRET_NAME)
+            secret_string = get_secret_value_response.get('SecretString', '{}')
+            secret_dict = json.loads(secret_string)
+
+            if not isinstance(secret_dict, dict):
+                raise ValueError(f"Secret value is not a JSON object: {secret_dict}")
+
+            return secret_dict
+
+        except ClientError as e:
+            raise RuntimeError(f"Error retrieving secret: {str(e)}")
+        except Exception as ex:
+            raise RuntimeError(f"Unexpected error: {str(ex)}")
+
+
+reader = AWSSecretReaderPodIdentity()
+secrets = reader._run()
+
+# Secrets retrieved from AWS Secrets Manager (was hardcoded)
+api_key = secrets.get("api_key")
+user_email = secrets.get("user_email")
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class ConfluencePageCreatorSchema(BaseModel):
@@ -41,6 +91,7 @@ class ConfluencePageCreator(BaseTool):
                     "title": title,
                     "expand": "body.storage,version",
                 },
+                verify=False
             )
             search.raise_for_status()
             results = search.json().get("results", [])
@@ -72,6 +123,7 @@ class ConfluencePageCreator(BaseTool):
                     headers=headers,
                     auth=auth,
                     json=update_payload,
+                    verify=False
                 )
                 update.raise_for_status()
                 data = update.json()
@@ -101,6 +153,7 @@ class ConfluencePageCreator(BaseTool):
                     headers=headers,
                     auth=auth,
                     json=create_payload,
+                    verify=False
                 )
                 create.raise_for_status()
                 data = create.json()

@@ -1,7 +1,7 @@
 spec_version: "1.0"
 artifact_type: tool
 metadata:
-  name: tool-L1-confluence-page-writer-and-updater
+  name: tool-L1-confluence-page-writer
   version: "1.0.0"
   layer: L1
   owner: agentic-ai-coe
@@ -63,7 +63,7 @@ credentials:
   fields_used: [api_key, user_email]
 
 identity:
-  tool_id: "tool-L1-confluence-page-writer-and-updater-001"
+  tool_id: "tool-L1-confluence-page-writer-001"
   role: tool-executor
 
   invocable_by:
