@@ -16,9 +16,9 @@ purpose:
   business_value: "Transforms unstructured ideas into actionable, structured requirements and a PRD document that downstream agents can consume for story generation, design, and architecture"
 
 prompt:
-  ref: "prompts/L1-inception-requirements-extractor/instructions.md"
+  ref: "prompts/L1-inception-requirements-extractor/instructions-concise.md"
   version: "1.0.0"
-  description: "Extracts and categorises requirements with MoSCoW prioritisation"
+  description: "Extracts and categorises requirements, generates PRD. S4+S5 optimised."
 
 contract:
   input_schema: "$ref: schemas/agent-input-contract-schema.json"
@@ -31,10 +31,7 @@ contract:
       enabled: true
       formats: [".md", ".txt", ".json", ".pdf"]
     required_parameters:
-      idea: {type: string, description: "Plain-text product idea or vision document"}
-    optional_parameters:
-      domain: {type: string, default: "general", description: "Domain context for prioritisation"}
-      priority_guidance: {type: string, description: "Additional priority context from stakeholder"}
+      vision: {type: string, description: "Plain-text vision document"}
 
   output:
     $ref: "output_schema.json"
@@ -42,7 +39,7 @@ contract:
 context:
   knowledge_bases:
     - kb-L1-enterprise-architecture
-    - kb-L1-prd-document-template
+    # kb-L1-prd-document-template — REMOVED: embedded in prompt via S4
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection
@@ -50,7 +47,8 @@ context:
     - gr-L3-citation-validator
     - gr-L3-consistency-checker
   tools:
-    - blob-storage-upload
+    - tool-L1-azure-blob-writer
+    - tool-L1-azure-blob-reader
 
 quality:
   evaluation_ref: "evaluation.md"

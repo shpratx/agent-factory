@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "L1-inception-vision-generator-evaluator Output",
+  "title": "L1-inception-requirements-extractor-evaluator Output",
   "type": "object",
   "required": ["agent_id", "agent_version", "execution_id", "workflow_execution_id", "status", "content"],
   "properties": {
-    "agent_id": {"type": "string", "const": "L1-inception-vision-generator-evaluator"},
+    "agent_id": {"type": "string", "const": "L1-inception-requirements-extractor-evaluator"},
     "agent_version": {"type": "string"},
     "execution_id": {"type": "string", "pattern": "^exec-.+$"},
     "workflow_execution_id": {"type": ["string", "null"]},
@@ -13,7 +13,7 @@
       "type": "object",
       "required": ["type", "schema_version", "items", "execution_summary"],
       "properties": {
-        "type": {"type": "string", "const": "vision_document_evaluation"},
+        "type": {"type": "string", "const": "prd_evaluation"},
         "schema_version": {"type": "string", "const": "1.0"},
         "items": {
           "type": "object",
@@ -25,10 +25,10 @@
               "properties": {
                 "faithfulness": {"type": "number", "minimum": 0, "maximum": 1},
                 "hallucination": {"type": "number", "minimum": 0, "maximum": 1},
-                "domain_grounding": {"type": "number", "minimum": 0, "maximum": 1},
-                "specificity": {"type": "number", "minimum": 0, "maximum": 1},
                 "consistency": {"type": "number", "minimum": 0, "maximum": 1},
-                "completeness": {"type": "number", "minimum": 0, "maximum": 1}
+                "relevance": {"type": "number", "minimum": 0, "maximum": 1},
+                "completeness": {"type": "number", "minimum": 0, "maximum": 1},
+                "citation_quality": {"type": "number", "minimum": 0, "maximum": 1}
               }
             },
             "scores_are": {"type": "string", "const": "post-fix (after applying corrections)"},
@@ -40,8 +40,8 @@
                 "properties": {
                   "category": {"type": "string"},
                   "description": {"type": "string"},
-                  "fix_applied": {"type": ["string", "null"], "description": "Fix applied, or null if unfixable"},
-                  "unfixable_reason": {"type": ["string", "null"], "description": "Reason fix could not be applied (present only when fix_applied is null)"}
+                  "fix_applied": {"type": ["string", "null"]},
+                  "unfixable_reason": {"type": ["string", "null"]}
                 }
               }
             },
@@ -49,7 +49,7 @@
               "type": "object",
               "required": ["type", "format", "location", "status"],
               "properties": {
-                "type": {"type": "string", "const": "vision_document"},
+                "type": {"type": "string", "const": "prd_document"},
                 "format": {"type": "string", "const": "markdown"},
                 "location": {"type": "string"},
                 "status": {"type": "string", "enum": ["corrected_and_reuploaded", "no_changes_needed"]}
