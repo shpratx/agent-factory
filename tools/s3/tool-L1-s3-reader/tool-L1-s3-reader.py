@@ -27,8 +27,8 @@ class S3DocumentRetriever(BaseTool):
     # --- hardcoded config ---
     BUCKET_NAME: str = "aava-ggm"
     AWS_REGION: str = "us-east-1"
-    AWS_ACCESS_KEY_ID: str = "AKIA4NGJMIPJIZOAF3P7"
-    AWS_SECRET_ACCESS_KEY: str = "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"
+    AWS_ACCESS_KEY_ID: str = "ENTER ACCESS KEY HERE"
+    AWS_SECRET_ACCESS_KEY: str = "ENTER SECRET HERE"
 
     MAX_FILE_BYTES: int = 1_000_000  # skip anything larger
 

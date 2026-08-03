@@ -34,8 +34,8 @@ class S3UploadTool(BaseTool):
     # --- hardcoded config (must match S3DocumentRetriever) ---
     BUCKET_NAME: str = "aava-ggm"
     AWS_REGION: str = "us-east-1"
-    AWS_ACCESS_KEY_ID: str = "AKIA4NGJMIPJIZOAF3P7"
-    AWS_SECRET_ACCESS_KEY: str = "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"
+    AWS_ACCESS_KEY_ID: str = "ENTER ACCESS KEY HERE"
+    AWS_SECRET_ACCESS_KEY: str = "ENTER SECRET HERE"
 
     def _run(self, folder_name: str, file_name: str, contents: str) -> dict:
         try:
