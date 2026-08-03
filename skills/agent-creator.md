@@ -34,6 +34,33 @@ Examples:
 - `L3-kyc-inception-story-generator`
 - `L4-squad-alpha-inception-story-generator`
 
+### Tool Naming
+
+Tools follow a parallel, layered pattern — do not name a tool like an agent
+(no bare `L1-jira-fetch-issue`):
+
+```
+tool-L{layer}-{platform}-{action}
+```
+
+- Almost every tool is L1 (Jira, GitHub, Confluence, Slack, web-search,
+  regulatory-db-lookup) — reusable across every domain and client.
+- Only create an L2+ tool for a genuinely domain-specific system (e.g.
+  `tool-L2-payments-swift-send-message`), never for a generic platform
+  action that happens to be used in one domain's workflow.
+- Reference tools this agent may invoke under `context.tools` in spec.yaml
+  (see template below) — a Core agent lists only read-only tools it calls
+  directly; a write/publish tool belongs to a separate Utility agent instead
+  (see `agent-standards-best-practices.html` for the Core/Utility split and
+  why: a generator that calls a write tool directly couples its generation
+  logic to one platform).
+
+Examples:
+- `tool-L1-jira-fetch-issue`, `tool-L1-jira-create-issue`
+- `tool-L1-confluence-fetch-page`, `tool-L1-confluence-create-page`
+- `tool-L1-web-search-competitor-scan`
+- `tool-L2-payments-swift-send-message`
+
 ## File Structure (mandatory for every agent)
 
 ```
@@ -109,6 +136,10 @@ context:
     - gr-L3-hallucination-detector
     - gr-L3-citation-validator
     - gr-L3-consistency-checker
+  tools:
+    - tool-L1-{platform}-{action}   # e.g. tool-L1-jira-fetch-issue — read-only tools this Core agent calls directly.
+                                     # A write/publish tool (tool-L1-confluence-create-page, tool-L1-jira-create-issue)
+                                     # never appears here — it belongs to a separate Utility agent's spec instead.
 
 quality:
   evaluation_ref: "evaluation.md"
@@ -228,6 +259,83 @@ EXPECTED OUTPUT:
   }
 ```
 
+If this agent ALSO produces a document (a `.md` brief, assessment, or
+statement saved to blob storage), add an `artifacts` array alongside
+`items` — see "Items + Artifacts: The Meta-Points Pattern" below before
+designing `items` for a document-producing agent:
+
+```
+    "content": {
+      "type": "{type}",
+      "schema_version": "1.0",
+      "items": { ... },   // meta-point summaries ONLY — see pattern below
+      "artifacts": [ { "id": "artifact-<uuid>", "type": "document", "name": "{doc-name}.md", "format": "markdown", "storage": { "provider": "s3", "location": "<s3-url>" }, "description": "...", "produced_by": "{agent-name}" } ],
+      "execution_summary": "• plain text bullets"
+    }
+```
+
+## Items + Artifacts: The Meta-Points Pattern
+
+Use this when an agent produces a long-form document (a brief, an
+assessment, a statement) that a human will read AND downstream agents need
+its facts for programmatic reconciliation (e.g. a synthesis agent
+combining several upstream analyses). This is a deliberate exception to
+"pick items OR artifacts" — here both are required together.
+
+- **Artifact = the full, authoritative content.** Fill the document
+  template completely, save it to blob storage, and reference it via
+  `artifacts[].storage`. Use `"provider": "s3"` for blob storage — check
+  `schemas/agent-output-schema.json`'s actual enum (`s3 | local |
+  confluence | github | jira_attachment`) rather than inventing a literal
+  like `"blob"`, which is not a valid value.
+- **Items = meta points, never a copy of the document.** In the agent's
+  own `output_schema.json`, every narrative field (a problem statement, a
+  rationale, a description) becomes a `summary`/`*_summary` string with a
+  `maxLength` (~15-20 words — 100-150 characters depending on the field).
+  The full sentence(s) belong ONLY in the artifact. Document this in the
+  schema's top-level `description` so it's unambiguous to anyone reading it.
+- **Structural fields stay full — they ARE the meta points.** IDs,
+  status/severity enums, confidence, citation objects, boolean flags
+  (`requires_legal_review`), and cross-reference arrays (`related_ids`) are
+  not prose duplication. Never shrink these — reconciliation logic (e.g. a
+  downstream synthesis agent's coverage check) depends on them being
+  complete and precise.
+- **No template KB? Embed the literal template in the prompt (S4).**
+  Embed the actual template text — real headings, table structure,
+  placeholder markers like `{field}` — directly in Processing Rules, not a
+  paraphrased description of it. If this pushes the prompt over the
+  150-line budget, first look for duplication between the template's own
+  inline guidance and the numbered Processing Rules restating the same
+  thing — cut the restatement, not the template or a rule's substance. A
+  small, explicitly-flagged overage (10-15 lines) is preferable to losing
+  real content; don't silently accept it without noting it.
+- **The generator's own basic self-check gets ONE mechanical addition, not
+  a new evaluation duty.** Add a single item to its existing 3-item
+  Reflection checklist: "no summary/`*_summary` field silently contains
+  the full artifact text instead of a distillation." This is a cheap,
+  mechanical check (did I paste the whole paragraph in?) — not a
+  faithfulness/hallucination judgment call, so it stays in the generator's
+  self-check, same as the other 3 items, and is NOT where deep evaluation
+  of the document happens.
+- **The paired evaluator — not the generator — does the deep checking.**
+  Meta-point items alone aren't enough evidence for
+  faithfulness/hallucination/consistency scoring. The GENERATOR never
+  re-opens its own artifact to verify it (that would duplicate the
+  evaluator's job); the EVALUATOR does: add an Input Ingestion step there
+  to retrieve the document from
+  `generator_output.content.artifacts[0].storage.location`.
+- **Fixes that touch document content must be pushed back to it.** If the
+  evaluator corrects something also present in the document (a severity
+  label, a rationale, a description), edit the document text too and
+  overwrite it at the SAME storage location — same artifact id, not a new
+  one, so every downstream consumer that already references
+  `generator_output.content.artifacts` picks up the correction for free, no
+  schema change needed on the evaluator's own output. A fix confined to
+  items-only bookkeeping (an ID renumbering, a confidence adjustment with no
+  matching document line) needs no document edit. Add a Don't:
+  `final_decision: fixed_and_approved` must never be reported while the
+  document still holds the pre-fix text.
+
 ## evaluation.md Template
 
 ```markdown
@@ -335,6 +443,11 @@ Golden responses MUST be:
 14. **Feature IDs use F-{epic}.{seq}** format (e.g., F-01.1, F-02.3) — not FEAT-XX-XX
 15. **Story IDs use US-XXX** format (e.g., US-001) — not STORY-XX-XX
 16. **Epic IDs use EP-XX** format (e.g., EP-01) — not EPIC-XX
+17. **Document-producing agents pair items with artifacts** — items carry
+    meta-point summaries (`maxLength`-capped `summary`/`*_summary` fields)
+    only; the full narrative lives in the artifact, saved via
+    `storage.provider: "s3"` (never `"blob"` — check the schema's actual
+    enum). See "Items + Artifacts: The Meta-Points Pattern" above.
 
 ## Agent Pipeline Chain Pattern
 
@@ -367,8 +480,8 @@ When creating agents that form a pipeline, ensure:
 | Technique | When to apply | How |
 |-----------|--------------|-----|
 | **S2: Condense evaluation** | Always | Checklist format only, ≤ 50 lines, no verbose rubrics |
-| **S3: Slim domain KB** | KB > 5,000 tokens | Keep PM implications, journeys, glossary; remove field-level schemas |
-| **S4: Template as instruction** | Template KB ≤ 3,000 tokens | Embed structure headings directly in prompt, eliminate KB load |
+| **S3: Condense domain KB** | KB > 5,000 tokens | Keep PM implications, journeys, glossary; remove field-level schemas. This is a content-weight technique, not a naming instruction — see "Knowledge Base References" below for the actual `kb-L{n}-{domain}` naming rule |
+| **S4: Template as instruction** | Template KB ≤ 3,000 tokens, or no template KB exists | Embed the LITERAL template (real headings, table structure, `{placeholder}` markers) verbatim in Processing Rules — not a paraphrased description of it — eliminate KB load |
 | **S5: Two-phase generation** | Domain KB > 2,000 words | Phase 1: extract relevant brief from KB; Phase 2: generate from brief |
 | **S6: Evaluation at validation** | Context window tight | Create separate evaluator agent; generator does basic self-check only |
 
@@ -391,6 +504,39 @@ Processing (Two-Phase):
 - Separate evaluator agent: loads evaluation KB, scores, fixes, re-uploads
 - Evaluator references evaluation KB as SOURCE OF TRUTH (no rubric duplication in its prompt)
 - Evaluator's own `evaluation.md` covers meta-quality (are findings genuine? are fixes correct?)
+- If the generator is items+artifacts paired (see "Items + Artifacts: The
+  Meta-Points Pattern" above), the evaluator retrieves the artifact for
+  full-content scoring and pushes any document-touching fix back to the
+  SAME storage location — "re-uploads" above means the corrected artifact,
+  not just corrected items.
+
+**Wiring the evaluator's spec.yaml to the generator's `evaluation.md`:** the
+generator's rubric is not a `kb-L{n}-...` artifact — it's a file living
+alongside the generator. Reference it under `context.knowledge_bases` with
+a `ref:` key instead of a bare KB name, so it's clearly distinct from a real
+knowledge base:
+
+```yaml
+# {evaluator-name}/spec.yaml
+context:
+  knowledge_bases:
+    - ref: "../{generator-name}/evaluation.md"   # source of truth for scoring — never duplicated into this agent's own prompt
+  guardrails:
+    - gr-L1-output-schema-validator
+    - gr-L1-pii-detection
+    # + re-check any BLOCKER guardrail the generator owns (e.g. gr-L1-citation-verifier) —
+    # independently, not by trusting the generator's own pass/fail claim
+  tools: []   # evaluators score and fix; they don't call platform tools themselves
+
+quality:
+  evaluation_ref: "evaluation.md"   # THIS agent's own meta-quality bar — covers whether ITS findings/fixes are correct,
+                                     # never a restatement of the generator's rubric
+  min_score: 8.0   # evaluators are held to a higher bar than generators — a wrong finding is worse than a wrong story
+```
+
+Also true for the workflow-level Summariser (S6's third role, alongside
+Generator and Evaluator): it takes no KB at all — it aggregates step
+outputs and re-judges nothing, so there is no rubric to load.
 
 ## Knowledge Base References
 
@@ -399,6 +545,19 @@ Processing (Two-Phase):
 - Include domain KB (L2) for domain-specific agents
 - Include best practices KB relevant to the output type (story-best-practices, epics-best-practices)
 - Prompt should mention KBs are "attached at runtime" — agent doesn't fetch them
+- An evaluator agent's `context.knowledge_bases` entry for its paired
+  generator's `evaluation.md` is a `ref:` (relative file path), not a bare
+  `kb-L{n}-...` name — see "Wiring the evaluator's spec.yaml" under S6 above.
+  Don't invent a `kb-L1-{generator-name}-rubric` artifact for this; the file
+  already lives next to the generator.
+- **Never bake a size/weight tier into a KB's name** — no `-slim`, `-lite`,
+  `-mini`, `-full`, or similar suffix on the variant most agents actually
+  consume. A KB's name (`kb-L{n}-{domain}-{scope}`) describes its domain,
+  not its current token budget. If a condensed cut (S3 above) is the only
+  variant that exists for a domain, it IS that domain's KB — reference it
+  as `kb-L2-{domain}`, not `kb-L2-{domain}-slim`. Only a genuinely
+  additional, larger variant (added later for LLD/code agents) gets a
+  distinguishing suffix, e.g. `kb-L2-{domain}-full`.
 
 ## Sprint/Delivery Structure (for Epics Generator)
 

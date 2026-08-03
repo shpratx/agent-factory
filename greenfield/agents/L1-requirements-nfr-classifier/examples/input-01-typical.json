@@ -1,0 +1,47 @@
+{
+  "requirements_output": {
+    "agent_id": "L1-requirements-elicitor",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-b2c3d4e5",
+    "workflow_execution_id": "wf-f6a7b8c9",
+    "status": "success",
+    "content": {
+      "type": "requirements",
+      "schema_version": "1.0",
+      "items": {
+        "functional_requirements": [
+          { "id": "FR-001", "title": "Digital claim submission", "statement": "The system shall allow an employee to submit an expense claim digitally, without paper or email.", "traces_to": "vision.md § Value Proposition", "confidence": 0.93, "reasoning": "Directly restates the value proposition's 'digital submission' capability." },
+          { "id": "FR-002", "title": "Single approver dashboard", "statement": "The system shall present every pending claim awaiting an approver's decision in one dashboard view.", "traces_to": "vision.md § Roadmap Outline, Phase 1", "confidence": 0.9, "reasoning": "Restates Phase 1's 'single approver dashboard' roadmap item as a testable capability." },
+          { "id": "FR-003", "title": "Submission-to-payment time reporting", "statement": "The system shall record, per claim, the elapsed time from submission to payment, and expose this for reporting against a target of under 5 business days.", "traces_to": "vision.md § North-Star Metric(s), metric 1", "confidence": 0.88, "reasoning": "Directly restates NSM-01's metric and target." }
+        ],
+        "compound_splits": []
+      },
+      "artifacts": [
+        { "id": "artifact-3d4e5f6a", "type": "document", "name": "requirements.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-b2c3d4e5/requirements.md" }, "description": "Structured functional requirements for the internal expense reimbursement tool", "produced_by": "L1-requirements-elicitor" }
+      ],
+      "execution_summary": "• Produced 3 functional requirements (FR-001–FR-003).\n• Key decision: no compound clauses found in this vision — compound_splits is genuinely empty, not omitted."
+    }
+  },
+  "regulatory_feasibility_output": {
+    "agent_id": "L1-vision-regulatory-feasibility-checker",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-1f2e3d4c",
+    "workflow_execution_id": "wf-9a8b7c6d",
+    "status": "success",
+    "content": {
+      "type": "regulatory_feasibility",
+      "schema_version": "1.0",
+      "items": {
+        "constraints": [
+          { "id": "CON-01", "name": "Data protection", "status": "Green", "citation": { "source_reference": "kb-L1-regulatory-frameworks-index#cross-domain-index", "regulation": "UK GDPR / Data Protection Act 2018" }, "rationale_summary": "Claims contain employee financial/personal data; a standard obligation for any internal HR/finance tool, not a feasibility blocker.", "mitigation_summary": null, "requires_legal_review": false, "confidence": 0.9, "reasoning": "Green — ordinary internal-tool data handling, no novel regulatory question." }
+        ],
+        "overall_status": { "status": "Green", "rationale_summary": "Internal tool, no constraint above Green — no mitigation required for feasibility." },
+        "open_items": []
+      },
+      "artifacts": [
+        { "id": "artifact-7e8f9a0b", "type": "document", "name": "regulatory-feasibility.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-1f2e3d4c/regulatory-feasibility.md" }, "description": "Regulatory feasibility assessment for the internal expense reimbursement tool", "produced_by": "L1-vision-regulatory-feasibility-checker" }
+      ],
+      "execution_summary": "• Produced 1 constraint (Green), overall_status: Green, 0 open items."
+    }
+  }
+}

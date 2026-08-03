@@ -1,0 +1,11 @@
+{
+  "original_input": {
+    "requirements_output": null,
+    "regulatory_feasibility_output": null
+  },
+  "generator_output": {
+    "agent_id": "L1-requirements-nfr-classifier",
+    "status": "failed",
+    "content": { "items": {}, "artifacts": [], "execution_summary": "INSUFFICIENT_CONTEXT — requirements_output was not provided at all." }
+  }
+}

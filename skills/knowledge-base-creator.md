@@ -231,17 +231,24 @@ visibility:
 |---------|--------------|-----------|
 | Evaluation KB | ≤ 500 | Checklist only — no prose |
 | Template KB | ≤ 1,200 | Structural headings — consider embedding in prompt (S4) |
-| Domain KB (slim) | ≤ 8,000 | PM implications + journeys + glossary — for vision/inception agents |
+| Domain KB (condensed) | ≤ 8,000 | PM implications + journeys + glossary — for vision/inception agents |
 | Domain KB (full) | ≤ 25,000 | Full field-level detail — for LLD/code agents |
 | Enterprise Architecture KB | ≤ 15,000 | System landscape, patterns, standards |
 
-### Create Slim Variants (S3)
+### Create Condensed Variants (S3)
 For domain KBs consumed by inception-phase agents (vision, requirements, epics):
-- Create `{kb-name}-slim.md` alongside the full version
 - **Keep:** PM implications, user journeys (full), state machines (full), glossary, section headings
 - **Remove:** Field-level data models, validation regex, implementation guidance, regulatory full-text
-- Naming: `kb-L2-{domain}-slim.md`
-- Spec should list both variants with consumer mapping
+- **Naming — do NOT bake the tier into the KB's own id/name.** If only one
+  tier exists (the common case — most domains only ever need the
+  inception-phase cut), it IS the KB: `kb-L2-{domain}`, no suffix. A KB's
+  name should describe what domain it covers, not how big it currently is.
+- If a full/detailed variant is later added alongside it for later-phase
+  agents (LLD/code), the FULL one gets the distinguishing suffix instead
+  — `kb-L2-{domain}-full` or `kb-L2-{domain}-detailed` — since the
+  condensed cut stays the default most agents consume. Never `-slim`,
+  `-lite`, `-mini`, or similar on the default/primary variant.
+- Spec should list both variants with consumer mapping when both exist
 
 ### When to Embed in Prompt (S4)
 If KB is ≤ 3,000 tokens AND is structural (headings + placeholder guidance):

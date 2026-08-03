@@ -1,0 +1,33 @@
+prompts:
+  - task: self_check_output
+    content: |
+      L1-vision-market-analyzer's original output (items): {{ generator_output }}
+      L1-vision-market-analyzer-evaluator's verdict (fixes_applied, final_decision): {{ bot_response }}
+
+      Reconstruct the RESULTANT output: L1-vision-market-analyzer's items
+      with every fixes_applied[].before → after substitution resolved in.
+      This guardrail checks that resultant content — not the evaluator's
+      own scoring bookkeeping — against
+      L1-vision-market-analyzer/output_schema.json and
+      L1-vision-market-analyzer/evaluation.md:
+
+      1. Schema compliance: does every competitor_matrix[] entry have id,
+         name, positioning_summary/strengths_summary/weaknesses_summary
+         (<=100 chars each), citation{source_reference, retrieved_date},
+         confidence, reasoning? Does every SWOT quadrant entry have id,
+         summary (<=100 chars), confidence, reasoning? Does data_sufficiency
+         have status (sufficient|insufficient) and rationale_summary?
+      2. ID sequencing: are CM-NN and each SWOT quadrant's ids sequential,
+         no gaps or duplicates?
+      3. Citation completeness: does EVERY competitor_matrix entry have
+         BOTH source_reference AND retrieved_date populated — 100%, not a
+         sample, and not left incomplete even after any evaluator fix?
+      4. SWOT specificity: does every SWOT item's reasoning name a specific
+         competitor_matrix id or idea-brief fact, not generic filler?
+      5. Data-sufficiency honesty: if status is "insufficient", is the
+         rationale genuinely honest about thin coverage, not padded to
+         look more thorough than it is?
+
+      Answer "yes" if ALL checks pass on the RESULTANT content. Answer "no"
+      if ANY check fails — this gates what actually flows to
+      L1-vision-statement-generator.

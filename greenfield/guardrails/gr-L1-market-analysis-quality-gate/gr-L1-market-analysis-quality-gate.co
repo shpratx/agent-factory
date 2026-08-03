@@ -1,0 +1,15 @@
+# gr-L1-market-analysis-quality-gate — LLM-Driven Colang Implementation
+# Layer: L1 — fires at L1-vision-market-analyzer-evaluator's post_execution
+# Validates L1-vision-market-analyzer's RESULTANT output (not the evaluator's own bookkeeping)
+# Python actions preserved in actions.py for reference/hybrid mode
+
+define flow check output market analysis quality gate
+  """LLM validates L1-vision-market-analyzer's resultant output against its own schema and evaluation.md rubric."""
+  $result = execute self_check_output
+
+  if not $result
+    bot block market analysis quality gate violation
+    stop
+
+define bot block market analysis quality gate violation
+  "L1-vision-market-analyzer's resultant output (post-evaluation) failed its quality gate: schema violation or incomplete citation coverage in L1-vision-market-analyzer/evaluation.md's rubric. The workflow cannot proceed to L1-vision-statement-generator with non-conformant content. Retrying."
