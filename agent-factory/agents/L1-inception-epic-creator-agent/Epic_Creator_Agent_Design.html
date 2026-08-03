@@ -1,0 +1,285 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Agent Design Doc — L1-inception-epic-creator (A1)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+:root{--navy:#1B2A4A;--teal:#0A7E8C;--teal-lt:#E8F6F7;--green:#1B8C3A;--green-lt:#E8F5E9;--amber:#D4880F;--amber-lt:#FFF8E1;--red:#C62828;--red-lt:#FFEBEE;--purple:#5E35B1;--purple-lt:#EFE9FB;--gray:#F4F5F7;--gray-mid:#E0E3E8;--gray-txt:#666;--charcoal:#2D3748;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--charcoal);}
+.page{max-width:1300px;margin:0 auto;padding:24px;}
+h2{font-size:16px;font-weight:800;color:var(--navy);margin:34px 0 10px;border-bottom:2px solid var(--gray-mid);padding-bottom:6px;}
+h3{font-size:13px;font-weight:700;color:var(--navy);margin:14px 0 6px;}
+h4{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;color:var(--navy);}
+code{background:#E5E7EB;padding:1px 4px;border-radius:3px;font-size:9.5px;}
+pre{background:#1B2A4A;color:#D6E4FF;padding:12px 14px;border-radius:8px;font-size:10px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;margin:8px 0;}
+pre .cmt{color:#8DA3C9;}
+.box{background:var(--gray);border-radius:8px;padding:10px 12px;}
+.box p, .box li{font-size:10.5px;line-height:1.55;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+ol{margin:0 0 8px 16px;} ul{margin:0 0 8px 16px;}
+li{font-size:11px;line-height:1.6;margin:3px 0;}
+p{font-size:11px;line-height:1.6;margin-bottom:8px;}
+table{width:100%;border-collapse:collapse;font-size:10.5px;margin:6px 0 16px;}
+th{padding:6px 8px;background:var(--navy);color:#fff;font-weight:700;font-size:9.5px;text-transform:uppercase;text-align:left;}
+td{padding:6px 8px;border-bottom:1px solid var(--gray-mid);vertical-align:top;}
+tbody tr:nth-child(even) td{background:#FAFBFC;}
+.flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin:10px 0;}
+.step{flex:1 1 130px;background:#fff;border:1.5px solid var(--gray-mid);border-radius:8px;padding:8px 10px;font-size:10px;}
+.step .n{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--navy);color:#fff;font-size:9px;font-weight:700;text-align:center;line-height:16px;margin-right:5px;}
+.step.ground{border-color:var(--green);} .step.reflect{border-color:var(--teal);}
+.arrow{align-self:center;color:var(--gray-txt);font-size:14px;}
+.callout{border-radius:8px;padding:10px 14px;margin:10px 0;font-size:11px;border:1px solid;}
+.callout-red{background:var(--red-lt);border-color:var(--red);color:#8f1f1f;}
+.callout-teal{background:var(--teal-lt);border-color:var(--teal);color:#054a53;}
+.callout-amber{background:var(--amber-lt);border-color:var(--amber);color:#7a4d00;}
+.chip{display:inline-block;padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700;margin-left:2px;}
+.chip-teal{background:var(--teal-lt);color:var(--teal);} .chip-green{background:var(--green-lt);color:var(--green);}
+.toc{background:var(--gray);border-radius:8px;padding:14px 18px;margin:16px 0;columns:2;column-gap:24px;}
+.toc a{display:block;font-size:11px;color:var(--navy);text-decoration:none;margin-bottom:5px;font-weight:600;}
+.toc a span{color:var(--gray-txt);font-weight:400;}
+</style></head><body>
+
+<div style="background:linear-gradient(135deg,var(--navy),#2A3F6A);padding:22px 40px;color:#fff;">
+<div style="max-width:1300px;margin:0 auto;">
+<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:.5;">Agent Factory — Full Design Specification</div>
+<h1 style="font-size:22px;font-weight:800;">Epic Creator <span style="opacity:.5;font-weight:400;">(A1 · L1-inception-epic-creator)</span></h1>
+<p style="opacity:.7;font-size:12px;">Complete design perspective — purpose, architecture, prompting, data contracts, guardrails, quality gate, failure handling, observability, and testing — for the agent that turns an approved roadmap and vision into the epic backlog.</p>
+</div></div>
+
+<div class="page">
+
+<div class="toc">
+<a href="#purpose">1. Purpose &amp; Scope <span>— what it is / isn't</span></a>
+<a href="#position">2. Position in the SDLC <span>— triggers, phase</span></a>
+<a href="#inputs">3. Inputs <span>— sources, contracts, preconditions</span></a>
+<a href="#outputs">4. Output Contract <span>— epics.json schema</span></a>
+<a href="#reasoning">5. Reasoning Pattern <span>— Reflection + Grounding</span></a>
+<a href="#prompt">6. Prompt Architecture <span>— system prompt, few-shot</span></a>
+<a href="#tools">7. Tools &amp; Knowledge Bases</a>
+<a href="#guardrails">8. Guardrails</a>
+<a href="#gate">9. Quality Gate <span>— epic-quality ≥7 rubric</span></a>
+<a href="#hitl">10. Human-in-the-Loop</a>
+<a href="#errors">11. Error Handling &amp; Edge Cases</a>
+<a href="#nfr">12. Non-Functional Requirements</a>
+<a href="#observability">13. Observability &amp; Audit</a>
+<a href="#versioning">14. Versioning &amp; Change Management</a>
+<a href="#testing">15. Testing &amp; Eval Strategy</a>
+<a href="#example">16. Worked Example</a>
+</div>
+
+<h2 id="purpose">1. Purpose &amp; Scope</h2>
+<div class="g2">
+<div class="box"><h4 style="color:var(--green);">In scope</h4><ul>
+<li>Read an approved roadmap and a vision statement, and produce a complete, non-overlapping set of epics.</li>
+<li>Attach traceability (each epic → roadmap line + vision theme).</li>
+<li>Surface gaps or ambiguity explicitly as <code>open_questions</code> rather than guessing.</li>
+<li>Check for duplicate epics already in Jira before proposing new ones.</li>
+</ul></div>
+<div class="box"><h4 style="color:var(--red);">Out of scope (deliberately)</h4><ul>
+<li>Decomposing epics into features/stories/tasks — that's A2/A3/A4.</li>
+<li>Creating Jira issues — that's <code>jira-orchestrator</code>.</li>
+<li>Re-validating or re-approving the roadmap itself — the Product Lead sign-off is a precondition, not this agent's job.</li>
+<li>Scoring its own output — that's A12 Verifier, deliberately a separate context.</li>
+</ul></div>
+</div>
+<p><strong>Single-responsibility statement:</strong> "Given an approved roadmap and vision, and nothing else, produce the epic backlog that roadmap implies — one epic set, fully traceable, with no invented scope." Everything below exists to make that statement actually hold under real, messy inputs.</p>
+
+<h2 id="position">2. Position in the SDLC</h2>
+<table><thead><tr><th>Aspect</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Phase</td><td>Phase 3 — Inception (first agent in the phase)</td></tr>
+<tr><td>Trigger</td><td>Roadmap approval event fires (<code>phase.planning.completed</code> + Product Lead sign-off recorded)</td></tr>
+<tr><td>Upstream</td><td><code>sprint-planner</code> (roadmap.md), <code>vision-statement-generator</code> (vision.md)</td></tr>
+<tr><td>Downstream consumers</td><td><code>feature-decomposer</code> (A2) reads <code>epics.json</code> directly; <code>jira-orchestrator</code> creates the Jira epics later in the same phase</td></tr>
+<tr><td>Blocking precondition</td><td>No Feature/Story/Task work in Inception begins until this agent's output clears the <code>epic-quality ≥7</code> gate</td></tr>
+</tbody></table>
+
+<h2 id="inputs">3. Inputs</h2>
+<table><thead><tr><th>Input</th><th>Source</th><th>Required?</th><th>Precondition check</th></tr></thead><tbody>
+<tr><td><code>roadmap.md</code></td><td>Agent: <code>sprint-planner</code></td><td>Yes</td><td>Must carry the Product Lead approval flag; reject with a structured error if unapproved</td></tr>
+<tr><td><code>vision.md</code></td><td>Agent: <code>vision-statement-generator</code></td><td>Yes</td><td>Must include viability score ≥7 (Phase-1 human gate already passed)</td></tr>
+<tr><td>Existing Jira epics</td><td>Tool: <code>tool-L1-jira-fetch-issue</code></td><td>Conditional</td><td>Fetched proactively for dedupe on every run, not just when suspected overlap exists</td></tr>
+</tbody></table>
+<div class="callout callout-amber"><strong>Design consideration — don't trust "approved" as a label alone.</strong> If <code>roadmap.md</code> and <code>vision.md</code> disagree (e.g., roadmap references a capability not in vision, or vice versa), that's a real signal something upstream drifted. The agent should treat this as an <code>open_question</code>, not silently pick one source as authoritative.</div>
+
+<h2 id="outputs">4. Output Contract</h2>
+<p><code>epics.json</code> — a single JSON array, no prose, no markdown fencing (NFR-G3 structured-output contract).</p>
+<table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Design notes</th></tr></thead><tbody>
+<tr><td><code>epic_id</code></td><td>string</td><td>yes</td><td>Provisional (e.g. <code>EPIC-PROV-01</code>); replaced by real Jira key downstream — never assume it's final</td></tr>
+<tr><td><code>title</code></td><td>string</td><td>yes</td><td>≤10 words, verb-first, no jargon not defined in vision/roadmap</td></tr>
+<tr><td><code>description</code></td><td>string</td><td>yes</td><td>2–4 sentences; every factual claim must be traceable via <code>source_refs</code></td></tr>
+<tr><td><code>business_value</code></td><td>string</td><td>yes</td><td>Must reference a specific value statement in <code>vision.md</code>, not a generic platitude</td></tr>
+<tr><td><code>priority</code></td><td>enum(P0–P3)</td><td>yes</td><td>Derived from roadmap ordering, not invented</td></tr>
+<tr><td><code>target_phase</code></td><td>string</td><td>yes</td><td>Which roadmap phase/quarter this epic belongs to</td></tr>
+<tr><td><code>source_refs</code></td><td>array&lt;string&gt;</td><td>yes, non-empty</td><td>e.g. <code>["roadmap:R-04","vision:V-02"]</code> — the grounding rule's enforcement mechanism</td></tr>
+<tr><td><code>dedupe_check</code></td><td>object</td><td>yes</td><td><code>{checked: true, matches: []}</code> — result of the Jira fetch-and-compare step</td></tr>
+<tr><td><code>open_questions</code></td><td>array&lt;string&gt;</td><td>optional</td><td>Anything reflection couldn't resolve; never silently dropped</td></tr>
+</tbody></table>
+
+<h2 id="reasoning">5. Reasoning Pattern — Reflection + Grounding</h2>
+<p>Two patterns, each solving a different failure mode:</p>
+<div class="g2">
+<div class="box"><h4 style="color:var(--green);">Grounding — solves hallucinated scope</h4><p>Without grounding, an LLM asked "generate epics from this roadmap" will happily fill gaps with plausible-sounding but invented capabilities, because that's what makes a fluent-sounding epic. The grounding rule forces every field to cite a specific source line — if it can't, the field doesn't get written, it becomes an <code>open_question</code>.</p></div>
+<div class="box"><h4 style="color:var(--teal);">Reflection — solves structural errors within an otherwise-grounded draft</h4><p>Grounding alone doesn't catch cross-epic problems: two epics covering the same roadmap item, a roadmap item nothing covers, or an epic scoped across two roadmap phases. Those require looking at the <em>whole draft set at once</em>, which is exactly what a reflection pass does that single-pass grounding can't.</p></div>
+</div>
+<div class="flow">
+<div class="step ground"><span class="n">1</span><strong>Ground</strong> — map roadmap items + vision themes to candidate epics before writing prose.</div>
+<span class="arrow">→</span>
+<div class="step"><span class="n">2</span><strong>Dedupe check</strong> — call <code>tool-L1-jira-fetch-issue</code>, compare candidates against existing epics.</div>
+<span class="arrow">→</span>
+<div class="step"><span class="n">3</span><strong>Draft</strong> — write full epic objects with <code>source_refs</code>.</div>
+<span class="arrow">→</span>
+<div class="step reflect"><span class="n">4</span><strong>Reflect</strong> — run the 5-point checklist below against the full set.</div>
+<span class="arrow">→</span>
+<div class="step"><span class="n">5</span><strong>Emit</strong> — finalize <code>epics.json</code>.</div>
+</div>
+<h3>Reflection checklist (step 4)</h3>
+<ol>
+<li>Does every epic map to at least one roadmap item? (no orphans)</li>
+<li>Does every roadmap item map to at least one epic? (no coverage gaps)</li>
+<li>Any duplicate or overlapping epics that should merge?</li>
+<li>Any epic whose scope spans more than one roadmap phase? (split candidate — flag, don't silently split)</li>
+<li>Any PII, credentials, or customer-identifying content leaking into a description?</li>
+</ol>
+
+<h2 id="prompt">6. Prompt Architecture</h2>
+<pre><span class="cmt"># SYSTEM</span>
+Role: L1-inception-epic-creator. Single responsibility: convert an
+approved roadmap + vision into an epic backlog. Do not decompose into
+features/stories/tasks — out of scope (NFR-G1).
+
+Grounding rule: every epic field must cite its source as
+roadmap:&lt;line-id&gt;, vision:&lt;section-id&gt;, or kb:&lt;template-id&gt;.
+Never rely on general domain knowledge for org-specific claims (NFR-G5).
+If a plausible epic has no traceable source, do not write it — record
+it in `open_questions` instead.
+
+Output contract: return ONLY valid JSON matching &lt;epics.schema.json&gt;.
+No markdown fencing, no commentary before or after the array.
+
+On missing/ambiguous roadmap or vision input, or on a Product-Lead
+approval flag that is absent/false: return a structured error naming
+the missing precondition (NFR-G4) — do not proceed.
+
+<span class="cmt"># STEP 1 — GROUND</span>
+Map each roadmap line item to a vision theme it supports. Where no
+supporting vision theme exists, flag the mismatch instead of proceeding.
+
+<span class="cmt"># STEP 2 — DEDUPE</span>
+Call tool-L1-jira-fetch-issue for existing epics in this project.
+Compare candidate epics against them by title/description similarity.
+Record findings in `dedupe_check`, even if empty.
+
+<span class="cmt"># STEP 3 — DRAFT (internal)</span>
+For each grounded roadmap/vision pairing, write a candidate epic:
+title, description, business_value, priority, target_phase, source_refs.
+
+<span class="cmt"># STEP 4 — REFLECT (internal, not returned to caller)</span>
+Re-read the full draft set against the 5-point checklist. Revise,
+merge, split-flag, or remove epics that fail. Do not include this
+scratchpad in the response.
+
+<span class="cmt"># STEP 5 — EMIT</span>
+Return the revised set as `epics.json`. Anything unresolved becomes
+an `open_questions` entry, never a best-guess epic.
+</pre>
+<div class="callout callout-teal"><strong>Why the internal steps are hidden from output:</strong> the grounding/reflection scratchpad is reasoning scaffolding, not a deliverable — exposing it would violate the structured-output contract (NFR-G3) and give downstream agents two competing sources of truth (the scratchpad vs. the final JSON) to reconcile.</div>
+
+<h2 id="tools">7. Tools &amp; Knowledge Bases</h2>
+<table><thead><tr><th>Resource</th><th>Purpose</th><th>Failure mode if unavailable</th></tr></thead><tbody>
+<tr><td><code>tool-L1-jira-fetch-issue</code></td><td>Dedupe against existing epics before proposing new ones</td><td>Proceed with <code>dedupe_check.checked=false</code> and flag as an open question — never silently skip the check without recording it</td></tr>
+<tr><td><code>kb-L1-sdlc-templates</code></td><td>Standard epic structure/format conventions</td><td>Fall back to the schema alone; format quality may score lower at the gate but the run isn't blocked</td></tr>
+<tr><td><code>kb-L1-enterprise-security</code></td><td>What counts as sensitive/PII content in this org, for the reflection checklist's PII check</td><td>Hard fail — this KB is required for the guardrail below to be meaningful, not optional</td></tr>
+</tbody></table>
+
+<h2 id="guardrails">8. Guardrails (applied at release, after emit)</h2>
+<div class="g4">
+<div class="box"><h4>gr-L1-schema-validator</h4><p>Structural check against <code>epics.schema.json</code>. Hard block on failure — malformed JSON never reaches downstream agents.</p></div>
+<div class="box"><h4>gr-L1-pii-detection</h4><p>Scans descriptions/business_value for PII patterns. Overlaps with reflection checklist item 5 by design — defense in depth, not redundancy to remove.</p></div>
+<div class="box"><h4>gr-L1-hallucination-check</h4><p>Verifies every <code>source_refs</code> entry actually resolves to real content in the cited roadmap/vision doc. This is the guardrail that catches a grounding-rule failure the agent itself missed.</p></div>
+<div class="box"><h4>gr-L2-payments-compliance</h4><p>If any epic touches payment flows, checks against payments-domain compliance rules before release. Org-specific overlay on top of the generic checks.</p></div>
+</div>
+
+<h2 id="gate">9. Quality Gate — <code>epic-quality ≥7</code></h2>
+<p>Scored independently by A12 Verifier (fresh context, no access to this agent's scratchpad — see A12 design). Rubric:</p>
+<table><thead><tr><th>Criterion</th><th>Weight</th><th>Floor</th><th>What a 10 looks like</th></tr></thead><tbody>
+<tr><td>Grounding — every field traces to a real source</td><td>25%</td><td>6</td><td>Every <code>source_refs</code> entry resolves; no epic invents scope</td></tr>
+<tr><td>Coverage — roadmap fully represented</td><td>20%</td><td>—</td><td>No roadmap line item is missing an epic</td></tr>
+<tr><td>No duplication — internally and vs. existing Jira epics</td><td>20%</td><td>—</td><td><code>dedupe_check</code> ran and found no unresolved overlaps</td></tr>
+<tr><td>Scope discipline — one epic ≈ one roadmap phase</td><td>20%</td><td>5</td><td>No epic spans multiple phases without an explicit split flag</td></tr>
+<tr><td>Clarity — title/description are specific and actionable</td><td>15%</td><td>—</td><td>A downstream engineer could scope work from the description alone</td></tr>
+</tbody></table>
+<p>Failing the gate routes back to this agent for revision (max 2 retries, exponential backoff, NFR-G7) before escalating to the Product Lead HITL gate.</p>
+
+<h2 id="hitl">10. Human-in-the-Loop</h2>
+<p>This is one of the 4 explicit human gates in the lifecycle (Vision → <strong>Roadmap</strong> → Design → Code review). The Product Lead reviews the emitted <code>epics.json</code> — specifically <code>open_questions</code> and any gate-failure history — before Feature decomposition (A2) is authorized to run. Design implication: <code>open_questions</code> must be written for a human reader, not as an internal debug artifact — plain language, one per line, referencing the ambiguous roadmap/vision content directly.</p>
+
+<h2 id="errors">11. Error Handling &amp; Edge Cases</h2>
+<table><thead><tr><th>Scenario</th><th>Behavior</th></tr></thead><tbody>
+<tr><td>Roadmap not yet Product-Lead approved</td><td>Reject immediately with structured error; do not generate anything</td></tr>
+<tr><td>Roadmap references a capability absent from vision</td><td>Emit an <code>open_questions</code> entry; do not invent a business_value to fill the gap</td></tr>
+<tr><td>Jira fetch tool times out / errors</td><td>Proceed but set <code>dedupe_check.checked=false</code>; this degrades the gate score on the "no duplication" criterion rather than blocking silently</td></tr>
+<tr><td>Roadmap is unusually large (50+ line items)</td><td>Batch internally by roadmap phase; reflection checklist runs per-batch AND once over the full set for cross-batch duplication</td></tr>
+<tr><td>Vision and roadmap are from different, incompatible schema versions</td><td>Hard fail with a versioning error — do not attempt best-effort parsing</td></tr>
+</tbody></table>
+
+<h2 id="nfr">12. Non-Functional Requirements</h2>
+<ul>
+<li><strong>Statelessness (NFR-G2):</strong> no memory of prior runs beyond the current roadmap/vision pair and the live Jira fetch — re-running against the same inputs should be idempotent modulo Jira state drift.</li>
+<li><strong>Structured output only (NFR-G3):</strong> no prose wrapper, ever, even on partial failure — errors are also structured JSON.</li>
+<li><strong>Fail loud on missing input (NFR-G4):</strong> never silently substitute a default for a required precondition.</li>
+<li><strong>Grounding (NFR-G5):</strong> covered above — this is the agent's defining NFR.</li>
+<li><strong>Retry/backoff (NFR-G7):</strong> max 2 retries on gate failure before HITL escalation.</li>
+<li><strong>Latency budget:</strong> should complete well within the Inception-phase SLA even for large roadmaps — batching (see edge cases) exists partly for this reason.</li>
+</ul>
+
+<h2 id="observability">13. Observability &amp; Audit</h2>
+<ul>
+<li>Correlation ID propagated from Idea intake, attached to every emitted epic and every tool call.</li>
+<li>Events emitted: <code>step.epic-creator.started</code>, <code>step.epic-creator.quality_gate.pass/fail</code>, <code>step.epic-creator.completed</code>.</li>
+<li>On gate failure, a Jira subtask is auto-created recording the failed criteria and routing to the Product Lead per the HITL logging convention.</li>
+<li><code>reflection_notes</code> (internal) should still be logged to the audit trail even though stripped from the returned JSON — useful for debugging why an epic was merged or dropped, without polluting the output contract.</li>
+</ul>
+
+<h2 id="versioning">14. Versioning &amp; Change Management</h2>
+<ul>
+<li><code>epics.schema.json</code> is versioned independently of the agent prompt; A2 (Feature Decomposer) must declare which schema version it consumes so the two can evolve without breaking each other silently.</li>
+<li>Rubric changes to <code>epic-quality</code> gate are versioned in <code>kb-L1-sdlc-templates</code> and stamped on every gate result, so historical gate outcomes remain interpretable after a rubric update.</li>
+<li>Prompt changes should be evaluated against the regression suite (below) before rollout — grounding/reflection wording is easy to accidentally weaken with a small edit.</li>
+</ul>
+
+<h2 id="testing">15. Testing &amp; Eval Strategy</h2>
+<table><thead><tr><th>Test type</th><th>What it catches</th></tr></thead><tbody>
+<tr><td>Golden-set regression (fixed roadmap/vision pairs, expected epic sets)</td><td>Prompt or model changes that silently shift output quality</td></tr>
+<tr><td>Adversarial grounding tests (roadmap with intentional gaps/contradictions)</td><td>Whether the agent invents scope instead of flagging <code>open_questions</code></td></tr>
+<tr><td>Dedupe tests (seed Jira with near-duplicate epics)</td><td>Whether the Jira fetch-and-compare step actually catches overlap</td></tr>
+<tr><td>PII injection tests (roadmap/vision seeded with fake PII patterns)</td><td>Both the reflection checklist item and <code>gr-L1-pii-detection</code> guardrail, independently</td></tr>
+<tr><td>Scale test (50+ line-item roadmap)</td><td>Batching correctness and cross-batch duplication detection</td></tr>
+<tr><td>A12 gate scoring calibration</td><td>Human-reviewer agreement with A12's <code>epic-quality</code> scores on a sample, to catch rubric drift</td></tr>
+</tbody></table>
+
+<h2 id="example">16. Worked Example (abbreviated)</h2>
+<pre><span class="cmt">// input excerpt: roadmap.md line R-04</span>
+"R-04: Enable merchants to accept split-tender payments (Q3)"
+<span class="cmt">// vision.md section V-02</span>
+"V-02: Reduce checkout abandonment by supporting flexible payment methods"
+
+<span class="cmt">// emitted epic (epics.json)</span>
+{
+  "epic_id": "EPIC-PROV-04",
+  "title": "Support split-tender payments at checkout",
+  "description": "Allow customers to pay using a combination of methods
+    (e.g. gift card + credit card) in a single transaction, addressing
+    checkout abandonment tied to rigid payment options.",
+  "business_value": "Reduces checkout abandonment (V-02) by removing
+    a common payment-method blocker.",
+  "priority": "P1",
+  "target_phase": "Q3",
+  "source_refs": ["roadmap:R-04", "vision:V-02"],
+  "dedupe_check": {"checked": true, "matches": []},
+  "open_questions": []
+}
+</pre>
+
+</div>
+</body></html>
