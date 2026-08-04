@@ -5,7 +5,7 @@ import logging
 import re
 import os
 
-# ─── AWS Secrets Manager integration (replaces hardcoded credentials) ───────
+
 import json
 import boto3
 from botocore.exceptions import ClientError
@@ -13,27 +13,30 @@ from typing import Type, Dict, Any
 
 
 class AWSSecretReaderPodIdentitySchema(BaseModel):
-    """Input schema for AWSSecretReaderPodIdentity. No user inputs — everything is hardcoded."""
+    """Input schema for AWSSecretReaderPodIdentity. """
     pass
 
 
 class AWSSecretReaderPodIdentity(BaseTool):
     """
-    AWSSecretReaderPodIdentity - Reads a hardcoded AWS Secret using Pod Identity
+    AWSSecretReaderPodIdentity - Reads a AWS Secret using Pod Identity
     and returns the full key-value dict.
     """
     name: str = "AWS Secret Reader with Pod Identity"
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    # Hardcoded — edit directly in code
+    
     SECRET_NAME: str = "aava-secret-manager-azure-blob-credentials"
+
+    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    region_name = "us-east-1"
+    
 
     def _run(self) -> Dict[str, Any]:
         try:
 
-            # region = us-east-1 for client side, us-east-2 for internal and staging
-            client = boto3.client('secretsmanager', region_name='us-east-1')
+            client = boto3.client('secretsmanager', region_name=self.region_name)
             get_secret_value_response = client.get_secret_value(SecretId=self.SECRET_NAME)
             secret_string = get_secret_value_response.get('SecretString', '{}')
             secret_dict = json.loads(secret_string)
@@ -52,7 +55,7 @@ class AWSSecretReaderPodIdentity(BaseTool):
 reader = AWSSecretReaderPodIdentity()
 secrets = reader._run()
 
-# Secret retrieved from AWS Secrets Manager (was hardcoded)
+# Secret retrieved from AWS Secrets Manager 
 connection_string = secrets.get("connection_string")
 
 # Use only the predefined container name

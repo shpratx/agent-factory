@@ -11,34 +11,37 @@ from pydantic import BaseModel, Field
 
 import base64
 
-# ─── AWS Secrets Manager integration (replaces hardcoded credentials) ───────
+
 import json
 import boto3
 from botocore.exceptions import ClientError
 
 
 class AWSSecretReaderPodIdentitySchema(BaseModel):
-    """Input schema for AWSSecretReaderPodIdentity. No user inputs — everything is hardcoded."""
+    """Input schema for AWSSecretReaderPodIdentity. """
     pass
 
 
 class AWSSecretReaderPodIdentity(BaseTool):
     """
-    AWSSecretReaderPodIdentity - Reads a hardcoded AWS Secret using Pod Identity
+    AWSSecretReaderPodIdentity - Reads a AWS Secret using Pod Identity
     and returns the full key-value dict.
     """
     name: str = "AWS Secret Reader with Pod Identity"
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    # Hardcoded — edit directly in code
+    
     SECRET_NAME: str = "aava-secret-manager-github-app-credentials"
+
+    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    region_name = "us-east-1"
+    
 
     def _run(self) -> Dict[str, Any]:
         try:
 
-            # region = us-east-1 for client side, us-east-2 for internal and staging
-            client = boto3.client('secretsmanager', region_name='us-east-1')
+            client = boto3.client('secretsmanager', region_name=self.region_name)
             get_secret_value_response = client.get_secret_value(SecretId=self.SECRET_NAME)
             secret_string = get_secret_value_response.get('SecretString', '{}')
             secret_dict = json.loads(secret_string)
@@ -75,11 +78,11 @@ GITHUB_API = "https://api.github.com"
 # user-authorization, which this tool does not do.
 
 # App ID -- the numeric id from Settings -> Developer settings -> GitHub Apps
-APP_ID = secrets.get("app_id")                       # was hardcoded; now from AWS Secrets Manager
+APP_ID = secrets.get("app_id")                       #from AWS Secrets Manager
 
 # Client ID -- the "Iv23li..." string on the same page. GitHub's currently
 # recommended issuer value.
-CLIENT_ID = secrets.get("client_id")                 # was hardcoded; now from AWS Secrets Manager
+CLIENT_ID = secrets.get("client_id")                 #from AWS Secrets Manager
 
 # Private key (PEM). Leave as "" and use PRIVATE_KEY_PATH / the environment,
 # or paste the key inline using the triple-quoted form shown below. Include
@@ -91,7 +94,7 @@ CLIENT_ID = secrets.get("client_id")                 # was hardcoded; now from A
 #   ...
 #   -----END RSA PRIVATE KEY-----"""
 #
-PRIVATE_KEY = secrets.get("private_key")             # was hardcoded; now from AWS Secrets Manager
+PRIVATE_KEY = secrets.get("private_key")             #from AWS Secrets Manager
 
 
 

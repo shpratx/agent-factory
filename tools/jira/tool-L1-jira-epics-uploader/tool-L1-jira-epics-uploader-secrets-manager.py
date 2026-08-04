@@ -59,33 +59,36 @@ except Exception:  # allow standalone use without crewai installed
             return self._run(*args, **kwargs)
 
 
-# ─── AWS Secrets Manager integration (replaces hardcoded credentials) ───────
+
 import boto3
 from botocore.exceptions import ClientError
 
 
 class AWSSecretReaderPodIdentitySchema(BaseModel):
-    """Input schema for AWSSecretReaderPodIdentity. No user inputs — everything is hardcoded."""
+    """Input schema for AWSSecretReaderPodIdentity. """
     pass
 
 
 class AWSSecretReaderPodIdentity(BaseTool):
     """
-    AWSSecretReaderPodIdentity - Reads a hardcoded AWS Secret using Pod Identity
+    AWSSecretReaderPodIdentity - Reads a AWS Secret using Pod Identity
     and returns the full key-value dict.
     """
     name: str = "AWS Secret Reader with Pod Identity"
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    # Hardcoded — edit directly in code
+    
     SECRET_NAME: str = "aava-secret-manager-jira-credentials"
+
+    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    region_name = "us-east-1"
+    
 
     def _run(self) -> Dict[str, Any]:
         try:
 
-            # region = us-east-1 for client side, us-east-2 for internal and staging
-            client = boto3.client('secretsmanager', region_name='us-east-1')
+            client = boto3.client('secretsmanager', region_name=self.region_name)
             get_secret_value_response = client.get_secret_value(SecretId=self.SECRET_NAME)
             secret_string = get_secret_value_response.get('SecretString', '{}')
             secret_dict = json.loads(secret_string)
@@ -107,10 +110,10 @@ secrets = reader._run()
 # ============================================================================
 # CONFIGURATION  --  edit these four (five) values for your Jira space
 # ============================================================================
-JIRA_BASE_URL     = secrets.get("base_url")                      # was hardcoded; now from AWS Secrets Manager
+JIRA_BASE_URL     = secrets.get("base_url")                      #from AWS Secrets Manager
 JIRA_PROJECT_KEY  = "GGMDEMOS"                                   # default project
-JIRA_USER_EMAIL   = secrets.get("user_email")                    # was hardcoded; now from AWS Secrets Manager
-JIRA_API_TOKEN    = secrets.get("api_token")                     # was hardcoded; now from AWS Secrets Manager
+JIRA_USER_EMAIL   = secrets.get("user_email")                    #from AWS Secrets Manager
+JIRA_API_TOKEN    = secrets.get("api_token")                     #from AWS Secrets Manager
 DEFAULT_ISSUE_TYPE = "Epic"                                      # used if none given
 
 # If your project's issue-type scheme doesn't include "Epic"/"Story", Jira returns a

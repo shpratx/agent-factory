@@ -1,4 +1,4 @@
-# Hardcoded credentials:
+#  credentials:
 api_key = "ATATT3xFfGF07g7KAyBFkxegbIBK6a3zFQylmrWtSW7UxfvQcM-d3utIV63Cb39befyI-v1s_cqZoOY9sUum9x5hykecf8VwNGtxVwoNguTakGmpnsQlpGHbP5RczjoNrKT5QxxoO3o_AqL88WHZxNTSi-6IrIY8Wae1cFPyQ89FPXmABPRefKM=5CBE562F"
 user_email = "varun.raaghav@ascendion.com"
 
