@@ -1,10 +1,10 @@
-"""Unit tests for tool-L1-jira-fetch-issue (JiraIssueTreeFetcher).
+"""Unit tests for tool-L1-jira-reader (JiraIssueTreeFetcher).
 
 All Jira REST API calls (via requests) are mocked; no real network or
 credentials are required to run these tests.
 
 Run with:
-    pytest tool-L1-jira-fetch-issue-test.py -v
+    pytest tool-L1-jira-reader-test.py -v
 """
 
 import json
@@ -38,8 +38,8 @@ sys.modules.setdefault("crewai.tools", _mock_crewai_tools)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location(
-    "tool_jira_fetch_issue",
-    os.path.join(_HERE, "tool-L1-jira-fetch-issue.py"),
+    "tool_jira_reader",
+    os.path.join(_HERE, "tool-L1-jira-reader.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
@@ -244,6 +244,7 @@ class TestAPIError:
         import requests as req_lib
 
         with patch.object(_mod, "requests") as mock_requests:
+            mock_requests.RequestException = req_lib.RequestException
             mock_requests.get.side_effect = req_lib.RequestException("network down")
 
             result = _make_tool()._run({"key": "DEMO-1"})

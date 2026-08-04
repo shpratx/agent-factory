@@ -1,10 +1,10 @@
-"""Unit tests for tool-L1-github-reader (GithubReader).
+"""Unit tests for tool-L1-github-reader-using-PAT (GithubReader).
 
 All GitHub REST API calls (via requests) are mocked; no real network or
 credentials are required to run these tests.
 
 Run with:
-    pytest tool-L1-github-reader-test.py -v
+    pytest tool-L1-github-reader-using-PAT-test.py -v
 """
 
 import os
@@ -39,8 +39,8 @@ sys.modules.setdefault("crewai.tools", _mock_crewai_tools)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location(
-    "tool_github_reader",
-    os.path.join(_HERE, "tool-L1-github-reader.py"),
+    "tool_github_reader_using_PAT",
+    os.path.join(_HERE, "tool-L1-github-reader-using-PAT.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
@@ -116,10 +116,12 @@ class TestInputValidation:
     def test_folder_location_is_stripped_of_slashes(self):
         """The normalised path should be used in the API call, not the raw input."""
         with patch.object(_mod, "requests") as mock_requests:
-            # Simulate repo not found to stop early, but confirm the strip happened
+            # Let repo resolution succeed, then simulate folder-not-found so the
+            # normalised path shows up in the error message.
             user_r = _mock_response(json_data={"login": "owner"})
-            repo_r = _mock_response(status=404)
-            mock_requests.get.side_effect = [user_r, repo_r]
+            repo_r = _mock_response(json_data={"full_name": "owner/repo"})
+            folder_r = _mock_response(status=404)
+            mock_requests.get.side_effect = [user_r, repo_r, folder_r]
             result = _make_tool()._run("/src/", "repo", "main")
         assert "src" in result  # path was used (without slashes)
 
@@ -148,6 +150,7 @@ class TestAPIErrors:
 
     def test_network_error_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_requests:
+            mock_requests.exceptions = requests.exceptions
             mock_requests.get.side_effect = requests.exceptions.ConnectionError("timeout")
             result = _make_tool()._run("src", "repo", "main")
 

@@ -6,6 +6,31 @@ Creates a new Confluence page, or **appends content to an existing page** if a p
 
 ---
 
+## Secrets & Configuration
+
+| Value | Where it lives | Notes |
+|-------|-----------------|-------|
+| `api_key` | **AWS Secrets Manager** — secret `aava-secret-manager-confluence-credentials`, key `api_key` | Atlassian API token. Never appears in the code. Shared with `tool-L1-confluence-reader`. |
+| `user_email` | **AWS Secrets Manager** — same secret, key `user_email` | Atlassian account email used for HTTP Basic Auth. |
+| `title`, `content`, `space_key`, `base_url` | Supplied by the caller at call time | Not credentials — passed as parameters on every call (see Parameters below). |
+
+> Every value that must be reviewed before deploying this tool to a new environment or client — `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-confluence-writer-secrets-manager.py`. Search the file for that tag to find them all in one pass.
+
+The production tool (`tool-L1-confluence-writer-secrets-manager.py`) retrieves its credentials at import time:
+
+```python
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-confluence-credentials"
+secrets = reader._run()
+api_key = secrets.get("api_key")
+user_email = secrets.get("user_email")
+```
+
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no credential is stored in this file; access is granted via the runtime's pod identity.
+
+> `tool-L1-confluence-writer.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is **not used in production** — note that this particular debug copy still contains a live-looking Atlassian API token hardcoded in it rather than a placeholder, so treat it as sensitive and do not commit further copies of it.
+
+---
+
 ## Parameters
 
 | Parameter | Type | Required | Description |
@@ -88,10 +113,10 @@ Details: <HTTP response body from Confluence>
 
 ---
 
-## Example
+## Standalone tool calling
 
 ```python
-from tool_L1_confluence_page_writer_and_updater import ConfluencePageCreator
+from tool_L1_confluence_writer_secrets_manager import ConfluencePageCreator
 
 tool = ConfluencePageCreator()
 
@@ -102,21 +127,25 @@ result = tool._run(
     space_key="ENG",
     base_url="https://mycompany.atlassian.net/wiki"
 )
-print(result)
-# Page created successfully.
-# confluence_page_id: 425986 ...
 
-# Run again with same title -> appends to the existing page
+# Run again with the same title -> appends to the existing page instead
 result = tool._run(
     title="Sprint 42 Notes",
     content="<h2>Outcomes</h2><p>Auth module shipped.</p>",
     space_key="ENG",
     base_url="https://mycompany.atlassian.net/wiki"
 )
-print(result)
-# Content appended to existing page.
-# confluence_page_id: 425986 ...
-# Version: 2
+```
+
+## Calling tool in agent
+
+`title` and `content` are what changes per call; `space_key` and `base_url` are usually specific to your Confluence instance and should be told to the agent as fixed values:
+
+```
+title = {{page_title}}
+content = the full Confluence-storage-format (XHTML) body to write, VERBATIM
+space_key = ENG
+base_url = https://your-domain.atlassian.net/wiki
 ```
 
 ---
@@ -176,14 +205,11 @@ The separator between the existing body and the new content is `<p></p>` (an emp
 ### 7. No HTTP timeout on any request
 None of the three `requests` calls (`GET`, `PUT`, `POST`) have a `timeout=` argument. All three can hang indefinitely.
 
-### 8. Hardcoded credentials
-`api_key` and `user_email` are hardcoded at the top of the file. This is a security vulnerability. Move them to a secrets manager before production use.
-
 ---
 
 ## Security Notes
 
-- `api_key` and `user_email` are currently **hardcoded** — revoke and move to a secrets manager before production use.
+- `api_key` and `user_email` are retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
 - Credentials are passed via HTTP Basic Auth over HTTPS — never logged by the tool.
 - The HTTP response body from Confluence (which may contain internal error detail) is included in the error return string on failure.
 

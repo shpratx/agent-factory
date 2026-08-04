@@ -5,12 +5,9 @@ This module implements a custom CrewAI tool that provides recursive file reading
 capabilities from GitHub repositories using the GitHub REST API v3. It allows
 authenticated access to repository contents and returns file data in a structured format.
 
-Security Notice:
-    ⚠️ CRITICAL: This file contains a hardcoded GitHub Personal Access Token (PAT)
-    on line 10. This is a security vulnerability and the token should be:
-    1. Immediately revoked via GitHub Settings → Developer Settings → Tokens
-    2. Moved to environment variables or secure credential storage
-    3. Removed from git history if this file has been committed
+Credentials:
+    The GitHub Personal Access Token is retrieved from AWS Secrets Manager at
+    import time (see AWSSecretReaderPodIdentity below) and never stored in this file.
 
 Dependencies:
     - requests: HTTP library for GitHub API calls
@@ -58,12 +55,13 @@ class AWSSecretReaderPodIdentity(BaseTool):
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    
+    # Review every line tagged "SETUP-REQUIRED:" below before deploying this tool to a new environment or client.
+    # SETUP-REQUIRED: must match the secret name created in your AWS Secrets Manager
     SECRET_NAME: str = "aava-secret-manager-github-credentials"
 
-    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    # SETUP-REQUIRED: AWS region where that secret lives (us-east-1 or us-east-2 depending on deployment)
     region_name = "us-east-1"
-    
+
 
     def _run(self) -> Dict[str, Any]:
         try:
@@ -87,8 +85,7 @@ class AWSSecretReaderPodIdentity(BaseTool):
 reader = AWSSecretReaderPodIdentity()
 secrets = reader._run()
 
-# Secret retrieved from AWS Secrets Manager 
-# varun-ascendion github pat
+# Secret retrieved from AWS Secrets Manager
 GITHUB_TOKEN = secrets.get("github_token")
 
 
@@ -390,7 +387,7 @@ class GithubReader(BaseTool):
             # PHASE 2: AUTHENTICATION AND REPOSITORY OWNER RESOLUTION
             # ═══════════════════════════════════════════════════════════════════
 
-            # Use the hardcoded token (should be from environment in production)
+            # Token retrieved from AWS Secrets Manager at import time
             token = GITHUB_TOKEN
 
             # Fetch the repository owner's username using the token

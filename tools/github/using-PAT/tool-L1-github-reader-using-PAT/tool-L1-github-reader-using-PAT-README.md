@@ -4,6 +4,26 @@
 
 Recursively reads and returns the decoded text contents of all files under a specified folder in a GitHub repository branch. The tool authenticates with GitHub using a Personal Access Token, resolves the repository owner from the token, verifies both the repository and the target folder exist, then uses the Git Tree API to retrieve the full recursive file list in a single call. Each file is downloaded via the Contents API and decoded from base64 UTF-8. Binary files are flagged with a special status instead of failing.
 
+## Secrets & Configuration
+
+| Value | Where it lives | Notes |
+|-------|-----------------|-------|
+| `github_token` (GitHub PAT) | **AWS Secrets Manager** — secret `aava-secret-manager-github-credentials`, key `github_token` | Never appears in the code. Shared with `tool-L1-github-writer-using-PAT`. |
+
+> Every value that must be reviewed before deploying this tool to a new environment or client — `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-github-reader-secrets-manager-using-PAT.py`. Search the file for that tag to find them all in one pass.
+
+The production tool (`tool-L1-github-reader-secrets-manager-using-PAT.py`) retrieves its credentials at import time:
+
+```python
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-github-credentials"
+secrets = reader._run()
+GITHUB_TOKEN = secrets.get("github_token")
+```
+
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no token is stored in this file; access is granted via the runtime's pod identity. The repository owner is not a config value — it's resolved automatically from the token via `GET /user`.
+
+> `tool-L1-github-reader-using-PAT.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the PAT as a placeholder value in code.
+
 ## Parameters
 
 | Parameter | Type | Required | Description |
@@ -58,10 +78,10 @@ Each entry in `files` has one of these shapes:
 
 On any unhandled error, returns a plain **error string** (not a dict).
 
-## Example
+## Standalone tool calling
 
 ```python
-from tool-L1-github-reader-using-PAT import GithubReader
+from tool_L1_github_reader_secrets_manager_using_PAT import GithubReader
 
 tool = GithubReader()
 result = tool._run(
@@ -69,8 +89,18 @@ result = tool._run(
     repo="my-repo",
     branch="main"
 )
-print(result["repository"])   # "varun-ascendion/my-repo"
+print(result["repository"])   # "your-github-org/my-repo"
 print(result["files"]["src/components/app.py"]["content"])  # decoded file text
+```
+
+## Calling tool in agent
+
+All three parameters typically come from the request itself — the repository and branch are usually known ahead of time by the orchestrator/agent rather than typed by an end user, but can be exposed as user input where relevant:
+
+```
+folder_location = {{folder_location}}
+repo = {{repo}}
+branch = {{branch}}
 ```
 
 ## Error Handling
@@ -100,7 +130,7 @@ print(result["files"]["src/components/app.py"]["content"])  # decoded file text
 
 ## Security Notes
 
-- The GitHub Personal Access Token is currently **hardcoded** at the top of the file — this is a known security vulnerability. Revoke and move it to a secrets manager before production use.
+- `github_token` is retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
 - The token must have at minimum `repo` scope (or `public_repo` for public-only repos).
 - GitHub rate limit: **5 000 requests/hour** when authenticated. Large folders with many files may approach this limit.
 

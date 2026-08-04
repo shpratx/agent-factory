@@ -1,6 +1,6 @@
-# Hardcoded credentials:
+#  credentials:
 api_key = "REDACTED-SECRET-KEY"
-user_email = "varun.raaghav@ascendion.com"
+user_email = "email"
 
 
 

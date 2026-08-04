@@ -50,12 +50,13 @@ class AWSSecretReaderPodIdentity(BaseTool):
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    
+    # Review every line tagged "SETUP-REQUIRED:" below before deploying this tool to a new environment or client.
+    # SETUP-REQUIRED: must match the secret name created in your AWS Secrets Manager
     SECRET_NAME: str = "aava-secret-manager-jira-credentials"
 
-    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    # SETUP-REQUIRED: AWS region where that secret lives (us-east-1 or us-east-2 depending on deployment)
     region_name = "us-east-1"
-    
+
 
     def _run(self) -> Dict[str, Any]:
         try:
@@ -82,8 +83,8 @@ secrets = reader._run()
 # ============================================================================
 # CONFIGURATION  --  edit these values for your Jira space (same as the creator)
 # ============================================================================
-JIRA_BASE_URL     = secrets.get("base_url")                     #from AWS Secrets Manager
-JIRA_PROJECT_KEY  = "GGMDEMOS"                                  # default project
+JIRA_BASE_URL     = secrets.get("base_url")                     # from AWS Secrets Manager
+JIRA_PROJECT_KEY  = "GGMDEMOS"                                  # SETUP-REQUIRED: default Jira project key
 JIRA_USER_EMAIL   = secrets.get("user_email")                   #from AWS Secrets Manager
 JIRA_API_TOKEN    = secrets.get("api_token")                    #from AWS Secrets Manager
 DEFAULT_MAX_DEPTH = 5            # how many levels of children to walk

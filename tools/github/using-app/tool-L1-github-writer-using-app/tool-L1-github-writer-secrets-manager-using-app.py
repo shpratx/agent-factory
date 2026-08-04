@@ -31,12 +31,13 @@ class AWSSecretReaderPodIdentity(BaseTool):
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    
+    # Review every line tagged "SETUP-REQUIRED:" below before deploying this tool to a new environment or client.
+    # SETUP-REQUIRED: must match the secret name created in your AWS Secrets Manager
     SECRET_NAME: str = "aava-secret-manager-github-app-credentials"
 
-    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    # SETUP-REQUIRED: AWS region where that secret lives (us-east-1 or us-east-2 depending on deployment)
     region_name = "us-east-1"
-    
+
 
     def _run(self) -> Dict[str, Any]:
         try:
@@ -67,10 +68,9 @@ secrets = reader._run()
 GITHUB_API = "https://api.github.com"
 
 # ═════════════════════════════════════════════════════════════════════════════
-#  SET YOUR GITHUB APP CREDENTIALS HERE
+#  GITHUB APP CREDENTIALS (from AWS Secrets Manager)
 # ═════════════════════════════════════════════════════════════════════════════
 #
-# Fill these in directly, or leave them blank to read from the environment.
 # Only ONE of APP_ID / CLIENT_ID is needed -- both work as the JWT issuer, and
 # CLIENT_ID takes precedence when both are set.
 #
@@ -78,23 +78,15 @@ GITHUB_API = "https://api.github.com"
 # user-authorization, which this tool does not do.
 
 # App ID -- the numeric id from Settings -> Developer settings -> GitHub Apps
-APP_ID = secrets.get("app_id")                       #from AWS Secrets Manager
+APP_ID = secrets.get("app_id")                       # from AWS Secrets Manager
 
 # Client ID -- the "Iv23li..." string on the same page. GitHub's currently
 # recommended issuer value.
-CLIENT_ID = secrets.get("client_id")                 #from AWS Secrets Manager
+CLIENT_ID = secrets.get("client_id")                 # from AWS Secrets Manager
 
-# Private key (PEM). Leave as "" and use PRIVATE_KEY_PATH / the environment,
-# or paste the key inline using the triple-quoted form shown below. Include
-# the BEGIN/END lines and keep the real newlines -- a PEM collapsed onto one
-# line will not parse.
-#
-#   PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----
-#   MIIEowIBAAKCAQEA...
-#   ...
-#   -----END RSA PRIVATE KEY-----"""
-#
-PRIVATE_KEY = secrets.get("private_key")             #from AWS Secrets Manager
+# Private key (PEM), either PKCS#1 ("BEGIN RSA PRIVATE KEY") or PKCS#8
+# ("BEGIN PRIVATE KEY") -- both are accepted.
+PRIVATE_KEY = secrets.get("private_key")             # from AWS Secrets Manager
 
 
 

@@ -4,6 +4,27 @@
 
 Reads and returns the decoded text contents of every file inside a specified folder (virtual prefix) in Azure Blob Storage. The tool lists all blobs under the given folder prefix, downloads each one, and returns a formatted string that includes the file name and its content. Binary or non-UTF-8 files are noted with their byte size instead of content. The folder marker blob itself (the empty `folder_name/` placeholder) is skipped automatically.
 
+## Secrets & Configuration
+
+| Value | Where it lives | Notes |
+|-------|-----------------|-------|
+| `connection_string` | **AWS Secrets Manager** — secret `aava-secret-manager-azure-blob-credentials`, key `connection_string` | Azure Storage account connection string. Never appears in the code. |
+| `container_name` | Set directly in code | Fixed per deployment — see "SETUP-REQUIRED" comment at the top of the tool file. |
+
+> Every value that must be reviewed before deploying this tool to a new environment or client — including `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-azure-blob-reader-secrets-manager.py`. Search the file for that tag to find them all in one pass.
+
+The production tool (`tool-L1-azure-blob-reader-secrets-manager.py`) retrieves its credentials at import time:
+
+```python
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-azure-blob-credentials"
+secrets = reader._run()
+connection_string = secrets.get("connection_string")
+```
+
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no AWS access key or secret is stored in this file; access is granted via the runtime's pod identity.
+
+> `tool-L1-azure-blob-reader.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the connection string as a placeholder value in code.
+
 ## Parameters
 
 | Parameter | Type | Required | Description |
@@ -21,22 +42,29 @@ Reads and returns the decoded text contents of every file inside a specified fol
 
 Each `===== FILE: <blob-path> =====` section contains either the decoded UTF-8 text or a note: `[Binary content, N bytes — not displayed as text]`.
 
-## Example
+## Standalone tool calling
+
+Call the tool directly from Python (e.g. from a CrewAI orchestrator script, outside of an agent):
 
 ```python
-from tool_L1_azure_blob_reader import AzureBlobReaderTool
+from tool_L1_azure_blob_reader_secrets_manager import AzureBlobReaderTool
 
 tool = AzureBlobReaderTool()
 result = tool._run(folder_name="my-project/docs")
-print(result)
-# Read 2 file(s) from folder 'my-project/docs':
-#
-# ===== FILE: my-project/docs/overview.md =====
-# # Overview
-# This document describes...
-#
-# ===== FILE: my-project/docs/config.json =====
-# {"key": "value"}
+```
+
+## Calling tool in agent
+
+Tell the agent which folder to read. `folder_name` is the only input:
+
+```
+folder_name = {{folder_name}}
+```
+
+For example, if a prior step in the workflow wrote its output to a folder named after the run itself, the agent would instead be told to reuse that identifier rather than ask the user for one:
+
+```
+folder_name = <<workflow-execution-id>>
 ```
 
 ## Error Handling
@@ -51,9 +79,9 @@ print(result)
 
 ## Security Notes
 
-- The connection string is currently **hardcoded** at the top of the file — this is a known security issue. It must be moved to a secrets manager (e.g. Azure Key Vault, HashiCorp Vault) before use in production.
-- The container name is fixed to `aava-ggm`.
-- All operations are logged to `azure_blob_operations.log`. The connection string is **never** written to logs.
+- `connection_string` is retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
+- `container_name` is fixed per deployment in code (see Secrets & Configuration above).
+- All operations are logged to `azure_blob_operations.log`. Credentials are **never** written to logs.
 
 ## Resilience
 

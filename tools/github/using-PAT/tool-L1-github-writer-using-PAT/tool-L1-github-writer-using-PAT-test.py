@@ -1,10 +1,10 @@
-"""Unit tests for tool-L1-github-writer-generic (GithubCommitterTool).
+"""Unit tests for tool-L1-github-writer-using-PAT (GithubCommitterTool).
 
 All GitHub REST API calls (via requests) are mocked; no real network or
 credentials are required to run these tests.
 
 Run with:
-    pytest tool-L1-github-writer-generic-test.py -v
+    pytest tool-L1-github-writer-using-PAT-test.py -v
 """
 
 import os
@@ -37,8 +37,8 @@ sys.modules.setdefault("crewai.tools", _mock_crewai_tools)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location(
-    "tool_github_writer",
-    os.path.join(_HERE, "tool-L1-github-writer-generic.py"),
+    "tool_github_writer_using_PAT",
+    os.path.join(_HERE, "tool-L1-github-writer-using-PAT.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)

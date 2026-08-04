@@ -1,36 +1,39 @@
-# tool-L1-github-writer-using-PAT
+# tool-L1-github-writer-using-app
 
 ## What does it do?
 
-Creates a new branch from a source branch in a GitHub repository and commits one or more files to it in a single operation. The tool handles both flat and nested file descriptor formats, builds a Git tree object containing all the files, creates a commit, and updates the branch reference atomically. If the target branch already exists, the commit is stacked on top of its current HEAD — the tool is idempotent on the branch name.
+Creates a new branch from a source branch in a GitHub repository and commits one or more files to it in a single operation, authenticating as a **GitHub App installation** rather than a Personal Access Token. Functionally identical to `tool-L1-github-writer-using-PAT` — same input schema, same commit flow, same idempotent-branch behaviour — but the credential model differs: the tool signs a JWT with the App's private key, exchanges it for a short-lived installation access token, and uses that token for all write operations. The repository owner is derived from the App installation itself, so there's no hardcoded `repo_owner` to maintain.
 
 ## Secrets & Configuration
 
 | Value | Where it lives | Notes |
 |-------|-----------------|-------|
-| `github_token` (GitHub PAT) | **AWS Secrets Manager** — secret `aava-secret-manager-github-credentials`, key `github_token` | Never appears in the code. Shared with `tool-L1-github-reader-using-PAT`. |
-| `repo_owner` | Set directly in code | Not a secret — the GitHub org/user that owns the target repos. See "SETUP-REQUIRED" comment at the top of the tool file. |
+| `app_id` | **AWS Secrets Manager** — secret `aava-secret-manager-github-app-credentials`, key `app_id` | Numeric GitHub App ID. Only one of `app_id` / `client_id` is required. |
+| `client_id` | **AWS Secrets Manager** — same secret, key `client_id` | The App's Client ID (`Iv23li...`). Takes precedence over `app_id` when both are set. |
+| `private_key` | **AWS Secrets Manager** — same secret, key `private_key` | RSA private key (PEM) used to sign the App's JWT. Never appears in the code. Shared with `tool-L1-github-reader-using-app`. |
 
-> Every value that must be reviewed before deploying this tool to a new environment or client — including `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-github-writer-secrets-manager-using-PAT.py`. Search the file for that tag to find them all in one pass.
+> Every value that must be reviewed before deploying this tool to a new environment or client — `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-github-writer-secrets-manager-using-app.py`. Search the file for that tag to find them all in one pass.
 
-The production tool (`tool-L1-github-writer-secrets-manager-using-PAT.py`) retrieves its token at import time:
+The production tool (`tool-L1-github-writer-secrets-manager-using-app.py`) retrieves its credentials at import time:
 
 ```python
-reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-github-credentials"
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-github-app-credentials"
 secrets = reader._run()
-github_token = secrets.get("github_token")
+APP_ID = secrets.get("app_id")
+CLIENT_ID = secrets.get("client_id")
+PRIVATE_KEY = secrets.get("private_key")
 ```
 
-`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no token is stored in this file; access is granted via the runtime's pod identity. `repo_owner` is a plain configuration value (not a credential), so it stays hardcoded in the file rather than in Secrets Manager — update it if your GitHub org/username changes.
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no credential is stored in this file; access is granted via the runtime's pod identity. Unlike the PAT-based writer, there is no `repo_owner` to configure — it's resolved automatically from the App installation.
 
-> `tool-L1-github-writer-using-PAT.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the token as a placeholder value in code.
+> `tool-L1-github-writer-using-app.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the credentials as placeholder values in code.
 
 ## Parameters
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | files | array of objects | ✓ | — | List of file descriptors (see formats below) |
-| repo_name | string | ✓ | — | Repository name without owner prefix (e.g. `"SCIB-Inception"`) |
+| repo_name | string | ✓ | — | Repository name, either bare (`"scib_demo"`) or fully qualified (`"my-org/scib_demo"`) |
 | new_branch | string | ✓ | — | Name of the branch to create and commit to (e.g. `"feature/auto-update"`) |
 | source_branch | string | | `"main"` | Branch to use as the base when creating `new_branch` |
 
@@ -67,7 +70,7 @@ On failure:
 ## Standalone tool calling
 
 ```python
-from tool_L1_github_writer_secrets_manager_using_PAT import GithubCommitterTool
+from tool_L1_github_writer_secrets_manager_using_app import GithubCommitterTool
 
 tool = GithubCommitterTool()
 result = tool._run(
@@ -98,6 +101,7 @@ source_branch = main
 
 | Step | API Call | Purpose |
 |------|----------|---------|
+| 0 | `GET /app/installations` + `POST /app/installations/{id}/access_tokens` (JWT auth) | Resolve owner and get installation token — cached after first run |
 | 1 | `GET /repos/{owner}/{repo}/git/ref/heads/{source_branch}` | Get HEAD SHA of source branch |
 | 2 | `POST /repos/{owner}/{repo}/git/refs` | Create new branch (HTTP 422 = already exists → skip to step 2b) |
 | 2b | `GET /repos/{owner}/{repo}/git/ref/heads/{new_branch}` | Get current HEAD SHA of existing branch |
@@ -109,16 +113,17 @@ source_branch = main
 
 | Error | Cause | Behaviour |
 |-------|-------|-----------|
-| HTTP 4xx/5xx | API error on any step | `raise_for_status()` raises; caught by outer `except`; returned as `{"status": "failure", "message": "..."}` |
+| App has no installations / repo not visible / ambiguous repo name | Owner resolution failure | Caught and returned as `{"status": "failure", "message": "..."}` before any write is attempted |
+| HTTP 403 Forbidden | The App's "Contents" repository permission is Read-only instead of Read and write | Returned failure message includes an explicit HINT about this — the single most common App write failure |
 | Branch already exists | HTTP 422 on step 2 | Detected gracefully; commit stacked on existing branch HEAD |
-| Invalid token | 401 Unauthorized | Caught; returned as failure dict |
 | Network timeout | No response within 30 s | Caught; returned as failure dict |
 | Malformed file descriptor | Missing `filename` key | Defaults to `"script.py"` for filename; empty string for code |
 
 ## Security Notes
 
-- `github_token` is retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
-- `repo_owner` is not a credential; it's fixed per deployment in code (see Secrets & Configuration above).
+- `app_id`, `client_id`, and `private_key` are retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
+- The App must have **Repository permissions → Contents: Read and write**. After changing this permission, each installation must accept it again before writes will succeed.
+- JWTs are cached and re-signed at most once per ~8 minutes; installation tokens are cached and re-minted at most once per ~55 minutes.
 - The commit message includes a UTC timestamp; no PII is included.
 - All file content is passed directly as strings to the GitHub API — ensure content does not contain secrets before committing.
 
@@ -127,6 +132,7 @@ source_branch = main
 | Concern | Configuration |
 |---------|--------------|
 | Timeout | 30 s per HTTP request (requests library default) |
-| Retry | Max 2 retries with exponential backoff on transient errors (429, 502, 503, timeout) |
-| Circuit breaker | 5 consecutive failures → open for 60 s |
+| JWT cache | Re-signs at most once per ~8 minutes |
+| Installation token cache | Re-mints at most once per ~55 minutes |
 | Idempotency | Existing branch detected via HTTP 422; commit safely stacked on top |
+| Diagnostics | 403 responses include a specific hint pointing at the App's Contents permission |

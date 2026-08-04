@@ -1,10 +1,10 @@
-"""Unit tests for tool-L1-confluence-page-writer (ConfluencePageCreator).
+"""Unit tests for tool-L1-confluence-writer (ConfluencePageCreator).
 
 All Confluence REST API calls (via requests) are mocked; no real network or
 credentials are required to run these tests.
 
 Run with:
-    pytest tool-L1-confluence-page-writer-test.py -v
+    pytest tool-L1-confluence-writer-unit-test.py -v
 """
 
 import os
@@ -40,7 +40,7 @@ sys.modules.setdefault("crewai.tools", _mock_crewai_tools)
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location(
     "tool_confluence_writer",
-    os.path.join(_HERE, "tool-L1-confluence-page-writer.py"),
+    os.path.join(_HERE, "tool-L1-confluence-writer.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
@@ -299,6 +299,7 @@ class TestBaseUrlNormalisation:
 class TestErrorHandling:
     def test_search_error_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.return_value = _http_error_response(403, "Forbidden")
             result = _make_tool()._run(PAGE_TITLE, NEW_XHTML, SPACE_KEY, BASE_URL)
 
@@ -307,6 +308,7 @@ class TestErrorHandling:
     def test_update_409_conflict_returns_error_with_details(self):
         """A version-conflict 409 must return error string including Details."""
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.return_value = _search_response_found()
             mock_req.put.return_value = _http_error_response(409, "Conflict")
             result = _make_tool()._run(PAGE_TITLE, NEW_XHTML, SPACE_KEY, BASE_URL)
@@ -316,6 +318,7 @@ class TestErrorHandling:
 
     def test_create_400_bad_xhtml_returns_error_with_details(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.return_value = _search_response_empty()
             mock_req.post.return_value = _http_error_response(400, "Bad Request")
             result = _make_tool()._run(PAGE_TITLE, "<not valid xhtml", SPACE_KEY, BASE_URL)
@@ -324,6 +327,7 @@ class TestErrorHandling:
 
     def test_connection_error_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.side_effect = _requests_lib.exceptions.ConnectionError("unreachable")
             result = _make_tool()._run(PAGE_TITLE, NEW_XHTML, SPACE_KEY, BASE_URL)
 
@@ -332,6 +336,7 @@ class TestErrorHandling:
     def test_error_does_not_expose_api_key(self):
         """The api_key must never appear in any error return value."""
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.side_effect = _requests_lib.exceptions.HTTPError("500 Server Error")
             result = _make_tool()._run(PAGE_TITLE, NEW_XHTML, SPACE_KEY, BASE_URL)
 

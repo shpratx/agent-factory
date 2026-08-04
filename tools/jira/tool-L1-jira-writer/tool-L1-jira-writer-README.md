@@ -4,6 +4,31 @@
 
 Creates one or more Jira issues from a structured JSON payload, converting their descriptions into Atlassian Document Format (ADF). Descriptions can be provided as plain strings or as structured dictionaries (key → string or list of strings), which are normalised to markdown-ish text then converted to ADF paragraphs and bullet lists. Cross-references matching the pattern `E\d+` (e.g. `E1`, `E1.2`) are auto-linked to already-created issues using a running `id_map`. Issues are created sequentially so earlier issues can be referenced as parents by later ones via their `parentKey` field.
 
+## Secrets & Configuration
+
+| Value | Where it lives | Notes |
+|-------|-----------------|-------|
+| `base_url` | **AWS Secrets Manager** — secret `aava-secret-manager-jira-credentials`, key `base_url` | Jira instance base URL. Shared with `tool-L1-jira-reader` and `tool-L1-jira-epics-uploader`. |
+| `user_email` | **AWS Secrets Manager** — same secret, key `user_email` | Atlassian account email used for HTTP Basic Auth. |
+| `api_token` | **AWS Secrets Manager** — same secret, key `api_token` | Jira API token. Never appears in the code. |
+| `JIRA_PROJECT_KEY` | Set directly in code | Not a secret — the default Jira project this tool operates against. See "SETUP-REQUIRED" comment at the top of the tool file. |
+
+> Every value that must be reviewed before deploying this tool to a new environment or client — including `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-jira-writer-secrets-manager.py`. Search the file for that tag to find them all in one pass.
+
+The production tool (`tool-L1-jira-writer-secrets-manager.py`) retrieves its credentials at import time:
+
+```python
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-jira-credentials"
+secrets = reader._run()
+JIRA_BASE_URL = secrets.get("base_url")
+JIRA_USER_EMAIL = secrets.get("user_email")
+JIRA_API_TOKEN = secrets.get("api_token")
+```
+
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no credential is stored in this file; access is granted via the runtime's pod identity. All three values can still be overridden per-call via `inputJSON` (see Parameters below) if a caller needs to target a different Jira instance.
+
+> `tool-L1-jira-writer.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the credentials as placeholder values in code.
+
 ## Parameters
 
 | Parameter | Type | Required | Description |
@@ -14,11 +39,11 @@ Creates one or more Jira issues from a structured JSON payload, converting their
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| projectKey | string | | Jira project key (e.g. `"GGMDEMOS"`). Falls back to the hard-coded `JIRA_PROJECT_KEY`. |
+| projectKey | string | | Jira project key (e.g. `"GGMDEMOS"`). Falls back to the in-code `JIRA_PROJECT_KEY`. |
 | issueType | string | | Default issue type (e.g. `"Task"`, `"Epic"`). Falls back to `"Epic"`. |
-| userEmail | string | | Atlassian account email. Falls back to `JIRA_USER_EMAIL`. |
-| apiToken | string | | Jira API token. Falls back to `JIRA_API_TOKEN` env var. |
-| baseUrl | string | | Jira instance base URL (no trailing slash). Falls back to `JIRA_BASE_URL`. |
+| userEmail | string | | Atlassian account email; overrides the Secrets Manager value for this call. |
+| apiToken | string | | Jira API token; overrides the Secrets Manager value for this call. |
+| baseUrl | string | | Jira instance base URL; overrides the Secrets Manager value for this call. |
 | issues | array | ✓ | List of issue objects (see below) |
 
 ### Each issue object
@@ -41,10 +66,10 @@ Creates one or more Jira issues from a structured JSON payload, converting their
 
 The return value is a newline-joined string of all per-issue results.
 
-## Example
+## Standalone tool calling
 
 ```python
-from tool_L1_jira_create_issue_generic import JiraIssueCreator
+from tool_L1_jira_writer_secrets_manager import JiraIssueCreator
 
 tool = JiraIssueCreator()
 result = tool._run({
@@ -66,9 +91,19 @@ result = tool._run({
         }
     ]
 })
-print(result)
-# Task created: MYPROJ-10. jira_issue_link = https://aavademo.atlassian.net/browse/MYPROJ-10
-# Task created: MYPROJ-11. jira_issue_link = https://aavademo.atlassian.net/browse/MYPROJ-11
+```
+
+## Calling tool in agent
+
+`projectKey` is usually fixed per deployment; `issues` is typically the content the agent itself just drafted:
+
+```
+inputJSON = {
+  "projectKey": "MYPROJ",
+  "issues": [
+    {"summary": "{{issue_summary}}", "description": "the issue description the agent drafted, VERBATIM"}
+  ]
+}
 ```
 
 ## Error Handling
@@ -84,8 +119,8 @@ print(result)
 
 ## Security Notes
 
-- `JIRA_BASE_URL`, `JIRA_USER_EMAIL`, and `JIRA_API_TOKEN` are currently **hardcoded** at the top of the file — this is a known security issue. Move them to a secrets manager before production use.
-- Credentials can be overridden per-call via `inputJSON.userEmail`, `inputJSON.apiToken`, and `inputJSON.baseUrl`.
+- `base_url`, `user_email`, and `api_token` are retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
+- Credentials can still be overridden per-call via `inputJSON.userEmail`, `inputJSON.apiToken`, and `inputJSON.baseUrl`.
 - The API token is used via HTTP Basic Auth (`HTTPBasicAuth`) — never logged.
 
 ## Resilience
