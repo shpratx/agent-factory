@@ -93,6 +93,7 @@ tr:nth-child(even) td { background: var(--white); }
   <ol>
     <li><a href="#agent-types">The Two Agent Types: Core & Utility</a></li>
     <li><a href="#composability">Composability & Position Independence</a></li>
+    <li><a href="#pipeline-pattern">Standard Pipeline Pattern: Generator → Evaluator → Summariser</a></li>
     <li><a href="#output-contract">Standard Output Contract</a></li>
     <li><a href="#readme-spec">README & spec.yaml for Every Artifact</a></li>
     <li><a href="#reflection">Reflection & Evaluation Criteria</a></li>
@@ -253,7 +254,68 @@ tr:nth-child(even) td { background: var(--white); }
 <div class="callout">Same agent, same contract, different position. This is only possible because the agent has no awareness of what comes before or after it.</div>
 
 <!-- SECTION 3 -->
-<h2 id="output-contract">3. Standard Output Contract</h2>
+<h2 id="pipeline-pattern">3. Standard Pipeline Pattern: Generator → Evaluator → Summariser</h2>
+
+<p>The canonical workflow composition in this ecosystem follows a three-stage pipeline. Each stage is a separate agent with a single responsibility and its own output contract.</p>
+
+<div class="card">
+  <h4>The Three Stages</h4>
+  <div class="flow">
+    <div class="flow-step hl">Generator</div>
+    <span class="flow-arrow">▶</span>
+    <div class="flow-step">Evaluator</div>
+    <span class="flow-arrow">▶</span>
+    <div class="flow-step">Summariser</div>
+  </div>
+</div>
+
+<table>
+  <thead><tr><th>Stage</th><th>Responsibility</th><th>What It Does NOT Do</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Generator</strong></td>
+      <td>Produces content/artifacts from input. Performs a basic 3-item self-check only.</td>
+      <td>Does NOT load evaluation KBs. Does NOT score its own output against a rubric.</td>
+    </tr>
+    <tr>
+      <td><strong>Evaluator (+ Fixer)</strong></td>
+      <td>Embeds critical quality gates inline (structure, minimums, banned language, coherence). Loads evaluation KB for additional scoring dimensions. Fixes issues and re-uploads if gates fail.</td>
+      <td>Does NOT generate from scratch. Does NOT duplicate the rubric in its prompt — references the KB.</td>
+    </tr>
+    <tr>
+      <td><strong>Summariser</strong></td>
+      <td>Reads outputs from all preceding agents. Produces a workflow summary with intent, execution flow, and outcome.</td>
+      <td>Does NOT re-evaluate quality. Does NOT transform artifacts.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="card">
+  <h4>Why This Pattern</h4>
+  <ul>
+    <li><strong>Token efficiency (S6):</strong> Generator stays lean — no evaluation KB loaded during generation</li>
+    <li><strong>Separation of concerns:</strong> Quality judgment is decoupled from creation</li>
+    <li><strong>Fix loop:</strong> Evaluator can iterate (fix + re-score) without re-running the generator</li>
+    <li><strong>Auditability:</strong> Summariser provides a single-point-of-truth for what happened in the workflow</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>Example: Vision Document Workflow</h4>
+  <div class="flow">
+    <div class="flow-step hl">L1-inception-vision-generator</div>
+    <span class="flow-arrow">▶</span>
+    <div class="flow-step">L1-inception-vision-generator-evaluator</div>
+    <span class="flow-arrow">▶</span>
+    <div class="flow-step">L1-inception-workflow-summariser</div>
+  </div>
+  <p style="margin-top:0.5rem; font-size:0.85rem; color: var(--body-light);">Generator creates vision doc → Evaluator scores 6 dimensions, fixes gaps, re-uploads → Summariser records intent, flow, and outcome.</p>
+</div>
+
+<div class="callout">The Generator's only self-check: (1) all required sections present, (2) no hallucinated features, (3) output schema valid. Everything else is the Evaluator's job.</div>
+
+<!-- SECTION 4 -->
+<h2 id="output-contract">4. Standard Output Contract</h2>
 
 <p>Every agent must produce an output JSON aligned with the standard schema. The <code>content</code> block carries the agent's output in two fields: <strong>items</strong> (structured data objects for downstream agents) and <strong>artifacts</strong> (documents, code, or assets for use across workflows). An agent may populate one or both depending on what it produces.</p>
 
@@ -309,8 +371,8 @@ tr:nth-child(even) td { background: var(--white); }
 
 <div class="callout">One contract to rule them all. The output of any Core agent is valid input to any other.</div>
 
-<!-- SECTION 4 -->
-<h2 id="readme-spec">4. README & spec.yaml for Every Artifact</h2>
+<!-- SECTION 5 -->
+<h2 id="readme-spec">5. README & spec.yaml for Every Artifact</h2>
 
 <p>Every artifact in the ecosystem — whether it's an agent, workflow, tool, guardrail, or knowledge base — <strong>must</strong> have two mandatory documentation files:</p>
 
@@ -354,8 +416,8 @@ tr:nth-child(even) td { background: var(--white); }
 
 <div class="callout">If it doesn't have a README and spec.yaml, it doesn't exist in the ecosystem. These are the minimum bar for discoverability and governance.</div>
 
-<!-- SECTION 5 -->
-<h2 id="reflection">5. Reflection & Evaluation Criteria</h2>
+<!-- SECTION 6 -->
+<h2 id="reflection">6. Reflection & Evaluation Criteria</h2>
 
 <p>Every agent must reflect upon its output before delivering it. This is not optional — it's a mandatory quality gate built into every agent's processing pipeline.</p>
 
@@ -416,8 +478,8 @@ tr:nth-child(even) td { background: var(--white); }
 
 <div class="callout">An agent that doesn't reflect is an agent that ships its first draft. We ship the final draft.</div>
 
-<!-- SECTION 6 -->
-<h2 id="examples-golden">6. Examples & Golden Responses</h2>
+<!-- SECTION 7 -->
+<h2 id="examples-golden">7. Examples & Golden Responses</h2>
 
 <p>Every agent must have examples and golden responses to compare and validate the output against. These serve as both documentation and automated validation benchmarks.</p>
 
@@ -497,8 +559,8 @@ tr:nth-child(even) td { background: var(--white); }
 
 <div class="callout">Golden responses are the contract. If an agent's output doesn't match its golden standard in structure and quality, it doesn't ship.</div>
 
-<!-- SECTION 7 -->
-<h2 id="naming">7. Naming Convention</h2>
+<!-- SECTION 8 -->
+<h2 id="naming">8. Naming Convention</h2>
 
 <p>All artifacts in the ecosystem follow a consistent naming pattern that encodes their layer, domain, and function — enabling discoverability and governance at scale.</p>
 
@@ -565,8 +627,8 @@ e.g. tool-jira-create-ticket
   </div>
 </div>
 
-<!-- SECTION 8 -->
-<h2 id="knowledge-bases">8. Knowledge Bases & Runtime Context</h2>
+<!-- SECTION 9 -->
+<h2 id="knowledge-bases">9. Knowledge Bases & Runtime Context</h2>
 
 <p>Core agents don't hardcode domain knowledge — they declare which KBs they need in <code>spec.yaml</code> and the orchestrator injects them at execution time.</p>
 
@@ -574,14 +636,40 @@ e.g. tool-jira-create-ticket
   <tr><th>Principle</th><th>Detail</th></tr>
   <tr><td><strong>Injected at Runtime</strong></td><td>The agent never fetches KBs itself. They are attached by the orchestrator.</td></tr>
   <tr><td><strong>Layered Knowledge</strong></td><td>L0 = enterprise architecture, L1 = best practices, L2 = domain-specific, L3 = project context</td></tr>
+  <tr><td><strong>Purpose-Specific Micro-KBs</strong></td><td>Agents never load a full KB. Each agent role gets a purpose-specific micro-KB containing only facts needed for that agent's decisions.</td></tr>
   <tr><td><strong>Reported in Summary</strong></td><td>Every agent must list which KBs it consulted and what it retrieved from each</td></tr>
   <tr><td><strong>Quality Dependency</strong></td><td>Agent output is only as good as its KBs. Golden KBs are curated, version-controlled, and validated.</td></tr>
 </table>
 
-<div class="callout">Agents don't know things — they consult knowledge bases. Change the KB, change the output. No code changes needed.</div>
+<div class="card">
+  <h4>Micro-KB Pattern (Mandatory for KBs > 3K tokens)</h4>
+  <p>A single large KB (e.g., Enterprise Architecture at 8K+ tokens) must be split into purpose-specific micro-KBs per consuming agent role:</p>
+  <table>
+    <tr><th>Agent Role</th><th>Micro-KB</th><th>Contains</th><th>Target</th></tr>
+    <tr><td>Requirements extractor</td><td><code>*-requirements-slim</code></td><td>Constraints, NFR targets, compliance, data classification</td><td>≤1.5K tokens</td></tr>
+    <tr><td>Epics/stories generator</td><td><code>*-epics-stories-slim</code></td><td>Architecture patterns, sprint structure, testing DoD, design system</td><td>≤1.5K tokens</td></tr>
+    <tr><td>HLD generator</td><td><code>*-hld-slim</code></td><td>Full architecture, API standards, data arch, infra, security</td><td>≤2.5K tokens</td></tr>
+    <tr><td>Code generator</td><td><code>*-code-slim</code></td><td>Code standards, patterns, solution structure, testing</td><td>≤2K tokens</td></tr>
+  </table>
+  <p><strong>Rule:</strong> No single KB should exceed 30% of the consuming agent's available context window. If it does, create a micro-KB.</p>
+</div>
 
-<!-- SECTION 9 -->
-<h2 id="checklist">9. Pre-Publish Checklists</h2>
+<div class="card">
+  <h4>Micro-KB Content Rules</h4>
+  <ul>
+    <li>Each bullet: max 1 line, max 15 words</li>
+    <li>Tables: terse cells (max 8 words per cell)</li>
+    <li>No explanations or rationale — just the rule/fact</li>
+    <li>Annotate items with target category: <code>(→ NFR items)</code> or <code>(→ CON-Regulatory)</code></li>
+    <li>No duplication: each fact appears in exactly one micro-KB</li>
+    <li>Numbers not words: "p95 < 500ms" not "must be performant"</li>
+  </ul>
+</div>
+
+<div class="callout">Agents don't know things — they consult knowledge bases. Change the KB, change the output. No code changes needed. Keep KBs slim, purpose-specific, and within token budget.</div>
+
+<!-- SECTION 10 -->
+<h2 id="checklist">10. Pre-Publish Checklists</h2>
 
 <p>Every artifact must pass its corresponding checklist before it is published to the ecosystem. No exceptions.</p>
 
@@ -690,8 +778,8 @@ e.g. tool-jira-create-ticket
   </div>
 </div>
 
-<!-- SECTION 10 -->
-<h2 id="token-optimisation">10. Token Optimisation Techniques</h2>
+<!-- SECTION 11 -->
+<h2 id="token-optimisation">11. Token Optimisation Techniques</h2>
 
 <p>Agents operate within LLM context windows. Unoptimised agents consume 35,000–40,000+ tokens per execution (instructions + KBs + output), risking context overflow and degraded performance. These techniques reduce token consumption by 60–77% without compromising output quality.</p>
 
@@ -741,6 +829,18 @@ e.g. tool-jira-create-ticket
   </ul>
 </div>
 
+<div class="card">
+  <h4>S3b: Purpose-Specific Micro-KBs (for large enterprise KBs)</h4>
+  <p>When a single KB serves multiple agent roles, don't slim once — create a separate micro-KB per consumer role. Each contains only the facts that agent needs to make decisions.</p>
+  <ul>
+    <li><strong>Before:</strong> Full EA KB (~8,600 tokens) loaded by every agent</li>
+    <li><strong>After:</strong> Requirements micro-KB (~930 tokens), Epics micro-KB (~1,300 tokens), HLD micro-KB (~2,100 tokens)</li>
+    <li><strong>Rule:</strong> No KB > 30% of consumer's available context. If over, create a micro-KB.</li>
+    <li><strong>Content:</strong> Max 1 line per bullet, max 15 words. Annotate with target category <code>(→ NFR items)</code>. No explanations.</li>
+    <li><strong>Naming:</strong> <code>{kb-name}-{purpose}-slim.md</code> in same content folder</li>
+  </ul>
+</div>
+
 <h3>S4: Template as Instruction</h3>
 <div class="card">
   <p>If a template KB is ≤ 3,000 tokens, embed its structure directly into the prompt. Eliminates a separate KB load.</p>
@@ -773,6 +873,23 @@ e.g. tool-jira-create-ticket
     <li><strong>Architecture:</strong> Core Agent (generates) → Validator Agent (evaluates against rubric)</li>
     <li><strong>When:</strong> Context window is tight and evaluation criteria are complex</li>
   </ul>
+</div>
+
+<div class="card">
+  <h4>Critical: Inline Quality Gates in Evaluator</h4>
+  <p>The evaluator must embed non-negotiable quality gates <strong>directly in its prompt</strong> — not solely in the KB. LLMs reliably follow rules visible in the instruction set; KB-only rules risk being deprioritised or skipped during inference.</p>
+  <ul>
+    <li><strong>Inline:</strong> Structure checks, content count minimums, banned language lists, coherence rules</li>
+    <li><strong>KB provides:</strong> Additional scoring dimensions, thresholds, and nuanced rubric details</li>
+    <li><strong>Why:</strong> Prevents "silent pass" where the evaluator scores everything highly because the KB rules weren't deeply parsed</li>
+  </ul>
+  <p>Example inline gates for a vision document evaluator:</p>
+  <pre>
+  Critical Quality Gates (check BEFORE scoring):
+  Structure:  All 5 sections present, Exec Summary ≤ 5 sentences
+  Minimums:   Features ≥ 4, MVP ≥ 5, Risks ≥ 4, Journeys ≥ 2
+  Banned:     "world-class", "seamless", "intuitive", "improve" without number
+  Coherence:  MVP ⊂ Full Vision, no tech decisions, real integrations only</pre>
 </div>
 
 <h3>Recommended Combinations</h3>

@@ -1,0 +1,520 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Agent Factory — Greenfield Bill of Materials</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+:root{--navy:#1B2A4A;--teal:#0A7E8C;--teal-lt:#E8F6F7;--green:#1B8C3A;--green-lt:#E8F5E9;--amber:#D4880F;--amber-lt:#FFF8E1;--red:#C62828;--purple:#5E35B1;--gray:#F4F5F7;--gray-mid:#E0E3E8;--gray-txt:#666;--charcoal:#2D3748;
+--idea:#AD1457;--idea-lt:#FCE4EC;--reqs:#3949AB;--reqs-lt:#E8EAF6;--plan:#EF6C00;--plan-lt:#FFF3E0;--incept:#0052CC;--incept-lt:#E9F2FF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--charcoal);}
+.page{max-width:1500px;margin:0 auto;padding:24px;}
+h2{font-size:16px;font-weight:800;color:var(--navy);margin:26px 0 8px;}
+h3{font-size:12px;font-weight:700;color:var(--gray-txt);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px;}
+.sub{font-size:12px;color:var(--gray-txt);margin-bottom:6px;}
+.phase-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;color:#fff;}
+.table-wrap{overflow-x:auto;border:1px solid var(--gray-mid);border-radius:8px;margin-bottom:6px;}
+table{width:100%;border-collapse:collapse;font-size:10px;min-width:1400px;}
+th{padding:7px 8px;background:var(--navy);color:#fff;font-weight:700;font-size:9.5px;text-transform:uppercase;text-align:left;position:sticky;top:0;}
+td{padding:7px 8px;border-bottom:1px solid var(--gray-mid);vertical-align:top;line-height:1.45;}
+tbody tr:nth-child(even) td{background:#FAFBFC;}
+tbody tr:hover td{background:#F0F4F8;}
+code{background:#E5E7EB;padding:1px 4px;border-radius:3px;font-size:9.5px;white-space:nowrap;}
+.src-ext{color:#8a4400;font-weight:600;}
+.src-agent{color:var(--teal);font-weight:600;}
+.src-human{color:var(--idea);font-weight:600;}
+.src-kb{color:var(--amber);font-weight:600;}
+.col-name{min-width:150px;}
+.col-desc{min-width:180px;}
+.col-io{min-width:170px;}
+.col-src{min-width:190px;}
+.col-tools{min-width:130px;}
+.col-kb{min-width:140px;}
+.col-gr{min-width:150px;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 18px;font-size:11px;}
+.legend-item{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:10px;height:10px;border-radius:3px;}
+.callout{border-radius:8px;padding:10px 14px;margin:10px 0;font-size:11px;border:1px solid;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+</style></head><body>
+
+<div style="background:linear-gradient(135deg,var(--navy),#2A3F6A);padding:20px 40px;color:#fff;">
+<div style="max-width:1500px;margin:0 auto;">
+<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:.5;">Agent Factory Reference — Greenfield Extension</div>
+<h1 style="font-size:22px;font-weight:800;">Agent Bill of Materials — Idea → Vision → Requirements → Code</h1>
+<p style="opacity:.7;font-size:12px;">Build spec for all 34 agents in <code style="background:rgba(255,255,255,.15);color:#fff;">Agent_Factory_E2E_SDLC_Diagram_Greenfield.html</code>: description, inputs, input provenance, outputs, tools, knowledge bases, guardrails.</p>
+</div></div>
+
+<div class="page">
+
+<h3>Input Source Legend</h3>
+<div class="legend">
+<div class="legend-item"><span class="src-human">●</span> Human-authored (submitted by a role — Product Lead, Feature Owner, QA Expert)</div>
+<div class="legend-item"><span class="src-ext">●</span> External system of record (Jira, GitHub, Confluence, web/regulatory data)</div>
+<div class="legend-item"><span class="src-agent">●</span> Prior agent output, passed as workflow context (no external fetch)</div>
+<div class="legend-item"><span class="src-kb">●</span> Knowledge base (retrieved at inference time, not passed as workflow input)</div>
+</div>
+
+<!-- PHASE 0 -->
+<h2><span class="phase-tag" style="background:var(--idea);">PHASE 0</span> Idea → Vision</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-vision-idea-intake</code></td>
+<td>Structures a raw idea into a problem statement, target users, and success metrics.</td>
+<td>Raw idea brief (free text); sponsoring stakeholder list</td>
+<td><span class="src-human">Human:</span> Product Lead submission via intake form or Confluence "Idea Brief" page<br><span class="src-ext">External:</span> stakeholder registry (org directory / HRIS export)</td>
+<td><code>idea-brief.md</code></td>
+<td><code>tool-L1-confluence-fetch-page</code></td>
+<td>— <span style="color:var(--gray-txt);font-style:italic;">(idea-brief structure folded into <code>instructions.md</code> per S4 — see note below)</span></td>
+<td><code>gr-L1-hallucination-check</code>, <code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-vision-market-analyzer</code></td>
+<td>Competitor analysis and SWOT for the proposed idea.</td>
+<td>Problem statement + target market (from idea brief); known competitor list (optional)</td>
+<td><span class="src-agent">Agent:</span> <code>idea-brief.md</code> from <code>L1-vision-idea-intake</code><br><span class="src-ext">External:</span> live web search; <span class="src-kb">KB:</span> prior competitor profiles</td>
+<td><code>market-analysis.md</code></td>
+<td><code>tool-L1-web-search-competitor-scan</code></td>
+<td><code>kb-L2-domain-market</code></td>
+<td><code>gr-L1-hallucination-check</code>, <code>gr-L1-citation-verifier</code></td>
+</tr>
+<tr>
+<td><code>L1-vision-regulatory-feasibility-checker</code></td>
+<td>Regulatory feasibility assessment (licensing, compliance regimes) for the target market.</td>
+<td>Problem statement + target geography/product category (from idea brief)</td>
+<td><span class="src-agent">Agent:</span> <code>idea-brief.md</code> from <code>L1-vision-idea-intake</code><br><span class="src-ext">External:</span> regulatory database/API lookup</td>
+<td><code>regulatory-feasibility.md</code></td>
+<td><code>tool-L1-regulatory-db-lookup</code></td>
+<td><code>kb-L1-regulatory-frameworks-index</code>, <code>kb-L2-domain-regulatory</code></td>
+<td><code>gr-L1-hallucination-check</code>, <code>gr-L1-citation-verifier</code></td>
+</tr>
+<tr>
+<td><code>L1-vision-statement-generator</code></td>
+<td>Synthesizes idea, market, and regulatory findings into a vision statement and roadmap outline.</td>
+<td>Idea brief; market analysis; regulatory feasibility; viability score</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>idea-intake</code>, <code>market-analyzer</code>, <code>regulatory-feasibility-checker</code><br><span class="src-agent">Agent:</span> viability score from <code>L1-quality-verifier</code> at QG: viability-score</td>
+<td><code>vision.md</code></td>
+<td><code>tool-L1-confluence-create-page</code></td>
+<td>— <span style="color:var(--gray-txt);font-style:italic;">(vision structure folded into <code>instructions.md</code> per S4 — see note below)</span></td>
+<td><code>gr-L1-consistency-check</code>, <code>gr-L1-output-schema-validator</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="callout" style="background:var(--idea-lt);border-color:var(--idea);color:#7d0e42;"><strong>Human gate before Phase 1:</strong> Product Lead reviews and comments on <code>vision.md</code> in Confluence. That approval comment becomes a required input to Phase 1's first agent.</div>
+<div class="callout" style="background:#FFF8E1;border-color:var(--amber);color:#7a5200;"><strong>Reconciled 2026-08-02 — KB count corrected from 4 to 3, and domain re-scoped to food production &amp; distribution:</strong> building the actual Phase 0 knowledge bases (see <code>phase-0/knowledge-bases/</code>) against the token-optimisation rules in <code>agent-standards-best-practices.html</code> found that <code>L1-vision-idea-intake</code> and <code>L1-vision-statement-generator</code> don't need a KB at all — their original <code>kb-L1-sdlc-templates</code> entry was pure document structure (≤3K tokens), which the S4 "Template as Instruction" rule says belongs embedded in <code>instructions.md</code>, not paid for as a retrieval every execution. <code>L1-vision-market-analyzer</code>'s KB was re-scoped from the generic (and, on inspection, mis-layered — market facts can't be domain-agnostic) <code>kb-L1-market-intelligence</code> to the correctly-layered <code>kb-L2-domain-market</code>. <code>L1-vision-regulatory-feasibility-checker</code> keeps its L1/L2 split, just renamed/re-scoped: <code>kb-L1-regulatory-frameworks-index</code> (generic, unchanged in kind) + <code>kb-L2-domain-regulatory</code> (replacing <code>kb-L2-payments-domain</code>).
+<br><br>
+<strong>Update 2026-08-05 — re-scope extended through the full pipeline:</strong> the domain seam noted above is resolved. <code>kb-L2-payments-domain</code> (Phases 1, 3, 5) is now <code>kb-L2-domain-regulatory</code> or <code>kb-L2-food-domain</code> depending on which agent consumes it; <code>gr-L2-payments-compliance</code> (Phases 1, 3) is now <code>gr-L2-food-domain-compliance</code>; <code>kb-L2-payments-api-patterns</code> (Phase 4) is now <code>kb-L2-food-domain-api-patterns</code>. The Phase 0/Phase 1 worked examples (<code>phase-0/examples/</code>, <code>phase-1/examples/</code>) now run the "HarvestLink" scenario — a compliance-enabled producer-to-foodservice marketplace — replacing "PayBridge" end to end, with the same coherence guarantees (single <code>workflow_execution_id</code> per phase, every requirement traceable through to the dependency graph, cycle-check and critical-path independently verified, not just asserted). <code>kb-L2-food-domain</code> (used by Phase 3's story-generator and Phase 5's scenario-writer) and <code>kb-L2-food-domain-api-patterns</code> (Phase 4) are referenced here as planned artifacts — same status as <code>kb-L1-enterprise-architecture</code> elsewhere in this document: named where needed, content not yet built. Only <code>kb-L2-domain-market</code> and <code>kb-L2-domain-regulatory</code> (Phase 0) have real content today, under <code>phase-0/knowledge-bases/</code>.</div>
+
+<!-- PHASE 1 -->
+<h2><span class="phase-tag" style="background:var(--reqs);">PHASE 1</span> Requirements → Impact Assessment → Dependency Graph</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-requirements-elicitor</code></td>
+<td>Converts the approved vision into structured functional requirements.</td>
+<td>Approved vision statement; Product Lead approval comment</td>
+<td><span class="src-agent">Agent:</span> <code>vision.md</code> from <code>L1-vision-statement-generator</code><br><span class="src-human">Human:</span> Product Lead approval comment (Confluence page comment / Jira initiative field)</td>
+<td><code>requirements.md</code></td>
+<td><code>tool-L1-confluence-fetch-page</code></td>
+<td>— (requirements.template.md is ≤3K tokens and purely structural — embed in the prompt per S4, no KB; every requirement grounds in vision.md directly, not a separate regulatory KB — see callout below)</td>
+<td><code>gr-L1-hallucination-check</code>, <code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-requirements-nfr-classifier</code></td>
+<td>Classifies non-functional requirements and boundary conditions.</td>
+<td>Functional requirements list; source regulatory feasibility assessment</td>
+<td><span class="src-agent">Agent:</span> <code>requirements.md</code> from <code>L1-requirements-elicitor</code>; <code>regulatory-feasibility.md</code> from Phase 0's <code>L1-vision-regulatory-feasibility-checker</code> (Compliance-category boundary conditions cite this directly, not a KB)</td>
+<td><code>nfr-spec.md</code></td>
+<td>—</td>
+<td><code>kb-L1-nfr-classification-taxonomy</code>; <code>kb-L1-enterprise-architecture</code>, <code>kb-L1-enterprise-security</code> (enterprise-wide, cross-phase — real content, see <code>knowledge-bases/</code> at the project root, not under a phase directory)</td>
+<td><code>gr-L1-output-schema-validator</code>, <code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-requirements-prd-composer</code></td>
+<td>Composes the functional requirements and NFR spec into one authoritative PRD — every requirement together with its cross-functional constraints in one place, not split across two documents a reader must cross-reference.</td>
+<td>Functional requirements; NFR spec; approved vision statement (Assumptions/Constraints/Risks carry-forward only)</td>
+<td><span class="src-agent">Agent:</span> <code>requirements.md</code> from <code>requirements-elicitor</code>; <code>nfr-spec.md</code> from <code>nfr-classifier</code>; <code>vision.md</code> from Phase 0's <code>L1-vision-statement-generator</code> (read-only — Regulatory Posture / Open Risks Carried Forward feed Assumptions/Constraints/Risks; never a source for requirements[] or nfrs[], which come only from requirements.md/nfr-spec.md)</td>
+<td><code>prd.md</code></td>
+<td>—</td>
+<td>—</td>
+<td><code>gr-L1-output-schema-validator</code>, <code>gr-L1-consistency-check</code> (zero requirements dropped in composition)</td>
+</tr>
+<tr>
+<td><code>L1-planning-impact-assessor</code></td>
+<td>Assesses change / blast-radius impact of proposed requirements against existing systems (or proposed component map for pure greenfield).</td>
+<td>PRD; existing system/service inventory</td>
+<td><span class="src-agent">Agent:</span> <code>prd.md</code> from <code>prd-composer</code><br><span class="src-ext">External:</span> service catalog + CMDB export (e.g. Backstage, ServiceNow) — <code>enterprise-data/thornbury-service-catalog.json</code> + <code>enterprise-data/thornbury-cmdb-export.json</code> for this reference scenario; empty/strawman only for a product with no parent enterprise at all</td>
+<td><code>impact-assessment.md</code></td>
+<td><code>tool-L1-confluence-fetch-page</code> (architecture registry)</td>
+<td><code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-consistency-check</code>, <code>gr-L2-food-domain-compliance</code></td>
+</tr>
+<tr>
+<td><code>L1-planning-dependency-mapper</code></td>
+<td>Builds a dependency graph across proposed epics, services, and integrations.</td>
+<td>Impact assessment; PRD</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>impact-assessor</code>, <code>prd-composer</code></td>
+<td><code>dependency-graph.json</code></td>
+<td>—</td>
+<td><code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-output-schema-validator</code> (rejects cyclic graphs)</td>
+</tr>
+</tbody>
+</table></div>
+
+<div class="callout" style="background:#eef;border-color:#99f;color:#224;"><strong>Update 2026-08-06 — FR+NFR composed into one PRD:</strong> a new <code>L1-requirements-prd-composer</code> sits between <code>nfr-classifier</code> and <code>impact-assessor</code>. It synthesizes <code>requirements.md</code> + <code>nfr-spec.md</code> into one <code>prd.md</code> — every requirement together with its cross-functional (performance/security/compliance/etc.) constraints in one composed block, plus Assumptions/Constraints/Risks sections carried forward from <code>vision.md</code> (refined per-FR only where a requirement reveals something vision-stage couldn't have known), and a widened Open Questions section covering both NFR TBDs and requirement-coverage gaps noticed while composing. Success metrics were deliberately left out — <code>vision.md</code>'s North-Star Metric(s) stay the single authoritative source, referenced via each FR's own trace rather than copied into a third place that could drift. <code>impact-assessor</code> and <code>dependency-mapper</code> now consume <code>prd.md</code> as their single Phase 1 source of truth instead of fetching <code>requirements.md</code> and <code>nfr-spec.md</code> separately. <code>requirements.md</code> and <code>nfr-spec.md</code> still exist as the elicitor's and classifier's own atomic outputs (each agent still does exactly one job, per the Single Responsibility standard) and Phase 3's <code>story-generator</code> still consumes <code>requirements.md</code> directly — only Phase 1's own downstream steps were redirected to the composed PRD. See <code>phase-1/templates/prd.template.md</code> and <code>phase-1/examples/prd.md</code>.</div>
+
+<div class="callout" style="background:#eef;border-color:#99f;color:#224;"><strong>Update 2026-08-07 — Phase 1 KB audit (same rigor as Phase 0's "Why 3 KBs, not 4"):</strong> building Phase 1's knowledge bases surfaced two KBs that don't belong as listed. <code>kb-L1-sdlc-templates</code> (elicitor) is folded into <code>L1-requirements-elicitor</code>'s own prompt per S4 — <code>requirements.template.md</code> is ≤3K tokens and purely structural, exactly the idea-intake precedent from Phase 0. <code>kb-L2-domain-regulatory</code> (elicitor) is removed — every requirement in <code>requirements.md</code> traces to a <code>vision.md</code> clause directly; the elicitor never independently re-queries regulatory facts, so a KB reference there was never actually exercised. <code>L1-requirements-nfr-classifier</code> gains <code>regulatory-feasibility.md</code> (Phase 0's artifact) as a direct input instead — its own worked example already cited it that way (<code>nfr-spec.md</code> § FR-003/FR-004 Source column), the BOM just hadn't caught up. One genuinely new KB was built: <code>kb-L1-nfr-classification-taxonomy</code> — a generic, cross-domain NFR framework, reusable by any future agent that classifies NFRs, not just this one. <code>kb-L1-enterprise-architecture</code> and <code>kb-L1-enterprise-security</code> remain correctly out of scope — enterprise-wide, deployment-specific artifacts, same "planned, not yet built" status as elsewhere in this document. Impact-assessor's Low/Medium/High blast-radius criteria stay an S4 prompt-embed candidate when that agent is actually built, not a KB — same size/reusability test, different answer. See <code>phase-1/knowledge-bases/README.md</code> for the full rationale table.</div>
+
+<div class="callout" style="background:#eef;border-color:#99f;color:#224;"><strong>Update 2026-08-08 — correction: "greenfield" ≠ "no parent enterprise":</strong> the 2026-08-07 entry above correctly identified that these two KBs had no real content, but incorrectly concluded that meant they should stay unbuilt. "Greenfield" describes the HarvestLink *product* — it does not mean HarvestLink has no parent *enterprise*. A new digital product built inside an already-established company (the far more common real-world case) has a real existing-systems landscape to assess impact against, and real existing security standards a new product must satisfy — that's exactly what triggers a genuine, non-trivial <code>L1-planning-impact-assessor</code> run rather than a rubber-stamped "no existing systems" every time. Both KBs are now built with illustrative-but-detailed content for a fictional parent enterprise, <strong>Thornbury Foods Group</strong> (a UK food wholesale/distribution conglomerate that HarvestLink is a new digital-product unit within) — see <code>knowledge-bases/kb-L1-enterprise-architecture</code> and <code>knowledge-bases/kb-L1-enterprise-security</code> at the project root (cross-phase, not scoped under any single <code>phase-N/</code> directory, since Phases 1, 2, 3, 4, and 6 all reference them). <code>phase-1/examples/impact-assessment.md</code> was rewritten accordingly: the CMDB is no longer empty, three existing systems are genuinely touched (one read-only check, one outbound-only feed, one mandatory integration pattern), two are explicitly excluded by architecture decision rather than oversight, and checking the security KB's identity boundary surfaced a genuinely new external dependency (HarvestLink needs its own external identity provider — Thornbury's employee SSO doesn't cover producers/distributors/buyers) that wasn't visible at vision or requirements stage. Back-ported 2026-08-08: <code>dependency-graph.json</code> now includes the external-identity-provider node — it ties with the compliance-completeness-methodology chain for the graph's critical path (independently re-verified: no cycle introduced, longest path still 3 edges, now via two distinct roots converging on <code>allergen-declaration-service</code>), and <code>nfr-spec.md</code>/<code>prd.md</code> now cite the security KB to resolve 3 of their former "TBD" boundary conditions (FR-001's 6-year retention, FR-003's and FR-008's availability SLAs) instead of leaving them open — six genuine TBDs remain in each, down from nine.</div>
+
+<div class="callout" style="background:#eef;border-color:#99f;color:#224;"><strong>Update 2026-08-09 — all 5 Phase 1 core agents + evaluators built as full reference-pattern packages:</strong> <code>L1-requirements-elicitor</code>, <code>-nfr-classifier</code>, <code>-prd-composer</code>, <code>L1-planning-impact-assessor</code>, and <code>-dependency-mapper</code> each now have a complete <code>agents/&lt;name&gt;/</code> package (<code>spec.yaml</code>, <code>output_schema.json</code>, <code>evaluation.md</code>, <code>README.md</code>, <code>examples/</code>, <code>golden/v1.0.0/</code>) plus a paired <code>-evaluator</code> agent and a <code>prompts/&lt;name&gt;/instructions.md</code>, same S6 Generator→Evaluator pattern as Phase 0. A new <code>gr-L1-requirements-quality-gate</code> guardrail (7 rules: schema compliance, ID sequencing, compound-split integrity, unambiguous-vague-term scan, singular/verifiable/consistent checks) is wired into <code>L1-requirements-elicitor-evaluator</code>'s <code>context.guardrails</code>, validating the RESULTANT post-fix requirements content against ISO/IEC/IEEE 29148 — see <code>kb-L1-requirements-quality-standard</code> (new) and <code>guardrails/gr-L1-requirements-quality-gate/</code>. Cross-file reconciliation caught and fixed two seams from building these in parallel before every upstream schema existed: <code>L1-planning-impact-assessor</code>'s and <code>-dependency-mapper</code>'s golden/example input fixtures had guessed shapes for <code>prd_output</code>/<code>impact_assessment_output</code> (e.g. bare-string narrative fields, wrong Component/ExternalDependency field names, an invented <code>component_dependencies</code> field that contradicts dependency-mapper's own edge-derivation design) — all now spliced from the real upstream agents' actual output_schema.json-conformant content, re-validated end to end. Separately, <code>L1-planning-impact-assessor</code>'s prompt and <code>spec.yaml</code> had let the worked scenario's product/company names (HarvestLink, Thornbury Foods Group) leak into the operative BACK STORY/business_value prose instead of staying confined to <code>examples/</code>/<code>golden/</code> fixtures — genericized to "a greenfield product built within an established parent enterprise" so the agent stays domain- and organization-agnostic, consistent with every other L1 agent in this document.</div>
+
+<!-- PHASE 2 -->
+<h2><span class="phase-tag" style="background:var(--plan);">PHASE 2</span> Project / Sprint Planning</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-planning-backlog-prioritizer</code></td>
+<td>Prioritizes backlog items by value, effort, and dependency risk.</td>
+<td>Dependency graph; requirements; business value scoring inputs (RICE/WSJF fields)</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>dependency-mapper</code>, <code>requirements-elicitor</code><br><span class="src-human">Human:</span> value-scoring inputs from Product Lead (Jira custom fields or a value-scoring sheet)</td>
+<td><code>prioritized-backlog.md</code></td>
+<td><code>tool-L1-jira-fetch-issue</code> (adjacent backlog, if any)</td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-planning-sprint-planner</code></td>
+<td>Allocates prioritized backlog into 5-day Feature Cycles by team capacity.</td>
+<td>Prioritized backlog; team capacity / velocity data</td>
+<td><span class="src-agent">Agent:</span> <code>prioritized-backlog.md</code> from <code>backlog-prioritizer</code><br><span class="src-ext">External:</span> Jira velocity/capacity report or resourcing tool export</td>
+<td><code>roadmap.md</code></td>
+<td><code>tool-L1-jira-create-issue</code>, <code>tool-L1-jira-update-issue</code></td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-consistency-check</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="callout" style="background:var(--plan-lt);border-color:var(--plan);color:#8a4400;"><strong>Human gate before Phase 3:</strong> Product Lead approves <code>roadmap.md</code> for dependencies and capacity fit. That approval is a required input to Phase 3's epic creator.</div>
+
+<!-- PHASE 3 -->
+<h2><span class="phase-tag" style="background:var(--incept);">PHASE 3</span> Inception — Epics, Features, Stories, Tasks</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-inception-epic-creator</code></td>
+<td>Generates epics from the approved roadmap and vision.</td>
+<td>Approved roadmap; vision statement</td>
+<td><span class="src-agent">Agent:</span> <code>roadmap.md</code> from <code>sprint-planner</code>; <code>vision.md</code> from <code>vision-statement-generator</code><br><span class="src-human">Human:</span> Product Lead roadmap approval</td>
+<td><code>epics.json</code></td>
+<td><code>tool-L1-jira-fetch-issue</code></td>
+<td><code>kb-L1-sdlc-templates</code>, <code>kb-L1-enterprise-security</code></td>
+<td><code>gr-L1-schema-validator</code>, <code>gr-L1-pii-detection</code>, <code>gr-L1-hallucination-check</code>, <code>gr-L2-food-domain-compliance</code></td>
+</tr>
+<tr>
+<td><code>L1-inception-feature-decomposer</code></td>
+<td>Decomposes epics into features.</td>
+<td>Epics</td>
+<td><span class="src-agent">Agent:</span> <code>epics.json</code> from <code>epic-creator</code></td>
+<td><code>features.json</code></td>
+<td>—</td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-schema-validator</code>, <code>gr-L1-hallucination-check</code></td>
+</tr>
+<tr>
+<td><code>L1-inception-story-generator</code></td>
+<td>Generates user stories with acceptance criteria from features.</td>
+<td>Features; functional requirements</td>
+<td><span class="src-agent">Agent:</span> <code>features.json</code> from <code>feature-decomposer</code>; <code>requirements.md</code> from <code>requirements-elicitor</code></td>
+<td><code>stories.json</code></td>
+<td>—</td>
+<td><code>kb-L1-sdlc-templates</code>, <code>kb-L2-food-domain</code></td>
+<td><code>gr-L1-schema-validator</code>, <code>gr-L1-pii-detection</code>, <code>gr-L1-citation-verifier</code></td>
+</tr>
+<tr>
+<td><code>L1-inception-task-generator</code></td>
+<td>Decomposes stories into engineering tasks.</td>
+<td>Stories</td>
+<td><span class="src-agent">Agent:</span> <code>stories.json</code> from <code>story-generator</code></td>
+<td><code>tasks.json</code></td>
+<td>—</td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-schema-validator</code></td>
+</tr>
+<tr>
+<td><code>L1-jira-orchestrator</code></td>
+<td>Creates epics, stories, and tasks as issues in Jira.</td>
+<td>Epics; features; stories; tasks (all as JSON)</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>epic-creator</code>, <code>feature-decomposer</code>, <code>story-generator</code>, <code>task-generator</code></td>
+<td>Jira issue keys (epics/stories/tasks)</td>
+<td><code>tool-L1-jira-create-issue</code>, <code>tool-L1-jira-fetch-issue</code>, <code>tool-L1-jira-update-issue</code></td>
+<td>—</td>
+<td><code>gr-L1-output-schema-validator</code></td>
+</tr>
+</tbody>
+</table></div>
+
+<!-- PHASE 4 -->
+<h2><span class="phase-tag" style="background:var(--teal);">PHASE 4</span> Design — User Journeys, Wireframes, HLD, LLD, API Spec, Data Model</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-design-user-journey-mapper</code></td>
+<td>Maps end-to-end persona journeys and touchpoints ahead of wireframing.</td>
+<td>Stories; target user personas</td>
+<td><span class="src-agent">Agent:</span> <code>stories.json</code> from <code>story-generator</code>; personas from <code>vision.md</code></td>
+<td><code>user-journeys.md</code></td>
+<td>—</td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-design-ux-wireframe</code></td>
+<td>Generates wireframes / screen layouts from stories and journeys.</td>
+<td>Stories; user journeys</td>
+<td><span class="src-agent">Agent:</span> <code>stories.json</code> from <code>story-generator</code>; <code>user-journeys.md</code> from <code>user-journey-mapper</code></td>
+<td><code>wireframes.md</code></td>
+<td><code>tool-L1-figma-create-frame</code> (optional, if pushing to Figma)</td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-design-api-spec</code></td>
+<td>Generates the OpenAPI contract from story scope and NFRs.</td>
+<td>Stories; NFR spec</td>
+<td><span class="src-agent">Agent:</span> <code>stories.json</code> from <code>story-generator</code>; <code>nfr-spec.md</code> from <code>nfr-classifier</code></td>
+<td><code>openapi.yaml</code></td>
+<td>—</td>
+<td><code>kb-L1-enterprise-architecture</code>, <code>kb-L2-food-domain-api-patterns</code></td>
+<td><code>gr-L1-schema-validator</code> (OpenAPI schema)</td>
+</tr>
+<tr>
+<td><code>L1-design-hld</code></td>
+<td>Generates the high-level design — C4 diagrams, components, data flow, integrations.</td>
+<td>Requirements; NFR spec; dependency graph; API spec</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>requirements-elicitor</code>, <code>nfr-classifier</code>, <code>dependency-mapper</code>, <code>api-spec</code></td>
+<td><code>hld.md</code></td>
+<td>—</td>
+<td><code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-consistency-check</code>, <code>gr-L1-hallucination-check</code></td>
+</tr>
+<tr>
+<td><code>L1-design-lld</code></td>
+<td>Generates the low-level design — classes, sequence diagrams, error handling.</td>
+<td>HLD; API spec</td>
+<td><span class="src-agent">Agent:</span> <code>hld.md</code> from <code>design-hld</code>; <code>openapi.yaml</code> from <code>design-api-spec</code></td>
+<td><code>lld.md</code></td>
+<td>—</td>
+<td><code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-design-data-architect</code></td>
+<td>Designs the data model — schema, lineage, migration plan.</td>
+<td>LLD; functional requirements</td>
+<td><span class="src-agent">Agent:</span> <code>lld.md</code> from <code>design-lld</code>; <code>requirements.md</code> from <code>requirements-elicitor</code></td>
+<td><code>db-schema.sql</code></td>
+<td><code>tool-L1-db-schema-diff</code> (optional, against existing prod DB)</td>
+<td><code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-schema-validator</code>, <code>gr-L1-pii-detection</code></td>
+</tr>
+<tr>
+<td><code>L1-github-orchestrator</code> <span style="color:var(--gray-txt);">(design-publish invocation)</span></td>
+<td>Commits all design documents to the design branch and publishes to Confluence.</td>
+<td>Wireframes; journeys; HLD; LLD; API spec; data model</td>
+<td><span class="src-agent">Agent:</span> outputs of all Phase 4 design agents</td>
+<td>GitHub branch <code>aava/design-*</code>; Confluence pages</td>
+<td><code>tool-L1-github-upload-file</code>, <code>tool-L1-confluence-create-page</code></td>
+<td>—</td>
+<td><code>gr-L1-output-schema-validator</code></td>
+</tr>
+</tbody>
+</table></div>
+
+<!-- PHASE 5 -->
+<h2><span class="phase-tag" style="background:var(--amber);">PHASE 5</span> Test Strategy — Scenarios, Cases, Scripts, Synthetic Data</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-testing-scenario-writer</code></td>
+<td>Generates test scenarios from stories and acceptance criteria.</td>
+<td>Stories (with AC)</td>
+<td><span class="src-agent">Agent:</span> <code>stories.json</code> from <code>story-generator</code></td>
+<td><code>test-scenarios.md</code></td>
+<td>—</td>
+<td><code>kb-L1-testing-standards</code>, <code>kb-L2-food-domain</code></td>
+<td><code>gr-L1-citation-verifier</code></td>
+</tr>
+<tr>
+<td><code>L1-testing-case-writer</code></td>
+<td>Generates Cucumber Given/When/Then cases from scenarios.</td>
+<td>Test scenarios</td>
+<td><span class="src-agent">Agent:</span> <code>test-scenarios.md</code> from <code>scenario-writer</code></td>
+<td><code>test-cases.feature</code></td>
+<td>—</td>
+<td><code>kb-L1-testing-standards</code></td>
+<td><code>gr-L1-schema-validator</code></td>
+</tr>
+<tr>
+<td><code>L1-testing-script-generator</code></td>
+<td>Generates executable automation scripts (Playwright / REST Assured) from test cases.</td>
+<td>Test cases; API spec; wireframes</td>
+<td><span class="src-agent">Agent:</span> <code>test-cases.feature</code> from <code>case-writer</code>; <code>openapi.yaml</code> from <code>design-api-spec</code>; <code>wireframes.md</code> from <code>design-ux-wireframe</code></td>
+<td>Automation scripts (Playwright / REST Assured source)</td>
+<td>—</td>
+<td><code>kb-L1-testing-standards</code></td>
+<td><code>gr-L1-schema-validator</code></td>
+</tr>
+<tr>
+<td><code>L1-testing-synthetic-data-generator</code></td>
+<td>Generates PII-safe synthetic test data and fixtures.</td>
+<td>Data schema; test cases</td>
+<td><span class="src-agent">Agent:</span> <code>db-schema.sql</code> from <code>data-architect</code>; <code>test-cases.feature</code> from <code>case-writer</code></td>
+<td><code>synthetic-data.json</code></td>
+<td>—</td>
+<td><code>kb-L1-testing-standards</code></td>
+<td><code>gr-L1-pii-detection</code> (critical — blocks real PII)</td>
+</tr>
+<tr>
+<td><code>L1-xray-orchestrator</code></td>
+<td>Creates test cases and links executable scripts in XRay.</td>
+<td>Test cases; automation scripts</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>case-writer</code>, <code>script-generator</code></td>
+<td>XRay test entries linked to stories</td>
+<td><code>tool-L1-xray-create-test</code></td>
+<td>—</td>
+<td><code>gr-L1-output-schema-validator</code></td>
+</tr>
+</tbody>
+</table></div>
+
+<!-- PHASE 6 -->
+<h2><span class="phase-tag" style="background:var(--green);">PHASE 6</span> Construction — API Code Gen, UI Code Gen</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-construction-api-code-generator</code></td>
+<td>Generates backend/API implementation (Spring Boot + PostgreSQL) from LLD, API spec, and data model.</td>
+<td>LLD; API spec; data schema; base repo scaffold</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>design-lld</code>, <code>design-api-spec</code>, <code>data-architect</code><br><span class="src-ext">External:</span> repo scaffold via GitHub</td>
+<td>API source code</td>
+<td><code>tool-L1-github-fetch-file</code></td>
+<td><code>kb-L1-enterprise-architecture</code>, <code>kb-L1-enterprise-security</code></td>
+<td><code>gr-L1-schema-validator</code>, <code>gr-L1-secret-scanner</code>, <code>gr-L1-license-compliance-check</code></td>
+</tr>
+<tr>
+<td><code>L1-construction-ui-code-generator</code></td>
+<td>Generates frontend/UI implementation (React) from wireframes, journeys, and API spec.</td>
+<td>Wireframes; user journeys; API spec; base repo scaffold</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>design-ux-wireframe</code>, <code>user-journey-mapper</code>, <code>design-api-spec</code><br><span class="src-ext">External:</span> repo scaffold via GitHub</td>
+<td>UI source code</td>
+<td><code>tool-L1-github-fetch-file</code></td>
+<td><code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-secret-scanner</code>, <code>gr-L1-license-compliance-check</code></td>
+</tr>
+<tr>
+<td><code>L1-construction-unit-test-generator</code></td>
+<td>Generates unit tests for both API and UI code.</td>
+<td>API source code; UI source code</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>api-code-generator</code>, <code>ui-code-generator</code></td>
+<td>Unit test suites</td>
+<td>—</td>
+<td><code>kb-L1-testing-standards</code></td>
+<td><code>gr-L1-schema-validator</code></td>
+</tr>
+<tr>
+<td><code>L1-construction-code-reviewer</code></td>
+<td>Reviews generated code for standards compliance, vulnerabilities, and refactor opportunities.</td>
+<td>API + UI source code; unit tests</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>api-code-generator</code>, <code>ui-code-generator</code>, <code>unit-test-generator</code></td>
+<td><code>review-report.md</code>; inline PR comments</td>
+<td><code>tool-L1-github-fetch-file</code></td>
+<td><code>kb-L1-enterprise-security</code>, <code>kb-L1-enterprise-architecture</code></td>
+<td><code>gr-L1-secret-scanner</code>, <code>gr-L1-license-compliance-check</code></td>
+</tr>
+<tr>
+<td><code>L1-construction-doc-generator</code></td>
+<td>Generates API/code documentation and changelog.</td>
+<td>API + UI source code; API spec</td>
+<td><span class="src-agent">Agent:</span> outputs of <code>api-code-generator</code>, <code>ui-code-generator</code>, <code>design-api-spec</code></td>
+<td>README, changelog, API docs</td>
+<td>—</td>
+<td><code>kb-L1-sdlc-templates</code></td>
+<td><code>gr-L1-consistency-check</code></td>
+</tr>
+<tr>
+<td><code>L1-github-orchestrator</code> <span style="color:var(--gray-txt);">(impl-commit invocation)</span></td>
+<td>Commits API code, UI code, unit tests, and docs to the implementation branch.</td>
+<td>All Phase 6 outputs</td>
+<td><span class="src-agent">Agent:</span> outputs of all Phase 6 agents</td>
+<td>GitHub branch <code>aava/impl-*</code></td>
+<td><code>tool-L1-github-upload-file</code>, <code>tool-L1-github-create-branch</code></td>
+<td>—</td>
+<td><code>gr-L1-output-schema-validator</code></td>
+</tr>
+</tbody>
+</table></div>
+
+<!-- PHASE 7 -->
+<h2><span class="phase-tag" style="background:var(--navy);">PHASE 7</span> PR Creation</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-github-orchestrator</code> <span style="color:var(--gray-txt);">(PR invocation)</span></td>
+<td>Creates the pull request bundling Jira, design, code, and test references.</td>
+<td>Impl branch; design branch; Jira issue keys; XRay test keys</td>
+<td><span class="src-agent">Agent:</span> impl/design branches from prior <code>github-orchestrator</code> invocations; issue keys from <code>jira-orchestrator</code>; test keys from <code>xray-orchestrator</code></td>
+<td>Pull Request</td>
+<td><code>tool-L1-github-create-pr</code></td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+
+<!-- CROSS-CUTTING -->
+<h2><span class="phase-tag" style="background:var(--purple);">CROSS-CUTTING</span> Quality Verification</h2>
+<div class="table-wrap"><table>
+<thead><tr><th class="col-name">Agent</th><th class="col-desc">Description</th><th class="col-io">Inputs</th><th class="col-src">Input Source</th><th class="col-io">Outputs</th><th class="col-tools">Tools</th><th class="col-kb">Knowledge Bases</th><th class="col-gr">Guardrails</th></tr></thead>
+<tbody>
+<tr>
+<td><code>L1-quality-verifier</code></td>
+<td>Independent rubric-based scoring, invoked at all 18 quality gates across the lifecycle.</td>
+<td>Draft output of the agent being scored, plus the rubric for that gate</td>
+<td><span class="src-agent">Agent:</span> the draft artifact from whichever agent just ran (workflow context, not re-fetched)</td>
+<td>Quality score (0–10) + pass/fail + rationale</td>
+<td>—</td>
+<td><code>kb-L1-sdlc-templates</code> (rubric definitions)</td>
+<td><code>gr-L1-output-schema-validator</code></td>
+</tr>
+</tbody>
+</table></div>
+
+<!-- NET NEW INTEGRATIONS -->
+<h2>Net-New Integrations Required</h2>
+<p class="sub">Tools/systems referenced above that do not exist in the original 14-agent diagram's tool set (Jira, GitHub, Confluence, XRay) and must be procured or built before these agents can run live.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Tool</th><th>Used By</th><th>What It Needs</th></tr></thead>
+<tbody>
+<tr><td><code>tool-L1-web-search-competitor-scan</code></td><td>Market Analyzer</td><td>Web search API (e.g. Bing/Google Search API, or a licensed market-intel provider)</td></tr>
+<tr><td><code>tool-L1-regulatory-db-lookup</code></td><td>Regulatory Feasibility Checker</td><td>Access to a regulatory content provider (e.g. Thomson Reuters Regulatory Intelligence) or an internal compliance KB with an API front-end</td></tr>
+<tr><td><code>tool-L1-confluence-fetch-page</code> / <code>-create-page</code></td><td>Idea Intake, Requirements Elicitor, Impact Assessor, Vision Statement Generator</td><td>Confluence API token scoped to the relevant space</td></tr>
+<tr><td>Service catalog / CMDB export</td><td>Impact Assessor</td><td>Read access to Backstage, ServiceNow CMDB, or equivalent architecture registry (can be a stub/empty catalog for pure greenfield)</td></tr>
+<tr><td><code>tool-L1-figma-create-frame</code></td><td>UX Wireframe Agent (optional)</td><td>Figma API token, only if wireframes must be pushed into an actual Figma file rather than kept as markdown/mermaid</td></tr>
+<tr><td><code>tool-L1-db-schema-diff</code></td><td>Data Architect (optional)</td><td>Read access to the target environment's live schema, only needed if reconciling against an existing DB (brownfield-adjacent)</td></tr>
+<tr><td><code>gr-L1-secret-scanner</code></td><td>API/UI Code Generators, Code Reviewer</td><td>A secrets-detection engine (e.g. gitleaks/trufflehog) wired in as a guardrail check on generated code</td></tr>
+<tr><td><code>gr-L1-license-compliance-check</code></td><td>API/UI Code Generators, Code Reviewer</td><td>An OSS license scanner (e.g. FOSSA, Snyk license check) wired in as a guardrail check on generated dependencies</td></tr>
+<tr><td><code>gr-L1-citation-verifier</code></td><td>Market Analyzer, Regulatory Checker, Story Generator, Scenario Writer</td><td>A citation-checking pass that confirms referenced sources/entities exist and are attributable, not fabricated</td></tr>
+</tbody>
+</table></div>
+
+</div>
+</body></html>

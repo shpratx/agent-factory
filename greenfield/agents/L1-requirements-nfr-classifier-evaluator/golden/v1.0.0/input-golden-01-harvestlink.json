@@ -1,0 +1,415 @@
+{
+  "original_input": {
+    "requirements_output": {
+      "agent_id": "L1-requirements-elicitor",
+      "agent_version": "1.0.0",
+      "execution_id": "exec-9a41d0e2",
+      "workflow_execution_id": "wf-6d3f8b04",
+      "status": "success",
+      "content": {
+        "type": "requirements",
+        "schema_version": "1.0",
+        "items": {
+          "functional_requirements": [
+            {
+              "id": "FR-001",
+              "title": "Facilitation-only role attestation at onboarding",
+              "statement": "The system shall require every onboarding producer or distributor to explicitly attest that they, not HarvestLink, hold Food Business Operator status for any trade facilitated on the platform.",
+              "traces_to": "vision.md § Regulatory Posture (FBO-status mitigation)",
+              "confidence": 0.95,
+              "reasoning": "Directly restates CON-01's mitigation_summary as a testable onboarding step; FBO-status attestation is explicit in the mitigation, not inferred."
+            },
+            {
+              "id": "FR-002",
+              "title": "Foodservice buyer discovery and matching",
+              "statement": "The system shall allow foodservice buyers to discover onboarded producers and distributors by product category, location, and compliance-documentation completeness score.",
+              "traces_to": "vision.md § Value Proposition",
+              "confidence": 0.9,
+              "reasoning": "The value proposition names 'direct buyer discovery' explicitly; category/location/completeness-score are the natural discovery facets given the completeness score is used elsewhere in the roadmap."
+            },
+            {
+              "id": "FR-003",
+              "title": "Dual sign-off traceability record entry",
+              "statement": "The system shall require both producer and distributor sign-off before a traceability record is finalised, and shall retain every finalised record in an immutable, append-only audit log.",
+              "traces_to": "vision.md § Regulatory Posture (traceability mitigation: producer and distributor dual sign-off, immutable audit log)",
+              "confidence": 0.95,
+              "reasoning": "Directly restates CON-02's mitigation_summary — dual sign-off and immutable audit log are both explicit in the mitigation text."
+            },
+            {
+              "id": "FR-004",
+              "title": "Producer-attested allergen declaration workflow",
+              "statement": "The system shall require producer attestation and sign-off before an allergen declaration is finalised on-platform.",
+              "traces_to": "vision.md § Regulatory Posture (allergen mitigation: producer attestation and sign-off before finalisation)",
+              "confidence": 0.95,
+              "reasoning": "Directly restates CON-03's mitigation_summary."
+            },
+            {
+              "id": "FR-005",
+              "title": "Compliance-completeness-scaled transaction limits",
+              "statement": "The system shall set a producer's maximum transaction value according to their compliance-documentation completeness score, and re-evaluate that limit as the score changes.",
+              "traces_to": "vision.md § Roadmap Outline, Phase 3",
+              "notes": "Split from Roadmap Phase 3's compound clause — see compound_splits",
+              "confidence": 0.85,
+              "reasoning": "Half of Phase 3's compound clause: 'transaction limits scaled to compliance-documentation completeness' is independently testable from the cohort cap half (FR-007) — a system could scale limits without restricting to a cohort, or vice versa."
+            },
+            {
+              "id": "FR-006",
+              "title": "Facilitation-only transaction routing",
+              "statement": "The system shall never record HarvestLink as taking possession, title, or physical custody of food in any transaction; every trade shall be routed and documented as a direct producer/distributor-to-buyer arrangement.",
+              "traces_to": "vision.md § Regulatory Posture (FBO-status mitigation: HarvestLink never takes physical possession of food)",
+              "confidence": 0.93,
+              "reasoning": "Restates CON-01's mitigation from the transaction-routing angle, distinct from FR-001's onboarding-attestation angle — both mitigate the same Red constraint via different mechanisms named in the same mitigation text."
+            },
+            {
+              "id": "FR-007",
+              "title": "Pilot-phase cohort restriction",
+              "statement": "The system shall restrict onboarding and trading, during the pilot phase, to a cohort of producers/distributors explicitly designated eligible by the product/operations team.",
+              "traces_to": "vision.md § Roadmap Outline, Phase 3",
+              "notes": "Split from Roadmap Phase 3's compound clause — see compound_splits",
+              "confidence": 0.85,
+              "reasoning": "The other half of Phase 3's compound clause — 'pilot launch with a capped cohort' — independently testable from the completeness-scaled-limits half (FR-005)."
+            },
+            {
+              "id": "FR-008",
+              "title": "Time-to-first-compliant-trade measurement",
+              "statement": "The system shall record, per producer, the elapsed time from onboarding start to first fully-documented, compliance-complete trade, and expose this for reporting against a target of under 14 days.",
+              "traces_to": "vision.md § North-Star Metric(s), metric 1",
+              "confidence": 0.9,
+              "reasoning": "Directly restates NSM-01's metric and target as a measurable requirement."
+            },
+            {
+              "id": "FR-009",
+              "title": "Compliance-documentation-completeness measurement",
+              "statement": "The system shall record, per producer, a compliance-documentation completeness score at first trade, and expose this for reporting against a target of at least 95%.",
+              "traces_to": "vision.md § North-Star Metric(s), metric 2",
+              "confidence": 0.9,
+              "reasoning": "Directly restates NSM-02's metric and target as a measurable requirement."
+            }
+          ],
+          "compound_splits": [
+            {
+              "source_clause_summary": "Pilot launch with a capped cohort AND transaction limits scaled to completeness — vision.md Roadmap Phase 3",
+              "split_into": [
+                "FR-007",
+                "FR-005"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "id": "artifact-9f2c7a11",
+            "type": "document",
+            "name": "requirements.md",
+            "format": "markdown",
+            "storage": {
+              "provider": "s3",
+              "location": "s3://adlc-artifacts/exec-9a41d0e2/requirements.md"
+            },
+            "description": "Structured functional requirements for HarvestLink, traced to vision.md",
+            "produced_by": "L1-requirements-elicitor"
+          }
+        ],
+        "execution_summary": "• Produced 9 functional requirements (FR-001–FR-009).\n• Key decision: Roadmap Phase 3's compound clause split into FR-007 (cohort cap) and FR-005 (completeness-scaled limits) — independently testable, a system could satisfy one without the other.\n• Reflection: confirmed every FR singular (no remaining 'and'/'or'), every FR traces to a real vision.md section, no unqualified vague term found, IDs sequential.\n• Knowledge bases consulted: kb-L1-requirements-quality-standard — vague-term scan and compound-clause scan both run against every FR.\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass), gr-L1-hallucination-check (pass), gr-L1-consistency-check (pass).\n• Tools invoked: none — approval_comment was passed inline, no Confluence fetch needed.\n• Gaps flagged: none — every vision.md section produced at least one FR."
+      }
+    },
+    "regulatory_feasibility_output": {
+      "agent_id": "L1-vision-regulatory-feasibility-checker",
+      "agent_version": "1.0.0",
+      "execution_id": "exec-f08c4b3a",
+      "workflow_execution_id": "wf-a17c5e92",
+      "status": "success",
+      "content": {
+        "type": "regulatory_feasibility",
+        "schema_version": "1.0",
+        "items": {
+          "constraints": [
+            {
+              "id": "CON-01",
+              "name": "Food Business Operator (FBO) status",
+              "status": "Red",
+              "citation": {
+                "source_reference": "kb-L2-domain-regulatory#registration-licensing",
+                "regulation": "Regulation (EC) 852/2004 (retained UK law), Regulation (EC) 178/2002 (General Food Law)"
+              },
+              "rationale_summary": "If HarvestLink takes possession or relabels food instead of just facilitating data/matching, it becomes an FBO with inspection duties.",
+              "mitigation_summary": "Platform must operate strictly as a data/matching and documentation layer; producers and distributors remain the FBOs, never HarvestLink.",
+              "requires_legal_review": false,
+              "confidence": 0.75,
+              "reasoning": "Classified Red because the default/naive platform design (taking possession to simplify logistics) would trigger FBO status; the facilitation-only mitigation is a precedented pattern used by other UK marketplace/SaaS platforms to avoid a regulated-activity status they aren't built for, so requires_legal_review is not needed for this specific mitigation, though the boundary itself should still be legally confirmed (see open_items)."
+            },
+            {
+              "id": "CON-02",
+              "name": "Traceability record integrity",
+              "status": "Amber",
+              "citation": {
+                "source_reference": "kb-L2-domain-regulatory#distribution-cold-chain",
+                "regulation": "Regulation (EC) 178/2002, Article 18 (one step back, one step forward)"
+              },
+              "rationale_summary": "Traceability records will be relied on by buyers and enforcement during a recall — integrity needs deliberate design, not assumption.",
+              "mitigation_summary": "Require producer and distributor dual sign-off on every traceability record, with an immutable, append-only audit log.",
+              "requires_legal_review": false,
+              "confidence": 0.8,
+              "reasoning": "Amber because the requirement is well-defined by the regulation and the dual-sign-off/immutable-log mitigation is a standard technical pattern, not a novel legal question."
+            },
+            {
+              "id": "CON-03",
+              "name": "Allergen declaration liability",
+              "status": "Amber",
+              "citation": {
+                "source_reference": "kb-L2-domain-regulatory#allergen-labelling",
+                "regulation": "Food Information (Amendment) (England) Regulations 2019 (\"Natasha's Law\"); Food Information Regulations 2014 / EU FIC Regulation 1169/2011"
+              },
+              "rationale_summary": "If HarvestLink auto-generates/edits an allergen declaration without producer attestation, liability could shift onto HarvestLink.",
+              "mitigation_summary": "Allergen declarations must be producer-attested and signed off before finalising; HarvestLink is infrastructure, not the legal declarant.",
+              "requires_legal_review": false,
+              "confidence": 0.8,
+              "reasoning": "Amber because the liability-shifting risk is well understood and the producer-attestation mitigation is a standard, precedented pattern for platforms that facilitate but don't originate regulated content."
+            },
+            {
+              "id": "CON-04",
+              "name": "Data protection",
+              "status": "Green",
+              "citation": {
+                "source_reference": "kb-L1-regulatory-frameworks-index#cross-domain-index",
+                "regulation": "UK GDPR / Data Protection Act 2018"
+              },
+              "rationale_summary": "Standard obligation for any platform handling producer and buyer business data; not a feasibility blocker on its own.",
+              "mitigation_summary": null,
+              "requires_legal_review": false,
+              "confidence": 0.85,
+              "reasoning": "Classified Green — this is an ongoing design/monitoring requirement common to virtually any B2B platform, not something specific or novel to HarvestLink's model."
+            }
+          ],
+          "overall_status": {
+            "status": "Amber",
+            "rationale_summary": "CON-01 (FBO status) is Red but has a precedented facilitation-only mitigation, so status is discounted to Amber."
+          },
+          "open_items": []
+        },
+        "artifacts": [
+          {
+            "id": "artifact-9f0a1b2c",
+            "type": "document",
+            "name": "regulatory-feasibility.md",
+            "format": "markdown",
+            "storage": {
+              "provider": "s3",
+              "location": "s3://adlc-artifacts/exec-f08c4b3a/regulatory-feasibility.md"
+            },
+            "description": "Regulatory feasibility assessment for HarvestLink",
+            "produced_by": "L1-vision-regulatory-feasibility-checker"
+          }
+        ],
+        "execution_summary": "• Produced 4 constraints (1 Green, 2 Amber, 1 Red), overall_status: Amber, 0 open items.\n• Key decision: discounted overall_status from Red to Amber because every Red/Amber constraint (CON-01, CON-02, CON-03) has a concrete, precedented, non-legal-review mitigation.\n• Knowledge bases consulted: kb-L1-regulatory-frameworks-index (CON-04 category lookup); kb-L2-domain-regulatory (Registration & Licensing, Hygiene & Safety, Allergen Labelling, and Distribution & Cold Chain sections all used).\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass), gr-L1-hallucination-check (pass), gr-L1-citation-verifier (pass — 4/4 constraints cited).\n• Gaps flagged: none currently — recommend qualified legal counsel still confirm the facilitation-only boundary (CON-01's mitigation) before authorization applications begin."
+      }
+    }
+  },
+  "generator_output": {
+    "agent_id": "L1-requirements-nfr-classifier",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-c58f2b17",
+    "workflow_execution_id": "wf-6d3f8b04",
+    "status": "success",
+    "content": {
+      "type": "nfr_classification",
+      "schema_version": "1.0",
+      "items": {
+        "nfr_classifications": [
+          {
+            "id": "FR-001",
+            "title": "Facilitation-only role attestation at onboarding",
+            "boundary_conditions": [
+              {
+                "category": "Usability",
+                "boundary_condition": "Attestation must be a clear, explicit step, not a buried checkbox",
+                "source": "requirements.md § FR-001"
+              },
+              {
+                "category": "Security",
+                "boundary_condition": "Attestation must be tied to an authenticated producer/distributor identity",
+                "source": "requirements.md § FR-001"
+              },
+              {
+                "category": "Compliance",
+                "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy",
+                "source": "kb-L1-enterprise-security § ES3"
+              }
+            ],
+            "confidence": 0.9,
+            "reasoning": "Usability and Security boundaries follow directly from FR-001's own attestation/authenticated-identity requirement; Compliance is grounded in kb-L1-enterprise-security § ES3's group-wide 6-year retention policy for trade/compliance-relevant records, which explicitly covers attestations — a real citable source, not a guess."
+          },
+          {
+            "id": "FR-002",
+            "title": "Foodservice buyer discovery and matching",
+            "boundary_conditions": [
+              {
+                "category": "Usability",
+                "boundary_condition": "Search results must show compliance-documentation completeness score alongside each producer",
+                "source": "requirements.md § FR-002"
+              },
+              {
+                "category": "Performance",
+                "boundary_condition": "Buyer search/discovery response time — TBD — needs stakeholder input",
+                "source": "—"
+              }
+            ],
+            "confidence": 0.85,
+            "reasoning": "Usability boundary follows directly from FR-002's own completeness-score display capability; no response-time figure is stated anywhere in requirements.md, vision.md, or regulatory-feasibility.md, and kb-L1-enterprise-security has no performance SLA for buyer-facing search, so Performance is marked TBD rather than assumed."
+          },
+          {
+            "id": "FR-003",
+            "title": "Dual sign-off traceability record entry",
+            "boundary_conditions": [
+              {
+                "category": "Security",
+                "boundary_condition": "Traceability record must be immutable (append-only) once dual-signed",
+                "source": "requirements.md § FR-003"
+              },
+              {
+                "category": "Compliance",
+                "boundary_condition": "Must satisfy Reg. (EC) 178/2002 Art. 18 \"one step back, one step forward\"",
+                "source": "regulatory-feasibility.md § Traceability constraint"
+              },
+              {
+                "category": "Availability",
+                "boundary_condition": "99.9% uptime — traceability records may be required for active regulatory defence",
+                "source": "kb-L1-enterprise-security § ES4"
+              }
+            ],
+            "confidence": 0.93,
+            "reasoning": "Security restates FR-003's own immutability requirement; Compliance is grounded in regulatory-feasibility.md's Traceability Record Integrity constraint (Reg. (EC) 178/2002 Art. 18); Availability is grounded in kb-L1-enterprise-security § ES4's 99.9% tier for a record that could be required for active regulatory defence in an FBO-status dispute."
+          },
+          {
+            "id": "FR-004",
+            "title": "Producer-attested allergen declaration workflow",
+            "boundary_conditions": [
+              {
+                "category": "Compliance",
+                "boundary_condition": "Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling",
+                "source": "regulatory-feasibility.md § Allergen constraint"
+              },
+              {
+                "category": "Usability",
+                "boundary_condition": "Producer must see a clear pending/finalised state distinction for each declaration",
+                "source": "requirements.md § FR-004"
+              },
+              {
+                "category": "Scalability",
+                "boundary_condition": "Expected declaration volume — TBD — needs stakeholder input",
+                "source": "—"
+              }
+            ],
+            "confidence": 0.88,
+            "reasoning": "Compliance is grounded in regulatory-feasibility.md's Allergen Declaration Liability constraint (Natasha's Law / EU FIC Reg. 1169/2011); Usability restates FR-004's own pending/finalised distinction; no declaration-volume figure is stated anywhere in the input, so Scalability is marked TBD."
+          },
+          {
+            "id": "FR-005",
+            "title": "Compliance-completeness-scaled transaction limits",
+            "boundary_conditions": [
+              {
+                "category": "Security",
+                "boundary_condition": "Transaction-value limit must be enforced server-side; not client-configurable",
+                "source": "requirements.md § FR-005"
+              },
+              {
+                "category": "Performance",
+                "boundary_condition": "Limit recalculation frequency on completeness-score change — TBD — needs stakeholder input",
+                "source": "—"
+              }
+            ],
+            "confidence": 0.83,
+            "reasoning": "Security boundary follows from FR-005's own limit-setting requirement — a client-configurable limit would defeat its purpose; no recalculation-frequency figure is stated anywhere, so Performance is marked TBD rather than assumed."
+          },
+          {
+            "id": "FR-006",
+            "title": "Facilitation-only transaction routing",
+            "boundary_conditions": [
+              {
+                "category": "Compliance",
+                "boundary_condition": "Must never record HarvestLink as taking title/possession of goods in any transaction record",
+                "source": "requirements.md § FR-006"
+              },
+              {
+                "category": "Availability",
+                "boundary_condition": "Behaviour if a trade cannot be routed facilitation-only — TBD — needs stakeholder input",
+                "source": "—"
+              }
+            ],
+            "confidence": 0.87,
+            "reasoning": "Compliance restates FR-006's own possession/title prohibition, also grounded in regulatory-feasibility.md's FBO-status mitigation; no fallback behaviour is stated anywhere for a trade that cannot be routed facilitation-only, so Availability is marked TBD rather than invented."
+          },
+          {
+            "id": "FR-007",
+            "title": "Pilot-phase cohort restriction",
+            "boundary_conditions": [
+              {
+                "category": "Usability",
+                "boundary_condition": "Non-cohort users must receive an explicit \"not yet available\" response, not a silent failure",
+                "source": "requirements.md § FR-007"
+              },
+              {
+                "category": "Scalability",
+                "boundary_condition": "Target cohort size for pilot — TBD — needs stakeholder input",
+                "source": "—"
+              }
+            ],
+            "confidence": 0.84,
+            "reasoning": "Usability boundary follows from FR-007's own cohort-restriction requirement — a restricted user needs an explicit signal, not silence; no target cohort size is stated anywhere in the input, so Scalability is marked TBD."
+          },
+          {
+            "id": "FR-008",
+            "title": "Time-to-first-compliant-trade measurement",
+            "boundary_conditions": [
+              {
+                "category": "Performance",
+                "boundary_condition": "P95 time-to-first-compliant-trade < 14 days (onboarding start → first compliance-complete trade)",
+                "source": "vision.md § North-Star Metric(s), metric 1"
+              },
+              {
+                "category": "Availability",
+                "boundary_condition": "Best-effort (outbound-only reporting feed, not a compliance record)",
+                "source": "kb-L1-enterprise-security § ES4"
+              }
+            ],
+            "confidence": 0.9,
+            "reasoning": "Performance directly restates NSM-01's explicit 14-day target from vision.md; Availability is grounded in kb-L1-enterprise-security § ES4's best-effort/Tier-3-equivalent tier for a reporting pipeline that is outbound-only and not itself a compliance record."
+          },
+          {
+            "id": "FR-009",
+            "title": "Compliance-documentation-completeness measurement",
+            "boundary_conditions": [
+              {
+                "category": "Performance",
+                "boundary_condition": "Reported compliance-documentation completeness score ≥ 95% at first trade",
+                "source": "vision.md § North-Star Metric(s), metric 2"
+              },
+              {
+                "category": "Compliance",
+                "boundary_condition": "Whether specific buyer names may appear in completeness reporting — TBD — needs stakeholder input",
+                "source": "—"
+              }
+            ],
+            "confidence": 0.86,
+            "reasoning": "Performance directly restates NSM-02's explicit 95% target from vision.md; whether buyer names may appear in completeness reporting is not addressed anywhere in requirements.md, regulatory-feasibility.md, or kb-L1-enterprise-security, so Compliance is marked TBD rather than assumed either way."
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "artifact-c9d8e7f6",
+          "type": "document",
+          "name": "nfr-spec.md",
+          "format": "markdown",
+          "storage": {
+            "provider": "s3",
+            "location": "s3://adlc-artifacts/exec-c58f2b17/nfr-spec.md"
+          },
+          "description": "NFR specification for HarvestLink, classifying every requirements.md FR's boundary conditions",
+          "produced_by": "L1-requirements-nfr-classifier"
+        }
+      ],
+      "execution_summary": "• Classified 9 functional requirements (FR-001–FR-009) against kb-L1-nfr-classification-taxonomy's six categories — no FR padded to a fixed six, each got only its genuinely-applicable categories (2-3 each).\n• Categories applied: Usability x4, Security x3, Compliance x5, Availability x3, Performance x3, Scalability x2.\n• Key decision: resolved 3 boundary conditions via kb-L1-enterprise-security that would otherwise have been TBD — FR-001's 6-year retention (ES3), FR-003's and FR-008's availability tiers (ES4) — instead of leaving them open. 6 genuinely-ungrounded TBDs remain (FR-002 Performance, FR-004 Scalability, FR-005 Performance, FR-006 Availability, FR-007 Scalability, FR-009 Compliance), each checked against regulatory-feasibility.md and kb-L1-enterprise-security first and confirmed genuinely open.\n• Reflection: every non-TBD condition cites a specific source (requirements.md/vision.md/regulatory-feasibility.md/kb-L1-enterprise-security), every TBD condition has source '—', ids match requirements.md exactly, no boundary_condition contains long narrative.\n• Knowledge bases consulted: kb-L1-nfr-classification-taxonomy (category questions/forms for all 9 FRs); kb-L1-enterprise-security (ES3 retention, ES4 availability tiering — both cited); kb-L1-enterprise-architecture (checked — no direct citation needed, no FR touches a system landscape boundary condition here).\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-consistency-check (pass).\n• Gaps flagged: 6 TBDs need stakeholder input before design — buyer-search latency, allergen-declaration volume, limit-recalculation frequency, facilitation-routing-failure behaviour, pilot cohort size, buyer-name visibility in reporting."
+    }
+  }
+}

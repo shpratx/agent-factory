@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-vision-market-analyzer-output-schema-v1.0",
+  "title": "MarketAnalyzerItems",
+  "description": "Shape of content.items for L1-vision-market-analyzer. items carries META POINTS about market-analysis.md, not the full document — the complete competitor matrix and SWOT narrative live ONLY in the artifact, saved to s3 (blob storage). 'summary' fields are short distillations (<=~15 words); a consumer needing full detail retrieves the artifact. Citation, id, status, and confidence fields are structural, not prose duplication, and stay in full — gr-L1-citation-verifier is a BLOCKER guardrail here, not advisory.",
+  "type": "object",
+  "required": ["competitor_matrix", "swot", "data_sufficiency"],
+  "properties": {
+    "competitor_matrix": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Competitor" }
+    },
+    "swot": {
+      "type": "object",
+      "required": ["strengths", "weaknesses", "opportunities", "threats"],
+      "properties": {
+        "strengths": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" } },
+        "weaknesses": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" } },
+        "opportunities": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" } },
+        "threats": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" } }
+      }
+    },
+    "data_sufficiency": {
+      "type": "object",
+      "required": ["status", "rationale_summary"],
+      "properties": {
+        "status": { "type": "string", "enum": ["sufficient", "insufficient"] },
+        "rationale_summary": { "type": "string", "maxLength": 120, "description": "Short distillation — full rationale is in market-analysis.md's Data Sufficiency section" }
+      }
+    }
+  },
+  "$defs": {
+    "Citation": {
+      "type": "object",
+      "required": ["source_reference", "retrieved_date"],
+      "properties": {
+        "source_reference": { "type": "string", "description": "KB chunk id (kb-L2-domain-market) or a web-search result reference from tool-L1-web-search-competitor-scan" },
+        "retrieved_date": { "type": "string", "format": "date" }
+      }
+    },
+    "Competitor": {
+      "type": "object",
+      "required": ["id", "name", "positioning_summary", "strengths_summary", "weaknesses_summary", "citation", "confidence", "reasoning"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^CM-[0-9]{2}$" },
+        "name": { "type": "string", "description": "Competitor name — not prose, kept in full" },
+        "positioning_summary": { "type": "string", "maxLength": 100, "description": "Short distillation — full detail is in market-analysis.md's Competitor Matrix row" },
+        "strengths_summary": { "type": "string", "maxLength": 100 },
+        "weaknesses_summary": { "type": "string", "maxLength": 100 },
+        "citation": { "$ref": "#/$defs/Citation" },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "reasoning": { "type": "string", "minLength": 20 }
+      }
+    },
+    "SwotItem": {
+      "type": "object",
+      "required": ["id", "summary", "confidence", "reasoning"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(ST|WK|OP|TH)-[0-9]{2}$" },
+        "summary": { "type": "string", "maxLength": 100, "description": "Short distillation — full statement is in market-analysis.md's SWOT section" },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "reasoning": { "type": "string", "minLength": 20, "description": "Must reference which competitor_matrix entry or idea-brief fact this derives from" }
+      }
+    }
+  }
+}
