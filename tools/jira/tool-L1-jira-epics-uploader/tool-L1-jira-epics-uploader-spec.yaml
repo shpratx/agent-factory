@@ -1,7 +1,7 @@
 spec_version: "1.0"
 artifact_type: tool
 metadata:
-  name: tool-L1-jira-upload-epics
+  name: tool-L1-jira-epics-uploader
   version: "1.0.0"
   layer: L1
   owner: agentic-ai-coe
@@ -45,7 +45,7 @@ credentials:
   fields_used: [base_url, user_email, api_token]
 
 identity:
-  tool_id: "tool-L1-jira-upload-epics-001"
+  tool_id: "tool-L1-jira-epics-uploader-001"
   role: tool-executor
 
   invocable_by:

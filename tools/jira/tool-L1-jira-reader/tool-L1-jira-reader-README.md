@@ -4,6 +4,31 @@
 
 Fetches one or more Jira issues with their complete nested child hierarchy, returning a clean fixed-schema JSON string. For each issue key, the tool retrieves all fields via the Jira REST API, then recursively fetches child work items (using JQL `parent = "<key>"`) up to a configurable depth. Atlassian Document Format (ADF) descriptions are automatically converted to plain text. The output schema is uniform across all levels of the hierarchy.
 
+## Secrets & Configuration
+
+| Value | Where it lives | Notes |
+|-------|-----------------|-------|
+| `base_url` | **AWS Secrets Manager** — secret `aava-secret-manager-jira-credentials`, key `base_url` | Jira instance base URL. Shared with `tool-L1-jira-writer` and `tool-L1-jira-epics-uploader`. |
+| `user_email` | **AWS Secrets Manager** — same secret, key `user_email` | Atlassian account email used for HTTP Basic Auth. |
+| `api_token` | **AWS Secrets Manager** — same secret, key `api_token` | Jira API token. Never appears in the code. |
+| `JIRA_PROJECT_KEY` | Set directly in code | Not a secret — the default Jira project this tool operates against. See "SETUP-REQUIRED" comment at the top of the tool file. |
+
+> Every value that must be reviewed before deploying this tool to a new environment or client — including `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-jira-reader-secrets-manager.py`. Search the file for that tag to find them all in one pass.
+
+The production tool (`tool-L1-jira-reader-secrets-manager.py`) retrieves its credentials at import time:
+
+```python
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-jira-credentials"
+secrets = reader._run()
+JIRA_BASE_URL = secrets.get("base_url")
+JIRA_USER_EMAIL = secrets.get("user_email")
+JIRA_API_TOKEN = secrets.get("api_token")
+```
+
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no credential is stored in this file; access is granted via the runtime's pod identity. All three values can still be overridden per-call via `inputJSON` (see Parameters below) if a caller needs to target a different Jira instance.
+
+> `tool-L1-jira-reader.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the credentials as placeholder values in code.
+
 ## Parameters
 
 | Parameter | Type | Required | Description |
@@ -18,9 +43,9 @@ Fetches one or more Jira issues with their complete nested child hierarchy, retu
 | keys | array[string] | ✓ (or `key`) | — | Multiple Jira issue keys |
 | maxDepth | integer | | `5` | Maximum levels of child hierarchy to traverse |
 | includeChildren | boolean | | `true` | Whether to fetch child issues at all |
-| userEmail | string | | `JIRA_USER_EMAIL` | Atlassian account email |
-| apiToken | string | | `JIRA_API_TOKEN` | Jira API token |
-| baseUrl | string | | `JIRA_BASE_URL` | Jira instance base URL (no trailing slash) |
+| userEmail | string | | From Secrets Manager | Atlassian account email; overrides the Secrets Manager value for this call |
+| apiToken | string | | From Secrets Manager | Jira API token; overrides the Secrets Manager value for this call |
+| baseUrl | string | | From Secrets Manager | Jira instance base URL; overrides the Secrets Manager value for this call |
 
 ### Input coercion
 
@@ -56,10 +81,10 @@ On HTTP error for a specific key, that node has: `{"issue_id": "<key>", "error":
 
 On fatal error: returns a plain `"Fatal error: ..."` or `"Fatal error (network): ..."` string.
 
-## Example
+## Standalone tool calling
 
 ```python
-from tool_L1_jira_fetch_issue import JiraIssueTreeFetcher
+from tool_L1_jira_reader_secrets_manager import JiraIssueTreeFetcher
 
 tool = JiraIssueTreeFetcher()
 
@@ -71,12 +96,20 @@ result = tool._run({"keys": ["GGMDEMOS-101", "GGMDEMOS-110"], "maxDepth": 2})
 
 # Bare string (auto-coerced)
 result = tool._run("GGMDEMOS-101")
+```
 
-import json
-tree = json.loads(result)
-print(tree["issue_id"])       # "GGMDEMOS-101"
-print(tree["title"])          # "Platform Foundation & Design System"
-print(len(tree["children"]))  # 3
+## Calling tool in agent
+
+Tell the agent which Jira issue key(s) to fetch — everything else has a sensible default from Secrets Manager / code:
+
+```
+inputJSON = {"key": "{{jira_issue_key}}"}
+```
+
+Or for multiple keys:
+
+```
+inputJSON = {"keys": [{{jira_issue_keys}}]}
 ```
 
 ## Error Handling
@@ -91,8 +124,8 @@ print(len(tree["children"]))  # 3
 
 ## Security Notes
 
-- `JIRA_BASE_URL`, `JIRA_USER_EMAIL`, and `JIRA_API_TOKEN` are currently **hardcoded** at the top of the file. Move them to a secrets manager before production use.
-- Credentials can be overridden per-call via `inputJSON.userEmail`, `inputJSON.apiToken`, and `inputJSON.baseUrl`.
+- `base_url`, `user_email`, and `api_token` are retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
+- Credentials can still be overridden per-call via `inputJSON.userEmail`, `inputJSON.apiToken`, and `inputJSON.baseUrl`.
 - The API token is used via `HTTPBasicAuth` — never logged.
 - `PAGE_SIZE = 100` children are fetched per paginated request; all pages are retrieved before building the tree.
 

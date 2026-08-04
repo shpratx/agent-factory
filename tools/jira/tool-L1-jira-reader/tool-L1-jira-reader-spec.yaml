@@ -42,7 +42,7 @@ credentials:
   fields_used: [base_url, user_email, api_token]
 
 identity:
-  tool_id: "tool-L1-jira-fetch-issue-001"
+  tool_id: "tool-L1-jira-reader-001"
   role: tool-executor
 
   invocable_by:

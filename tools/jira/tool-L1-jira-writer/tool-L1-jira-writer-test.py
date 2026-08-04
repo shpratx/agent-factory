@@ -1,10 +1,10 @@
-"""Unit tests for tool-L1-jira-create-issue-generic (JiraIssueCreator).
+"""Unit tests for tool-L1-jira-writer (JiraIssueCreator).
 
 All Jira REST API calls (via requests) are mocked; no real network or
 credentials are required to run these tests.
 
 Run with:
-    pytest tool-L1-jira-create-issue-generic-test.py -v
+    pytest tool-L1-jira-writer-test.py -v
 """
 
 import os
@@ -37,8 +37,8 @@ sys.modules.setdefault("crewai.tools", _mock_crewai_tools)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location(
-    "tool_jira_create_issue_generic",
-    os.path.join(_HERE, "tool-L1-jira-create-issue-generic.py"),
+    "tool_jira_writer",
+    os.path.join(_HERE, "tool-L1-jira-writer.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
@@ -209,6 +209,7 @@ class TestErrorHandling:
         import requests as req_lib
 
         with patch.object(_mod, "requests") as mock_requests:
+            mock_requests.RequestException = req_lib.RequestException
             mock_requests.post.side_effect = [
                 req_lib.RequestException("timeout"),
                 _mock_post_response(key="PROJ-3"),

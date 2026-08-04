@@ -35,12 +35,13 @@ class AWSSecretReaderPodIdentity(BaseTool):
     description: str = "Reads a fixed AWS Secret (set in code) using Pod Identity, and returns all key-value pairs as a dict."
     args_schema: Type[BaseModel] = AWSSecretReaderPodIdentitySchema
 
-    
+    # Review every line tagged "SETUP-REQUIRED:" below before deploying this tool to a new environment or client.
+    # SETUP-REQUIRED: must match the secret name created in your AWS Secrets Manager
     SECRET_NAME: str = "aava-secret-manager-github-credentials"
 
-    # region = us-east-1 or us-east-2 depending on deployment of AWS Secrets Manager
+    # SETUP-REQUIRED: AWS region where that secret lives (us-east-1 or us-east-2 depending on deployment)
     region_name = "us-east-1"
-    
+
 
     def _run(self) -> Dict[str, Any]:
         try:
@@ -64,9 +65,10 @@ class AWSSecretReaderPodIdentity(BaseTool):
 reader = AWSSecretReaderPodIdentity()
 secrets = reader._run()
 
-# Secret retrieved from AWS Secrets Manager 
+# Secret retrieved from AWS Secrets Manager
 github_token = secrets.get("github_token")
 
+# SETUP-REQUIRED: set to your GitHub organization or username
 repo_owner = "varun-ascendion"
 
 

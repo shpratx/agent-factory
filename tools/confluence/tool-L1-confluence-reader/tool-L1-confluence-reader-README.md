@@ -6,6 +6,31 @@ Reads the title and full body of a Confluence page via the Confluence REST API v
 
 ---
 
+## Secrets & Configuration
+
+| Value | Where it lives | Notes |
+|-------|-----------------|-------|
+| `api_key` | **AWS Secrets Manager** — secret `aava-secret-manager-confluence-credentials`, key `api_key` | Atlassian API token. Never appears in the code. Shared with `tool-L1-confluence-page-writer`. |
+| `user_email` | **AWS Secrets Manager** — same secret, key `user_email` | Atlassian account email used for HTTP Basic Auth. |
+| `page_id`, `base_url` | Supplied by the caller at call time | Not credentials — passed as parameters on every call (see Parameters below). |
+
+> Every value that must be reviewed before deploying this tool to a new environment or client — `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-confluence-reader-secrets-manager.py`. Search the file for that tag to find them all in one pass.
+
+The production tool (`tool-L1-confluence-reader-secrets-manager.py`) retrieves its credentials at import time:
+
+```python
+reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-confluence-credentials"
+secrets = reader._run()
+api_key = secrets.get("api_key")
+user_email = secrets.get("user_email")
+```
+
+`AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no credential is stored in this file; access is granted via the runtime's pod identity.
+
+> `tool-L1-confluence-reader.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the API token as a placeholder value in code.
+
+---
+
 ## Parameters
 
 | Parameter | Type | Required | Description |
@@ -50,19 +75,25 @@ The `Content` field is **raw Confluence storage format**, not plain text or Mark
 
 ---
 
-## Example
+## Standalone tool calling
 
 ```python
-from tool_L1_confluence_reader import ConfluencePageReader
+from tool_L1_confluence_reader_secrets_manager import ConfluencePageReader
 
 tool = ConfluencePageReader()
 result = tool._run(
     page_id="425985",
     base_url="https://mycompany.atlassian.net/wiki"
 )
-print(result)
-# Title: Sprint 42 Notes
-# Content: <p>Velocity: 34 points.</p><h2>Completed</h2><ul><li>Task A</li></ul>
+```
+
+## Calling tool in agent
+
+`page_id` is the value that changes per request; `base_url` is specific to your Confluence instance and should usually be told to the agent as a fixed value rather than asked of the end user:
+
+```
+page_id = {{page_id}}
+base_url = https://your-domain.atlassian.net/wiki
 ```
 
 ---
@@ -109,17 +140,14 @@ There is no `timeout=` argument on the `requests.get()` call. On a slow or unres
 ### 4. Only `body.storage` is fetched
 The `expand=body.storage` query parameter means only the page body is returned. **Not included**: labels, attachments, comments, page version, space info, child pages, or ancestors. A separate API call is required for any of these.
 
-### 5. Hardcoded credentials
-`api_key` and `user_email` are hardcoded at the top of the file. This is a security vulnerability. They must be moved to a secrets manager before production use.
-
-### 6. No input validation
+### 5. No input validation
 `page_id` is not validated to be numeric before the API call. A non-numeric `page_id` will cause a `404` or malformed URL.
 
 ---
 
 ## Security Notes
 
-- `api_key` and `user_email` are currently **hardcoded** — revoke and move to a secrets manager (e.g. Azure Key Vault, HashiCorp Vault) before production use.
+- `api_key` and `user_email` are retrieved from AWS Secrets Manager at import time — never hardcoded, never logged.
 - Credentials are passed via HTTP Basic Auth over HTTPS — never logged by the tool.
 
 ## Resilience

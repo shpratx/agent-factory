@@ -191,6 +191,7 @@ class TestArgumentSwapGuard:
 class TestErrorHandling:
     def test_404_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.return_value = _mock_error_response(404, "Not Found")
             result = _make_tool()._run(PAGE_ID, BASE_URL)
 
@@ -199,6 +200,7 @@ class TestErrorHandling:
 
     def test_401_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.return_value = _mock_error_response(401, "Unauthorized")
             result = _make_tool()._run(PAGE_ID, BASE_URL)
 
@@ -206,6 +208,7 @@ class TestErrorHandling:
 
     def test_connection_error_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.side_effect = _requests_lib.exceptions.ConnectionError("DNS failure")
             result = _make_tool()._run(PAGE_ID, BASE_URL)
 
@@ -213,6 +216,7 @@ class TestErrorHandling:
 
     def test_timeout_returns_error_string(self):
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.side_effect = _requests_lib.exceptions.Timeout("timed out")
             result = _make_tool()._run(PAGE_ID, BASE_URL)
 
@@ -221,6 +225,7 @@ class TestErrorHandling:
     def test_error_string_does_not_expose_credentials(self):
         """The api_key must never appear in any return value."""
         with patch.object(_mod, "requests") as mock_req:
+            mock_req.RequestException = _requests_lib.RequestException
             mock_req.get.side_effect = _requests_lib.exceptions.HTTPError("500 Server Error")
             result = _make_tool()._run(PAGE_ID, BASE_URL)
 
