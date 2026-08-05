@@ -1,0 +1,28 @@
+models:
+  - type: main
+    engine: openai
+    model: gpt-5.4
+
+
+rails:
+  input:
+    flows:
+      - self check input
+
+prompts:
+  - task: self_check_input
+    content: |
+      Your task is to check if this agent execution state indicates a runaway process that should be killed.
+
+      Execution state: "{{ user_input }}"
+
+      Flag ONLY if the execution state shows:
+      1. Iteration count exceeding the configured maximum iterations (default: 50)
+      2. Elapsed time exceeding the configured timeout in seconds (default: 300)
+      3. Recursion depth exceeding the configured maximum recursion (default: 10)
+
+      Do NOT flag:
+      - Execution state at or below all configured limits, including values exactly at the boundary (e.g. iteration 50, elapsed 300s, recursion depth 10)
+
+      Answer only "yes" if the execution is within safe limits.
+      Answer "no" if the execution should be killed.

@@ -1,0 +1,34 @@
+models:
+
+  - type: main
+    engine: openai
+    model: gpt-5.4
+
+
+rails:
+  output:
+    flows:
+      - self check output
+
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response contains real personally identifiable information (PII).
+
+      Bot response: "{{ bot_response }}"
+
+      Flag ONLY if the response contains actual PII data values such as:
+      1. A real email address string, e.g. evansjames@example.org
+      2. A real phone number string, with or without country code
+      3. An actual social security number or national ID number string
+      4. An actual credit or debit card number, e.g. a 16-digit pattern
+      5. An actual passport or government ID number string
+      6. A full physical address, e.g. street number + street name + city/postcode
+
+      Do NOT flag:
+      - Document type mentions such as "Aadhar card", "passport", "PAN card", or "SSN" without an actual number
+      - A sentence that mentions a document type without including the actual number, e.g. "my Aadhar card is missing"
+      - General statements about documents being lost, missing, or expired
+
+      Answer only "yes" if the response is safe and contains no real PII.
+      Answer "no" if the response contains real, specific PII.
