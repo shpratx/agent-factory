@@ -1,0 +1,14 @@
+# gr-L1-misogyny-detection — Prompt-Only Mode
+# Layer: L1 — Enterprise (all agents)
+# Uses NeMo's built-in "self check output" flow
+# Overrides default refusal messages with structured JSON
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains misogynistic, sexist, or gender-discriminatory content\", \"severity\": \"high\", \"category\": \"semantic\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains misogynistic, sexist, or gender-discriminatory content\", \"severity\": \"high\", \"category\": \"semantic\", \"rail\": \"output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains misogynistic, sexist, or gender-discriminatory content\", \"severity\": \"high\", \"category\": \"semantic\", \"rail\": \"output\"}"
+

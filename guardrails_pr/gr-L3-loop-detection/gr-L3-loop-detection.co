@@ -1,0 +1,13 @@
+# gr-L3-loop-detection — Prompt-Only Mode
+# Layer: L3
+# Triggers on: input
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Execution killed: exceeded maximum iterations, timeout, or recursion depth\", \"severity\": \"high\", \"category\": \"loop_detection\", \"rail\": \"input\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Execution killed: exceeded maximum iterations, timeout, or recursion depth\", \"severity\": \"high\", \"category\": \"loop_detection\", \"rail\": \"input\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Execution killed: exceeded maximum iterations, timeout, or recursion depth\", \"severity\": \"high\", \"category\": \"loop_detection\", \"rail\": \"input\"}"
+
