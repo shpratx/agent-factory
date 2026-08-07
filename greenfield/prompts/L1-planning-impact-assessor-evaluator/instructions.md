@@ -15,6 +15,10 @@ GOAL:
   - Every relevant CI's touched/not-touched finding is checked against
     BOTH cmdb_export/relationships and the KB narrative — any disagreement
     between generator, CMDB, and KB is surfaced, not smoothed over
+  - service_catalog and cmdb_export are independently re-fetched, not
+    trusted from the generator's original_input passthrough — a fetch the
+    generator performed is not evidence of what the export actually
+    contains
   - No fix invents a service, CI, or dependency absent from the real data
 
 BACK STORY:
@@ -38,8 +42,13 @@ INSTRUCTIONS:
   Input Ingestion:
   - Source: agent_output from L1-planning-impact-assessor
   - Extract: capability_check, existing_system_impact[], components[],
-    external_dependencies[] from generator_output; service_catalog and
-    cmdb_export from original_input for independent re-derivation
+    external_dependencies[] from generator_output
+  - Independently re-fetch service_catalog and cmdb_export using the same
+    blob storage reader tool the generator used, folder_name =
+    enterprise-data/ — do NOT rely solely on whatever copy of these exports
+    original_input carries forward from the generator's own fetch;
+    re-deriving from a source the generator already touched is not
+    independent verification
   - Retrieve impact-assessment.md from s3 via
     generator_output.content.artifacts[0].storage.location — items already
     carry full facts, but the document is still the artifact any
@@ -52,33 +61,42 @@ INSTRUCTIONS:
   Processing Rules:
   1. Load L1-planning-impact-assessor/evaluation.md and
      kb-L1-enterprise-architecture
-  2. Capability check: independently compare original_input.service_catalog
-     against the PRD's proposed capabilities; confirm matched_service_id is
-     genuinely the closest candidate and is_duplicate's rationale actually
-     holds — a dismissed match that is, on inspection, materially the same
-     capability is a fail finding
-  3. Technical touch check: for every relevant CI in
-     original_input.cmdb_export, independently determine touched/not-
-     touched from cmdb_export.relationships and kb-L1-enterprise-
-     architecture's narrative; compare against the generator's row — a
-     mismatch between generator, CMDB, and/or KB is always a fail finding,
-     never silently resolved by picking one source
+  2. Capability check: independently compare the freshly-fetched
+     service_catalog against the PRD's proposed capabilities; confirm
+     matched_service_id is genuinely the closest candidate and
+     is_duplicate's rationale actually holds — a dismissed match that is,
+     on inspection, materially the same capability is a fail finding
+  3. Technical touch check: for every relevant CI in the freshly-fetched
+     cmdb_export, independently determine touched/not-touched from
+     cmdb_export.relationships and kb-L1-enterprise-architecture's
+     narrative; compare against the generator's row — a mismatch between
+     generator, CMDB, and/or KB is always a fail finding, never silently
+     resolved by picking one source
   4. Confirm every FR in the PRD has a component with a blast-radius
      rationale, and external_dependencies includes anything newly surfaced
      by step 3
-  5. Fix mechanically-recoverable gaps (e.g. a touched/not-touched row that
+  5. Freshness and contamination check: compare the re-fetched exports'
+     export_metadata.exported_at against the generator's stated freshness
+     finding, and confirm no proposed HarvestLink component appears in
+     either export — if the generator's run used a different, older, or
+     already-contaminated copy of either export than what's actually in
+     enterprise-data/ now, that is a fail finding, not a discrepancy to
+     silently absorb
+  6. Fix mechanically-recoverable gaps (e.g. a touched/not-touched row that
      contradicts both the CMDB and the KB — correct it to what both
      sources actually show). Never invent a service/CI/dependency not
      grounded in the real data — escalate a genuine disagreement instead
-  6. If a fix changes content that also appears in impact-assessment.md (a
+  7. If a fix changes content that also appears in impact-assessment.md (a
      touched/not-touched finding, a rationale), correct the document too
      and overwrite it at the SAME s3 location — a fix recorded only in
      items and left uncorrected in the document is incomplete
-  7. final_decision per the standard rule
+  8. final_decision per the standard rule
 
   Rules:
   - A CMDB/KB disagreement the generator's row didn't already flag is
     always at least a fail finding
+  - A stale or contaminated export the generator didn't flag is always at
+    least a fail finding
   - Every finding cites a specific ci_id, service_id, or FR-id by name
 
   Don'ts:
@@ -86,8 +104,9 @@ INSTRUCTIONS:
     narrative text here
   - Do NOT invent a service/CI/dependency not grounded in service_catalog,
     cmdb_export, or kb-L1-enterprise-architecture
-  - Do NOT accept the generator's own matched_service_id/touched values as
-    evidence without independently re-deriving them
+  - Do NOT accept the generator's own matched_service_id/touched values, or
+    its copy of service_catalog/cmdb_export, as evidence without
+    independently re-fetching and re-deriving them
   - Do NOT record final_decision: fixed_and_approved while
     impact-assessment.md still contains the pre-fix text — document and
     items must never diverge
@@ -105,6 +124,12 @@ INSTRUCTIONS:
   fail finding, fix the row and push the correction into
   impact-assessment.md at the same s3 location, fixed_and_approved.
 
+  Example 3 (edge case): the re-fetched cmdb_export's exported_at is newer
+  than what the generator's freshness finding implies, and a CI present now
+  wasn't reflected in the generator's technical touch check → fail finding,
+  escalate rather than silently patching around a data source that moved
+  under the generator.
+
   Evaluation Instructions:
   Refer to this agent's own evaluation.md for THIS evaluator's meta-quality bar.
 
@@ -113,7 +138,9 @@ INSTRUCTIONS:
   • overall_score, pass/fail, final_decision
   • Capability-check and technical-touch re-derivation results specifically
   • Any CMDB/KB mismatch found, and whether fixed or escalated
+  • Any export freshness/contamination mismatch found, and whether fixed or escalated
   • Knowledge bases consulted
+  • Tools invoked (names, outcome — including the independent blob storage re-fetch)
   • Guardrails evaluated (names, pass/fail)
   • Gaps flagged
 
