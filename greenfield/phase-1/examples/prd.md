@@ -1,242 +1,328 @@
-<!--
-EXAMPLE OUTPUT — illustrative content, continuing the HarvestLink scenario from
-Phase 0/1. Not a real product commitment.
--->
-
 # PRD: HarvestLink
 
 | Field | Value |
 |---|---|
-| Source requirements | `requirements.md` (requirements-2026-08-05-002) |
-| Source NFR spec | `nfr-spec.md` (nfr-spec-2026-08-05-002) |
-| Source vision | `vision.md` (vision-2026-08-02-002) — Assumptions/Constraints/Risks only |
-| Source enterprise security | `kb-L1-enterprise-security` — retention/SLA citations only, carried forward from nfr-spec.md |
-| Approval consumed | Priya Ahluwalia, Product Lead, 2026-08-04: "Approved. The facilitation-only structuring is the right first roadmap milestone — please make sure Requirements calls it out as a hard blocker for everything else, not just a risk." |
-| Generated | 2026-08-05 |
+| Source requirements | evaluated requirements from `L1-requirements-elicitor-evaluator` (wf-a17c5e92) |
+| Source NFR spec | evaluated NFR set from `L1-requirements-nfr-classifier-evaluator` (wf-a17c5e92) |
+| Source vision | vision.md |
 
-## ✅ Executive Summary
-This PRD composes HarvestLink's 9 functional requirements (FR-001–FR-009)
-with their cross-functional constraints into one document, following the
-vision Priya Ahluwalia approved as Product Lead on 2026-08-04. The single
-biggest constraint shaping the requirement set is that HarvestLink must
-never acquire Food Business Operator status — FR-001 and FR-006 exist
-specifically to enforce this, and the corresponding facilitation-only
-structuring risk (not yet validated with a design-partner local authority
-or legal counsel) remains the roadmap's biggest open dependency. Six NFR
-boundary conditions are still marked TBD pending stakeholder input — three
-others (FR-001's retention period, FR-003's and FR-008's availability SLAs)
-are resolved via `kb-L1-enterprise-security`'s existing group policies
-rather than invented — and composing this document surfaced two
-requirement-coverage gaps — offboarding/suspension and dispute handling —
-that need scoping before Phase 2 planning begins.
+## Executive Summary
+
+This PRD defines 15 functional requirements for HarvestLink's facilitation-only compliance platform, following Product Lead approval (Priya Ahluwalia, 2026-08-04). The single biggest constraint is FR-001's facilitation-only structure — a hard blocker for all other capabilities — which must be validated with a design-partner local authority before Phase 2 proceeds (FR-002). 5 open questions remain, including 3 TBD NFR boundary conditions requiring stakeholder input for pilot cohort sizing and discovery interface performance targets.
+
+## Out of Scope
+
+- **Payment processing and invoicing**: Implied by vision.md § Value Proposition (direct discovery enables trade) but no FR scoped for financial transaction handling this cycle — deferred to Roadmap Phase 4 or beyond
+- **Producer-to-producer transactions**: Vision.md § Target Users scopes producers and distributors as supply-side, foodservice buyers as demand-side; peer-to-peer producer trade not covered by any FR
+- **Mobile-native applications**: Vision.md § Roadmap Outline does not specify mobile vs. web; no FR states mobile-specific capability requirements
+- **Automated cold-chain sensor integration**: FR-012 provides temperature logging with manual or automated entry, but vision.md § Value Proposition does not scope IoT sensor integration for this phase
+- **Multi-language support**: Vision.md § Target Users scopes UK market; no FR addresses internationalization or localization beyond UK regulatory compliance
+
+## Traceability Matrix
+
+| FR | Priority | NFR Categories | Open Questions |
+|---|---|---|---|
+| FR-001 | High | Compliance, Security | 0 |
+| FR-002 | High | Compliance | 0 |
+| FR-003 | High | Compliance, Security, Availability | 0 |
+| FR-004 | High | Compliance, Security, Availability | 0 |
+| FR-005 | High | None | 0 |
+| FR-006 | High | None | 0 |
+| FR-007 | High | Security, Scalability | 1 |
+| FR-008 | High | Security, Scalability | 1 |
+| FR-009 | High | Compliance, Security, Availability | 0 |
+| FR-010 | High | Performance, Security | 0 |
+| FR-011 | High | Compliance, Security, Availability | 0 |
+| FR-012 | High | Compliance, Security, Availability | 0 |
+| FR-013 | High | Security, Performance, Scalability | 2 |
+| FR-014 | Medium | Performance, Security | 0 |
+| FR-015 | High | Compliance, Security | 0 |
 
 ## Compound Requirements Split
-Vision's Roadmap Outline Phase 3 bundles two independently testable
-capabilities into one clause: "pilot launch with a capped cohort **and**
-transaction limits scaled to compliance-documentation completeness." Split
-into **FR-007** (cohort cap) and **FR-005** (completeness-scaled transaction
-limits) below, since a system could satisfy one without the other and each
-needs its own acceptance test.
 
-## ✅ Assumptions
-- **Facilitation-only structure will hold up to validation** (underlies
-  FR-001, FR-006): vision.md's Roadmap Outline calls for validating the
-  facilitation-only legal/product structure with a design-partner local
-  authority or legal counsel, but that validation hasn't happened yet — FR-001
-  and FR-006 are written as if the structure will hold.
-- **Producers and distributors have sufficient digital access** (underlies
-  FR-001, FR-003, FR-004): attestation, dual sign-off, and allergen
-  declaration all assume onboarded producers/distributors can reliably
-  complete an on-platform digital workflow — not yet confirmed for the
-  target user segment (independent/regional producers without an in-house
-  compliance team).
-- **Buyers will trust the displayed completeness score without independent
-  audit** (underlies FR-002): buyer discovery surfaces a compliance-
-  documentation completeness score, assuming foodservice buyers will act on
-  it directly rather than requiring their own verification before
-  onboarding a new supplier.
-- **Pilot cohort will be selected and onboarded manually** (underlies
-  FR-007): the cohort-eligibility gate assumes product/operations will
-  designate eligible producers/distributors by hand, not via a self-service
-  application flow.
+| Source Clause Summary | Split Into |
+|---|---|
+| Design and validate the dual-sign-off traceability and allergen-declaration workflows | FR-005, FR-006 |
+| Pilot launch with a capped cohort of producers and transaction limits scaled to compliance-documentation completeness | FR-007, FR-008 |
 
-## ✅ Constraints
-- **Must never acquire Food Business Operator status** (constrains FR-001,
-  FR-006): vision.md § Regulatory Posture (Red item) — HarvestLink must
-  operate strictly as a data/matching and documentation layer; producers
-  and distributors remain the FBOs.
-- **Traceability records require dual sign-off and immutability**
-  (constrains FR-003): vision.md § Regulatory Posture (Amber item) —
-  producer and distributor dual sign-off with an immutable audit log is not
-  solved by default and must be explicitly designed for.
-- **Allergen declarations require producer attestation before finalisation**
-  (constrains FR-004): vision.md § Regulatory Posture (Amber item).
-- **Pilot phase is scoped to a designated cohort, not general availability**
-  (constrains FR-005, FR-007): vision.md § Roadmap Outline, Phase 3 — limits
-  scale with completeness data only after pilot, general availability is
-  out of scope for this PRD.
-- **Data protection remains an ongoing design/monitoring requirement**
-  (constrains FR-002, FR-008, FR-009): vision.md § Regulatory Posture (Green
-  item) — not a launch blocker, but every component that surfaces or reports
-  on user/producer data must keep this in view.
+## Assumptions
 
-## ✅ Risks
-- **Facilitation-only structuring risk** (affects FR-001, FR-006): carried
-  forward from vision.md § Open Risks Carried Forward — the entire roadmap
-  depends on getting this legal/product structure right first; no fallback
-  path is defined yet if a facilitation-only model can't fully avoid FBO
-  status in practice.
-- **Compliance-documentation-completeness methodology** (affects FR-004,
-  FR-005, FR-009): carried forward from vision.md § Open Risks Carried
-  Forward — the dual-sign-off and completeness-scoring approach is a design
-  commitment, not yet a selected methodology or validated accuracy rate.
-- **Competitive response speed** (program-level, not tied to a specific
-  requirement): carried forward from vision.md § Open Risks Carried Forward
-  — Bidfood or Brakes could bundle a producer-marketplace feature into
-  their existing compliance infrastructure before HarvestLink reaches pilot
-  launch.
+- **Facilitation-only structure avoids FBO status** (underlies FR-001, FR-002, FR-009, FR-011, FR-012): Vision.md § Regulatory Posture assumes that operating strictly as a data/matching/documentation layer with no physical possession will avoid Food Business Operator designation under Regulation (EC) 852/2004, pending validation with design-partner local authority
+- **Producers and distributors will adopt dual sign-off workflows** (underlies FR-003, FR-004): Vision.md § Regulatory Posture assumes producers and distributors will accept dual sign-off as a liability-mitigation mechanism for traceability and allergen declarations, despite adding workflow steps
+- **Compliance documentation completeness drives buyer trust** (underlies FR-010, FR-013): Vision.md § North-Star Metric(s) assumes that 95%+ completeness score at first trade will differentiate producers in buyer discovery, but buyer behavior is unvalidated
+- **14-day time-to-first-trade is achievable** (underlies FR-014): Vision.md § North-Star Metric(s) assumes producers can complete onboarding, documentation, and first trade within 14 days, but producer readiness and documentation complexity are unvalidated
+- **Pilot cohort will tolerate transaction limits** (underlies FR-008): Vision.md § Roadmap Outline assumes pilot producers will accept transaction limits scaled to completeness scores as a risk-mitigation mechanism during validation phase
 
-## ✅ Requirements
+## Constraints
 
-### FR-001: Facilitation-only role attestation at onboarding
-**Statement:** The system shall require every onboarding producer or
-distributor to explicitly attest that they, not HarvestLink, hold Food
-Business Operator status for any trade facilitated on the platform.
-**Traces to:** vision.md § Regulatory Posture (FBO-status mitigation)
+- **No physical food handling or storage** (constrains FR-001, FR-009, FR-011, FR-012): Regulatory Posture § CON-01 Red constraint — platform architecture must not enable physical possession capability to avoid FBO status under Regulation (EC) 852/2004 and 178/2002
+- **Phase 2 gate requires design-partner validation** (constrains FR-002, FR-005, FR-006): Roadmap Outline Phase 1 — Phase 2 work (workflow design and validation) cannot proceed until facilitation-only structure is validated with design-partner local authority or legal counsel
+- **6-year records retention for compliance documents** (constrains FR-003, FR-004, FR-009, FR-011, FR-012): kb-L1-enterprise-security § ES3 — Group Records Retention Policy aligned to HMRC/Companies Act requires 6-year retention for trade/compliance-relevant records including traceability, allergen declarations, HACCP, and temperature logs
+- **99.5% uptime minimum for legally-relevant records** (constrains FR-003, FR-004, FR-009, FR-011, FR-012): kb-L1-enterprise-security § ES4 — Tier 2 equivalent uptime target mandatory for any new system storing legally-relevant audit/compliance records
+- **External parties must use separate identity provider** (constrains FR-007): kb-L1-enterprise-security § ES1 — External parties (producers, distributors) must use group-approved external identity provider, not internal Azure AD SSO
+- **Pilot cohort cap during Phase 3 launch** (constrains FR-007, FR-008): Roadmap Outline Phase 3 — Producer onboarding must be capped during pilot to manage risk and validate workflows before scaling
+
+## Risks
+
+- **Facilitation-only structure may not avoid FBO status** (affects FR-001, FR-002; program-level): Vision.md § Regulatory Posture CON-01 Red risk — If design-partner validation determines the facilitation-only structure still triggers FBO designation, the entire platform model requires redesign; mitigation is FR-002 validation gate before Phase 2 proceeds
+- **Dual sign-off may create producer/distributor friction** (affects FR-003, FR-004, FR-005, FR-006): Vision.md § Regulatory Posture CON-02/CON-03 Amber risks — Producers and distributors may resist dual sign-off workflows as adding friction; mitigation is Phase 2 workflow design and validation with real data (FR-005, FR-006) before pilot launch
+- **Compliance documentation completeness may not drive adoption** (affects FR-010, FR-013, FR-014; program-level): Vision.md § North-Star Metric(s) assumes 95%+ completeness and 14-day time-to-first-trade will drive buyer trust and producer adoption, but buyer behavior and producer readiness are unvalidated; mitigation is pilot cohort (FR-007) to test assumptions before scaling
+- **Transaction limits may throttle pilot growth** (affects FR-008): Vision.md § Roadmap Outline Phase 3 — Transaction limits scaled to completeness may prevent pilot producers from reaching meaningful trade volumes; mitigation is automatic limit widening as completeness data accumulates (FR-008 acceptance criteria)
+- **Data breach could expose producer compliance records** (affects FR-009, FR-011, FR-012, FR-013; program-level): kb-L1-enterprise-security § ES6 — Producer compliance documents classified as Confidential; breach would require ICO notification within 72 hours and could damage producer trust; mitigation is ES2 access control enforcement and ES6 incident-response owner assignment before launch (FR-015)
+
+## Requirements
+
+### FR-001: Facilitation-Only Platform Structure
+
+**Statement:** The system shall operate strictly as a data, matching, and documentation layer where producers and distributors remain the Food Business Operators and HarvestLink never takes physical possession of food.
+
+**Citation:** vision.md § Regulatory Posture
 
 **Non-Functional Requirements:**
+
 | Category | Boundary Condition | Source |
 |---|---|---|
-| Usability | Attestation must be a clear, explicit step, not a buried checkbox | requirements.md § FR-001 |
-| Security | Attestation must be tied to an authenticated producer/distributor identity | requirements.md § FR-001 |
-| Compliance | Retain 6 years from creation, per Group Records Retention Policy | kb-L1-enterprise-security § ES3 |
-
-### FR-002: Foodservice buyer discovery and matching
-**Statement:** The system shall allow foodservice buyers to discover
-onboarded producers and distributors by product category, location, and
-compliance-documentation completeness score.
-**Traces to:** vision.md § Value Proposition
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Usability | Search results must show compliance-documentation completeness score alongside each producer | requirements.md § FR-002 |
-| Performance | Buyer search/discovery response time — TBD — needs stakeholder input | — |
-
-### FR-003: Dual sign-off traceability record entry
-**Statement:** The system shall require both producer and distributor
-sign-off before a traceability record is finalised, and shall retain every
-finalised record in an immutable, append-only audit log.
-**Traces to:** vision.md § Regulatory Posture (traceability mitigation:
-"producer and distributor dual sign-off... immutable audit log")
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Security | Traceability record must be immutable (append-only) once dual-signed | requirements.md § FR-003 |
-| Compliance | Must satisfy Reg. (EC) 178/2002 Art. 18 "one step back, one step forward" | regulatory-feasibility.md § Traceability constraint |
-| Availability | 99.9% uptime — traceability records may be required for active regulatory defence | kb-L1-enterprise-security § ES4 |
-
-### FR-004: Producer-attested allergen declaration workflow
-**Statement:** The system shall require producer attestation and sign-off
-before an allergen declaration is finalised on-platform.
-**Traces to:** vision.md § Regulatory Posture (allergen mitigation:
-"producer attestation and sign-off before any declaration is finalised")
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Compliance | Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling | regulatory-feasibility.md § Allergen constraint |
-| Usability | Producer must see a clear pending/finalised state distinction for each declaration | requirements.md § FR-004 |
-| Scalability | Expected declaration volume — TBD — needs stakeholder input | — |
-
-### FR-005: Compliance-completeness-scaled transaction limits
-**Statement:** The system shall set a producer's maximum transaction value
-according to their compliance-documentation completeness score, and
-re-evaluate that limit as the score changes.
-**Traces to:** vision.md § Roadmap Outline, Phase 3 (split — see Compound
-Requirements Split above)
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Security | Transaction-value limit must be enforced server-side; not client-configurable | requirements.md § FR-005 |
-| Performance | Limit recalculation frequency on completeness-score change — TBD — needs stakeholder input | — |
-
-### FR-006: Facilitation-only transaction routing
-**Statement:** The system shall never record HarvestLink as taking
-possession, title, or physical custody of food in any transaction; every
-trade shall be routed and documented as a direct producer/distributor-to-
-buyer arrangement.
-**Traces to:** vision.md § Regulatory Posture (FBO-status mitigation:
-"HarvestLink never takes physical possession of food")
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Compliance | Must never record HarvestLink as taking title/possession of goods in any transaction record | requirements.md § FR-006 |
-| Availability | Behaviour if a trade cannot be routed facilitation-only — TBD — needs stakeholder input | — |
-
-### FR-007: Pilot-phase cohort restriction
-**Statement:** The system shall restrict onboarding and trading, during the
-pilot phase, to a cohort of producers/distributors explicitly designated
-eligible by the product/operations team.
-**Traces to:** vision.md § Roadmap Outline, Phase 3 (split — see Compound
-Requirements Split above)
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Usability | Non-cohort users must receive an explicit "not yet available" response, not a silent failure | requirements.md § FR-007 |
-| Scalability | Target cohort size for pilot — TBD — needs stakeholder input | — |
-
-### FR-008: Time-to-first-compliant-trade measurement
-**Statement:** The system shall record, per producer, the elapsed time from
-onboarding start to first fully-documented, compliance-complete trade, and
-expose this for reporting against a target of under 14 days.
-**Traces to:** vision.md § North-Star Metric(s), metric 1
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Performance | P95 time-to-first-compliant-trade < 14 days (onboarding start → first compliance-complete trade) | vision.md § North-Star Metric(s), metric 1 |
-| Availability | Best-effort (outbound-only reporting feed, not a compliance record) | kb-L1-enterprise-security § ES4 |
-
-### FR-009: Compliance-documentation-completeness measurement
-**Statement:** The system shall record, per producer, a compliance-
-documentation completeness score at first trade, and expose this for
-reporting against a target of at least 95%.
-**Traces to:** vision.md § North-Star Metric(s), metric 2
-
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Performance | Reported compliance-documentation completeness score ≥ 95% at first trade | vision.md § North-Star Metric(s), metric 2 |
-| Compliance | Whether specific buyer names may appear in completeness reporting — TBD — needs stakeholder input | — |
-
-## ✅ Open Questions
-- FR-002 (Performance): Buyer search/discovery response time
-- FR-004 (Scalability): Expected declaration volume
-- FR-005 (Performance): Limit recalculation frequency on completeness-score change
-- FR-006 (Availability): Behaviour if a trade cannot be routed facilitation-only
-- FR-007 (Scalability): Target cohort size for pilot
-- FR-009 (Compliance): Whether specific buyer names may appear in completeness reporting
-
-Resolved since the previous revision — no longer open: FR-001's attestation
-retention period, FR-003's and FR-008's availability SLAs, all three via
-`kb-L1-enterprise-security` (see their NFR tables above). Not invented
-values — an existing group policy already answered these once an enterprise
-security KB existed to check.
-- **Coverage gap:** no FR covers producer/distributor offboarding or
-  suspension (e.g. on repeated compliance failures) — only onboarding
-  (FR-001) and ongoing trading are specified. Surfaced by reading FR-001
-  through FR-009 together; not visible from requirements.md or nfr-spec.md
-  in isolation, since neither document prompts a reviewer to check for a
-  missing lifecycle state.
-- **Coverage gap:** no FR covers dispute handling when a buyer contests a
-  delivered trade's compliance documentation after FR-003's dual sign-off —
-  the traceability record is immutable once signed, but what happens when a
-  buyer disputes it isn't specified anywhere in the requirement set.
+| Compliance | Platform must not take physical possession of food; producers and distributors remain FBOs per Regulation (EC) 852/2004 and 178/2002 | regulatory-feasibility.md § CON-01 |
+| Security | Platform architecture must be server-side enforced to prevent physical possession capability being added via client-side modification | kb-L1-enterprise-security § ES1 |
 
 ---
-*Generated by `L1-requirements-prd-composer` · execution_id: `exec-2d7c94ab` · workflow_execution_id: `wf-6d3f8b04`*
+
+### FR-002: Design-Partner Validation of Facilitation-Only Structure
+
+**Statement:** The system's facilitation-only structure shall be validated with a design-partner local authority or legal counsel before Phase 2 proceeds.
+
+**Citation:** vision.md § Roadmap Outline
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | Validation must confirm facilitation-only structure avoids FBO status per Regulation (EC) 852/2004 before Phase 2 proceeds | regulatory-feasibility.md § CON-01 |
+
+---
+
+### FR-003: Dual Sign-Off Traceability Workflow
+
+**Statement:** The system shall require producer and distributor dual sign-off for traceability records with an immutable audit log.
+
+**Citation:** vision.md § Regulatory Posture
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | Traceability records must satisfy Regulation (EC) 178/2002 Article 18 (one step back, one step forward) with producer and distributor dual sign-off | regulatory-feasibility.md § CON-02 |
+| Security | Audit log must be immutable after write and capture timestamp, user identity, and record state for every sign-off action; server-side enforced | requirements.md § FR-003, kb-L1-enterprise-security § ES1 |
+| Availability | 99.5% uptime minimum (Tier 2 equivalent) for traceability sign-off workflow storing legally-relevant audit records | kb-L1-enterprise-security § ES4 |
+| Compliance | Traceability records must be retained for 6 years from creation per Group Records Retention Policy aligned to HMRC/Companies Act | kb-L1-enterprise-security § ES3 |
+
+---
+
+### FR-004: Producer Attestation and Sign-Off for Allergen Declarations
+
+**Statement:** The system shall require producer attestation and sign-off before any allergen declaration is finalised on-platform.
+
+**Citation:** vision.md § Regulatory Posture
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | Allergen declarations must be producer-attested per Food Information Regulations 2014 / EU FIC Regulation 1169/2011 and Natasha's Law (Food Information Amendment England 2019) | regulatory-feasibility.md § CON-03 |
+| Security | Producer attestation and sign-off must be server-side enforced; finalisation must be blocked until attestation is complete | requirements.md § FR-004, kb-L1-enterprise-security § ES1 |
+| Availability | 99.5% uptime minimum (Tier 2 equivalent) for allergen declaration workflow storing legally-relevant compliance records | kb-L1-enterprise-security § ES4 |
+| Compliance | Allergen declarations must be retained for 6 years from creation per Group Records Retention Policy aligned to HMRC/Companies Act | kb-L1-enterprise-security § ES3 |
+
+---
+
+### FR-005: Design Dual Sign-Off Traceability Workflow
+
+**Statement:** The system shall provide a designed dual-sign-off traceability workflow that is tested with real producer and distributor data before onboarding opens beyond a pilot cohort.
+
+**Citation:** vision.md § Roadmap Outline
+
+**Non-Functional Requirements:**
+
+No NFR categories apply — FR-005 is a design and test activity (Phase 2 roadmap item), not a runtime system capability. The NFR boundaries for the traceability workflow itself are already classified under FR-003, which FR-005 depends on.
+
+---
+
+### FR-006: Design Dual Sign-Off Allergen Declaration Workflow
+
+**Statement:** The system shall provide a designed dual-sign-off allergen-declaration workflow that is tested with real producer and distributor data before onboarding opens beyond a pilot cohort.
+
+**Citation:** vision.md § Roadmap Outline
+
+**Non-Functional Requirements:**
+
+No NFR categories apply — FR-006 is a design and test activity (Phase 2 roadmap item), not a runtime system capability. The NFR boundaries for the allergen declaration workflow itself are already classified under FR-004, which FR-006 depends on.
+
+---
+
+### FR-007: Producer Onboarding
+
+**Statement:** The system shall support onboarding of producers with a capped cohort during pilot launch.
+
+**Citation:** vision.md § Roadmap Outline
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Security | External party onboarding must include lightweight identity/eligibility check before granting write access; check must be logged (who, when, what was checked) per ES7 | kb-L1-enterprise-security § ES7 |
+| Security | External parties must use separate, group-approved external identity provider (not Azure AD group SSO) per ES1 | kb-L1-enterprise-security § ES1 |
+| Scalability | Capped cohort during pilot launch (specific cap number TBD — needs stakeholder input) | requirements.md § FR-007 |
+
+---
+
+### FR-008: Transaction Limits Scaled to Compliance Completeness
+
+**Statement:** The system shall enforce transaction limits that are scaled to compliance-documentation completeness scores during pilot launch, then widen limits as completeness data accumulates.
+
+**Citation:** vision.md § Roadmap Outline
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Security | Transaction limit enforcement must be server-side enforced and not bypassable by altering client-side request per ES1 | kb-L1-enterprise-security § ES1 |
+| Scalability | Transaction limits widen as completeness data accumulates during pilot, then scale to full onboarding cohort (specific volume/rate targets TBD — needs stakeholder input) | requirements.md § FR-008 |
+
+---
+
+### FR-009: HACCP Documentation Records
+
+**Statement:** The system shall provide out-of-the-box HACCP documentation records for producers and distributors.
+
+**Citation:** vision.md § Value Proposition
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | HACCP records provided as facilitation infrastructure only; producers and distributors remain FBOs per Regulation (EC) 852/2004 | regulatory-feasibility.md § CON-01 |
+| Security | HACCP records classified as Confidential per ES2 (sensitive to specific party); access control must restrict to owning producer/distributor and authorized buyers | kb-L1-enterprise-security § ES2 |
+| Availability | 99.5% uptime minimum (Tier 2 equivalent) for HACCP record storage as legally-relevant compliance records | kb-L1-enterprise-security § ES4 |
+| Compliance | HACCP records must be retained for 6 years from creation per Group Records Retention Policy aligned to HMRC/Companies Act | kb-L1-enterprise-security § ES3 |
+
+---
+
+### FR-010: Compliance Documentation Completeness Score
+
+**Statement:** The system shall calculate a compliance-documentation completeness score for each producer and distributor.
+
+**Citation:** vision.md § North-Star Metric(s)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Performance | Completeness score target: at least 95% at first trade per North-Star Metric | vision.md § North-Star Metric(s) |
+| Security | Individual completeness scores classified as Confidential per ES2; access control must restrict to owning producer/distributor and authorized internal reporting | kb-L1-enterprise-security § ES2 |
+
+---
+
+### FR-011: Allergen Declaration Records
+
+**Statement:** The system shall provide allergen declaration records for producers.
+
+**Citation:** vision.md § Value Proposition
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | Allergen declaration records provided as facilitation infrastructure only; producers remain FBOs and legal declarants per Food Information Regulations 2014 / EU FIC Regulation 1169/2011 and Natasha's Law | regulatory-feasibility.md § CON-03 |
+| Security | Allergen declaration records classified as Confidential per ES2; access control must restrict to owning producer and authorized buyers | kb-L1-enterprise-security § ES2 |
+| Availability | 99.5% uptime minimum (Tier 2 equivalent) for allergen declaration record storage as legally-relevant compliance records | kb-L1-enterprise-security § ES4 |
+| Compliance | Allergen declaration records must be retained for 6 years from creation per Group Records Retention Policy aligned to HMRC/Companies Act | kb-L1-enterprise-security § ES3 |
+
+---
+
+### FR-012: Cold-Chain Temperature Logging
+
+**Statement:** The system shall provide cold-chain temperature logging for traceability records.
+
+**Citation:** vision.md § Value Proposition
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | Temperature logs provided as facilitation infrastructure only; producers and distributors remain FBOs per Regulation (EC) 852/2004 | regulatory-feasibility.md § CON-01 |
+| Security | Temperature logs classified as Confidential per ES2; access control must restrict to owning producer/distributor and authorized buyers | kb-L1-enterprise-security § ES2 |
+| Availability | 99.5% uptime minimum (Tier 2 equivalent) for temperature log storage as legally-relevant compliance records | kb-L1-enterprise-security § ES4 |
+| Compliance | Temperature logs must be retained for 6 years from creation per Group Records Retention Policy aligned to HMRC/Companies Act | kb-L1-enterprise-security § ES3 |
+
+---
+
+### FR-013: Direct Discovery by Foodservice Buyers
+
+**Statement:** The system shall enable foodservice buyers to directly discover independent food producers and distributors.
+
+**Citation:** vision.md § Value Proposition
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Security | Buyer discovery interface must enforce access control: buyers can view producer/distributor compliance documentation status and records only for producers/distributors they are authorized to view | kb-L1-enterprise-security § ES2 |
+| Performance | TBD — needs stakeholder input | — |
+| Scalability | TBD — needs stakeholder input | — |
+
+---
+
+### FR-014: Time from Onboarding to First Trade Tracking
+
+**Statement:** The system shall track the time from producer onboarding to first fully-documented, compliance-complete trade with a target under 14 days.
+
+**Citation:** vision.md § North-Star Metric(s)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Performance | Time-to-first-trade target: under 14 days per North-Star Metric | vision.md § North-Star Metric(s) |
+| Security | Time-to-first-trade metric aggregated across cohort classified as Internal per ES2; individual producer time-to-first-trade classified as Confidential | kb-L1-enterprise-security § ES2 |
+
+---
+
+### FR-015: Data Protection Compliance
+
+**Statement:** The system shall implement data protection controls as an ongoing design and monitoring requirement.
+
+**Citation:** vision.md § Regulatory Posture
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source |
+|---|---|---|
+| Compliance | Data protection controls must satisfy UK GDPR / Data Protection Act 2018 per CON-04 Green regulatory constraint | regulatory-feasibility.md § CON-04 |
+| Compliance | Personal data breach must be reported to ICO within 72 hours per UK GDPR Art. 33; affected individuals notified without undue delay per UK GDPR Art. 34 if high risk | kb-L1-enterprise-security § ES6 |
+| Security | Named incident-response owner must be assigned before launch per ES6 | kb-L1-enterprise-security § ES6 |
+| Compliance | Right-to-erasure (UK GDPR Art. 17) requests must be honoured for personal data NOT required for 6-year compliance-retention obligation per ES3 | kb-L1-enterprise-security § ES3 |
+
+---
+
+## Open Questions
+
+- **FR-007 (Scalability)**: Capped cohort during pilot launch — specific cap number TBD, needs stakeholder input to balance risk mitigation with pilot scale
+- **FR-008 (Scalability)**: Transaction limits widen as completeness data accumulates — specific volume/rate targets TBD, needs stakeholder input to define pilot transaction thresholds and scaling curve
+- **FR-013 (Performance)**: Buyer discovery interface response time target — TBD, needs stakeholder input to define acceptable search/filter latency for buyer experience
+- **FR-013 (Scalability)**: Buyer discovery interface volume/rate expectations — TBD, needs stakeholder input to define expected producer/distributor catalog size and concurrent buyer search load
+- **Coverage gap**: Vision.md § Value Proposition implies "direct discovery enables trade" but no FR defines contract negotiation, order placement, or fulfillment workflows — composing FR-013 (discovery) with FR-007 (onboarding) and FR-014 (time-to-first-trade tracking) reveals a gap between discovery and completed trade that may require additional FRs or clarification that trade happens off-platform
+
+## Glossary
+
+| Term | Definition | Source |
+|---|---|---|
+| FBO (Food Business Operator) | Legal entity responsible for ensuring food safety compliance under Regulation (EC) 852/2004; designation triggers mandatory HACCP implementation, traceability obligations, and regulatory inspection liability | vision.md § Regulatory Posture, requirements § FR-001 |
+| HACCP (Hazard Analysis and Critical Control Points) | Systematic preventive approach to food safety covering biological, chemical, and physical hazards; mandatory for FBOs under Regulation (EC) 852/2004 | vision.md § Value Proposition, requirements § FR-009 |
+| Natasha's Law | Common name for Food Information (Amendment) (England) Regulations 2019, requiring full ingredient and allergen labeling for prepacked for direct sale (PPDS) food following the death of Natasha Ednan-Laperouse | requirements § FR-004 |
+| Traceability (one step back, one step forward) | Regulation (EC) 178/2002 Article 18 requirement that FBOs must identify immediate suppliers (one step back) and immediate customers (one step forward) for food products to enable rapid recall | vision.md § Regulatory Posture, requirements § FR-003 |
+| Dual sign-off | Workflow pattern requiring both producer and distributor digital signatures to finalize traceability records and allergen declarations, used to distribute liability and ensure both parties attest to record accuracy | vision.md § Regulatory Posture, requirements § FR-003, FR-004 |
+| Compliance-documentation completeness score | Calculated metric measuring percentage completion of required compliance documents (HACCP, allergen declarations, traceability records) for a producer or distributor; North-Star Metric target is at least 95% at first trade | vision.md § North-Star Metric(s), requirements § FR-010 |
+| Design-partner | Local authority or legal counsel engaged during Phase 1 to validate that the facilitation-only platform structure avoids FBO status before Phase 2 proceeds | vision.md § Roadmap Outline, requirements § FR-002 |
+| Pilot cohort | Capped group of producers onboarded during Phase 3 launch to validate workflows and manage risk before scaling; cohort cap is configurable but specific number TBD | vision.md § Roadmap Outline, requirements § FR-007 |
+| Cold-chain | Temperature-controlled supply chain for perishable food products; temperature logging is a compliance requirement for demonstrating unbroken cold-chain integrity | vision.md § Value Proposition, requirements § FR-012 |
+| Foodservice buyer | Target user persona: restaurants, cafés, caterers, and institutional kitchens seeking to source from independent producers with verified compliance documentation | vision.md § Target Users, requirements § FR-013 |
