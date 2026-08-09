@@ -11,7 +11,7 @@
 `L1-requirements-nfr-classifier-evaluator` independently re-checks
 `L1-requirements-nfr-classifier`'s draft NFR classifications against
 `kb-L1-nfr-classification-taxonomy` and the real grounding sources
-(`requirements.md`, `vision.md`, `regulatory-feasibility.md`,
+(`requirements.md`, `vision.md` — including its Regulatory Posture section,
 `kb-L1-enterprise-security`), and fixes what it can. This guardrail fires
 at that point but validates a different thing: the **resultant**
 `L1-requirements-nfr-classifier` output — its own `items`, with the

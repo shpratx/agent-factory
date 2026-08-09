@@ -19,7 +19,6 @@ NO_CATEGORIES_PHRASE = "no nfr categories apply"
 CITATION_PATTERNS = [
     re.compile(r"^requirements\.md § FR-\d{3}$"),
     re.compile(r"^vision\.md § .+$"),
-    re.compile(r"^regulatory-feasibility\.md § .+$"),
     re.compile(r"^kb-L1-enterprise-security § ES\d+$"),
 ]
 

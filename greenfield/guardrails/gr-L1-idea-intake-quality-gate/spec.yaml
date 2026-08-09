@@ -19,7 +19,7 @@ applies_to: configured_agents   # wired into L1-vision-idea-intake-evaluator/spe
 rules:
   # --- Output schema validation (of L1-vision-idea-intake's own output_schema.json) ---
   - name: schema-compliance
-    description: "The resultant items (generator_output.content.items, with fixes_applied resolved in) must validate against L1-vision-idea-intake/output_schema.json: problem_statement/value_proposition (summary <=100 chars, confidence, reasoning, traced_to), target_users[] (id TU-NN, summary <=100, confidence, reasoning, traced_to), candidate_success_metrics[] (id SM-NN, metric, status stated|suggested, confidence, reasoning), open_questions[] (id OQ-NN, question, reasoning)"
+    description: "The resultant items (generator_output.content.items, with fixes_applied resolved in) must validate against L1-vision-idea-intake/output_schema.json: problem_statement/value_proposition (statement, confidence, reasoning, traced_to), target_users[] (id TU-NN, statement, confidence, reasoning, traced_to), candidate_success_metrics[] (id SM-NN, metric, status stated|suggested, confidence, reasoning), open_questions[] (id OQ-NN, question, reasoning)"
     action: block
     severity: critical
 

@@ -73,7 +73,7 @@ hitl_gates:
   - id: gate-requirements-validation
     after_workflow: L1-WF-requirements-vision-to-dependency-graph
     role: Product Lead
-    approves: [requirements.md, impact-assessment.md, dependency-graph.json]
+    approves: [prd.md, impact-assessment.md, dependency-graph.json]
     blocking: true
   - id: gate-backlog-approval
     after_workflow: L1-WF-planning-backlog-to-roadmap
@@ -108,31 +108,30 @@ L1-WF-vision-idea-to-statement:
       tool: tool-L1-confluence-fetch-page
       # no knowledge_bases: idea-brief structure is folded into instructions.md per
       # the S4 "Template as Instruction" rule (see BOM reconciliation, 2026-08-02)
-      output: { artifact: idea-brief.md, type: document, format: markdown }
+      output: { type: json }   # items-only, no document — idea-brief.md dropped as an artifact 2026-08-07 (see BOM Phase 0 callout)
       quality_gate: null
     - step_id: 2
       agent: L1-vision-market-analyzer
-      input: { source: agent_output, source_agent: L1-vision-idea-intake, artifact: idea-brief.md }
+      input: { source: agent_output, source_agent: L1-vision-idea-intake }   # items-only upstream, no artifact to name
       tool: tool-L1-web-search-competitor-scan
       knowledge_bases: [kb-L2-domain-market]
       guardrails_additional: [gr-L1-citation-verifier]
-      output: { artifact: market-analysis.md, type: document, format: markdown }
+      output: { type: json }   # items-only, no document — market-analysis.md dropped as an artifact 2026-08-07
       quality_gate: null
     - step_id: 3
       agent: L1-vision-regulatory-feasibility-checker
-      input: { source: agent_output, source_agent: L1-vision-idea-intake, artifact: idea-brief.md }
+      input: { source: agent_output, source_agent: L1-vision-idea-intake }   # items-only upstream, no artifact to name
       tool: tool-L1-regulatory-db-lookup
       knowledge_bases: [kb-L1-regulatory-frameworks-index, kb-L2-domain-regulatory]
       guardrails_additional: [gr-L1-citation-verifier]
-      output: { artifact: regulatory-feasibility.md, type: document, format: markdown }
+      output: { type: json }   # items-only, no document — regulatory-feasibility.md dropped as an artifact 2026-08-07 (its sole cross-phase reuse redirected to vision.md § Regulatory Posture)
       quality_gate: qg-L1-viability-score
       parallel_with: step_2   # 2 and 3 both depend only on step 1; run concurrently
     - step_id: 4
       agent: L1-vision-statement-generator
       input:
         source: agent_output
-        source_agents: [L1-vision-idea-intake, L1-vision-market-analyzer, L1-vision-regulatory-feasibility-checker]
-        artifacts: [idea-brief.md, market-analysis.md, regulatory-feasibility.md]
+        source_agents: [L1-vision-idea-intake, L1-vision-market-analyzer, L1-vision-regulatory-feasibility-checker]   # all three items-only now; no artifacts to name
         parameters: { viability_score: "{{step_3.quality_gate.score}}" }
       tool: tool-L1-confluence-create-page
       # no knowledge_bases: vision structure is folded into instructions.md per S4;
@@ -157,26 +156,27 @@ L1-WF-requirements-vision-to-dependency-graph:
       # every requirement traces to vision.md directly, never a separate regulatory KB (see BOM Phase 1 callout, 2026-08-07)
       evaluator: L1-requirements-elicitor-evaluator
       guardrails_additional: [gr-L1-requirements-quality-gate]   # fires on the evaluator's post_execution; validates the RESULTANT (post-fix) requirements content
-      output: { artifact: requirements.md, type: document, format: markdown }
+      output: { type: json }   # items-only, no document — requirements.md dropped as an artifact 2026-08-07, same treatment as idea-brief.md/market-analysis.md/regulatory-feasibility.md above
       quality_gate: qg-L1-requirements-completeness
       precheck: fail_if_missing(approval_comment)   # NFR delta: agent refuses to run without recorded approval
     - step_id: 2
       agent: L1-requirements-nfr-classifier
       input:
         source: agent_output
-        source_agents: [L1-requirements-elicitor, L1-vision-regulatory-feasibility-checker]
-        artifacts: [requirements.md, regulatory-feasibility.md]
+        source_agents: [L1-requirements-elicitor, L1-vision-statement-generator]   # Compliance-category grounding redirected from regulatory-feasibility.md (dropped) to vision.md § Regulatory Posture, 2026-08-07
+        artifacts: [vision.md]   # requirements.md is items-only now — read via agent_output, not a fetched document
       knowledge_bases: [kb-L1-nfr-classification-taxonomy, kb-L1-enterprise-architecture, kb-L1-enterprise-security]
       evaluator: L1-requirements-nfr-classifier-evaluator
       guardrails_additional: [gr-L1-nfr-spec-quality-gate]   # fires on the evaluator's post_execution; validates the RESULTANT (post-fix) NFR classification content
-      output: { artifact: nfr-spec.md, type: document, format: markdown }
+      output: { type: json }   # items-only, no document — nfr-spec.md dropped as an artifact 2026-08-07, same treatment as requirements.md above
       quality_gate: null
     - step_id: 3
       agent: L1-requirements-prd-composer
       input:
         source: agent_output
         source_agents: [L1-requirements-elicitor, L1-requirements-nfr-classifier, L1-vision-statement-generator]
-        artifacts: [requirements.md, nfr-spec.md, vision.md]
+        artifacts: [vision.md]   # requirements.md/nfr-spec.md are items-only now — read via agent_output, not fetched documents
+        parameters: { approval_comment: "{{gate-vision-approval.comment}}" }   # no requirements document exists to retrieve this from anymore (2026-08-07); passed through directly, same gate elicitor consumed
       evaluator: L1-requirements-prd-composer-evaluator
       guardrails_additional: [gr-L1-prd-quality-gate]   # fires on the evaluator's post_execution; validates the RESULTANT (post-fix) PRD content — zero-drop FR/NFR composition, verbatim compound_splits, tagged Assumptions/Constraints/Risks, absent success metrics
       output: { artifact: prd.md, type: document, format: markdown }
@@ -216,7 +216,7 @@ L1-WF-planning-backlog-to-roadmap:
       input:
         source: agent_output
         source_agents: [L1-planning-dependency-mapper, L1-requirements-elicitor]
-        artifacts: [dependency-graph.json, requirements.md]
+        artifacts: [dependency-graph.json]   # requirements.md is items-only — read via agent_output, not a fetched document
         parameters: { value_scoring_inputs: "{{trigger.rice_wsjf_fields}}" }
       tool: tool-L1-jira-fetch-issue
       knowledge_bases: [kb-L1-sdlc-templates]
@@ -259,7 +259,7 @@ L1-WF-inception-roadmap-to-tasks:
       quality_gate: qg-L1-feature-completeness
     - step_id: 3
       agent: L1-inception-story-generator
-      input: { source: agent_output, source_agents: [L1-inception-feature-decomposer, L1-requirements-elicitor], artifacts: [features.json, requirements.md] }
+      input: { source: agent_output, source_agents: [L1-inception-feature-decomposer, L1-requirements-elicitor], artifacts: [features.json] }   # requirements.md is items-only — read via agent_output, not a fetched document
       knowledge_bases: [kb-L1-sdlc-templates, kb-L2-food-domain]
       guardrails_additional: [gr-L1-pii-detection, gr-L1-citation-verifier]
       output: { artifact: stories.json, type: data, format: json }
@@ -300,7 +300,7 @@ L1-WF-design-stories-to-lld:
       quality_gate: qg-L1-ux-completeness
     - step_id: 3
       agent: L1-design-api-spec
-      input: { source: agent_output, source_agents: [L1-inception-story-generator, L1-requirements-nfr-classifier], artifacts: [stories.json, nfr-spec.md] }
+      input: { source: agent_output, source_agents: [L1-inception-story-generator, L1-requirements-nfr-classifier], artifacts: [stories.json] }   # nfr-spec.md is items-only — read via agent_output, not a fetched document
       knowledge_bases: [kb-L1-enterprise-architecture, kb-L2-food-domain-api-patterns]
       output: { artifact: openapi.yaml, type: api_spec, format: yaml }
       quality_gate: null
@@ -312,7 +312,7 @@ L1-WF-design-stories-to-lld:
       input:
         source: agent_output
         source_agents: [L1-requirements-elicitor, L1-requirements-nfr-classifier, L1-planning-dependency-mapper, L1-design-api-spec]
-        artifacts: [requirements.md, nfr-spec.md, dependency-graph.json, openapi.yaml]
+        artifacts: [dependency-graph.json, openapi.yaml]   # requirements.md/nfr-spec.md are items-only — read via agent_output, not fetched documents
       knowledge_bases: [kb-L1-enterprise-architecture]
       output: { artifact: hld.md, type: document, format: markdown }
       quality_gate: qg-L1-hld-quality
@@ -326,7 +326,7 @@ L1-WF-design-stories-to-lld:
       quality_gate: qg-L1-lld-quality
     - step_id: 6
       agent: L1-design-data-architect
-      input: { source: agent_output, source_agents: [L1-design-lld, L1-requirements-elicitor], artifacts: [lld.md, requirements.md] }
+      input: { source: agent_output, source_agents: [L1-design-lld, L1-requirements-elicitor], artifacts: [lld.md] }   # requirements.md is items-only — read via agent_output, not a fetched document
       tool: tool-L1-db-schema-diff   # optional
       knowledge_bases: [kb-L1-enterprise-architecture]
       guardrails_additional: [gr-L1-pii-detection]

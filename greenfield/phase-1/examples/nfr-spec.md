@@ -8,7 +8,7 @@ Not a real product commitment.
 | Field | Value |
 |---|---|
 | Source requirements | `requirements.md` (requirements-2026-08-05-002) |
-| Source regulatory feasibility | `regulatory-feasibility.md` (Phase 0 artifact) — Compliance-category citations only |
+| Source vision | `vision.md` § Regulatory Posture (Phase 0 artifact) — Compliance-category citations only |
 | Source enterprise security | `kb-L1-enterprise-security` — retention/SLA citations only, where a group policy already answers the question |
 | Generated | 2026-08-05 |
 
@@ -29,13 +29,13 @@ Not a real product commitment.
 | Category | Boundary Condition | Source |
 |---|---|---|
 | Security | Traceability record must be immutable (append-only) once dual-signed | requirements.md § FR-003 |
-| Compliance | Must satisfy Reg. (EC) 178/2002 Art. 18 "one step back, one step forward" | regulatory-feasibility.md § Traceability constraint |
+| Compliance | Must satisfy Reg. (EC) 178/2002 Art. 18 "one step back, one step forward" | vision.md § Regulatory Posture (Traceability record integrity) |
 | Availability | 99.9% uptime — traceability records may be required for active regulatory defence | kb-L1-enterprise-security § ES4 |
 
 ## ✅ FR-004: Producer-attested allergen declaration workflow
 | Category | Boundary Condition | Source |
 |---|---|---|
-| Compliance | Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling | regulatory-feasibility.md § Allergen constraint |
+| Compliance | Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling | vision.md § Regulatory Posture (Allergen declaration liability) |
 | Usability | Producer must see a clear pending/finalised state distinction for each declaration | requirements.md § FR-004 |
 | Scalability | Expected declaration volume — TBD — needs stakeholder input | — |
 

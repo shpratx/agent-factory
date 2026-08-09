@@ -88,14 +88,14 @@ async def check_idea_intake_quality_gate(output: str, generator_output: str = No
 
     for key in ["problem_statement", "value_proposition"]:
         entry = items[key]
-        summary = entry.get("summary", "")
-        if not summary or len(summary) > 100 or not entry.get("confidence") or not entry.get("reasoning") or not entry.get("traced_to"):
-            logger.warning(f"QUALITY-GATE: '{key}' fails schema (summary/confidence/reasoning/traced_to)")
+        statement = entry.get("statement", "")
+        if not statement or not entry.get("confidence") or not entry.get("reasoning") or not entry.get("traced_to"):
+            logger.warning(f"QUALITY-GATE: '{key}' fails schema (statement/confidence/reasoning/traced_to)")
             return True
 
     for tu in items.get("target_users", []):
-        summary = tu.get("summary", "")
-        if not re.match(ID_PATTERNS["target_users"], tu.get("id", "")) or not summary or len(summary) > 100 or not tu.get("confidence") or not tu.get("reasoning") or not tu.get("traced_to"):
+        statement = tu.get("statement", "")
+        if not re.match(ID_PATTERNS["target_users"], tu.get("id", "")) or not statement or not tu.get("confidence") or not tu.get("reasoning") or not tu.get("traced_to"):
             logger.warning(f"QUALITY-GATE: target_users entry {tu.get('id')} fails schema")
             return True
 

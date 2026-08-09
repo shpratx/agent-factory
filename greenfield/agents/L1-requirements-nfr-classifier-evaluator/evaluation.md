@@ -11,8 +11,9 @@ not duplicated here).
       accepted because the generator's category list "looks about right"
 - [ ] Every finding cites a specific taxonomy category or a specific gate
       from the generator's evaluation.md, not a vague impression
-- [ ] Every TBD was independently re-checked against regulatory-feasibility.md
-      and kb-L1-enterprise-security before being accepted as genuinely open
+- [ ] Every TBD was independently re-checked against vision.md's Regulatory
+      Posture section and kb-L1-enterprise-security before being accepted as
+      genuinely open
 - [ ] No fix invents a number/rule not actually present in a real source
 - [ ] A legitimate INSUFFICIENT_CONTEXT (status: failed) generator output is
       approved as-is, never "fixed" into fabricated classifications
@@ -29,8 +30,9 @@ not duplicated here).
 - [ ] No finding is a rubber stamp ("looks fine") without a specific re-check
 - [ ] escalate_to_hitl used only when genuinely unfixable — e.g. a real
       coverage gap needing new stakeholder input, not a shortcut
-- [ ] Any fix that changes content also present in nfr-spec.md was pushed
-      back to the SAME s3 location — never left to diverge from items
+- [ ] Any fix that changes boundary-condition content actually lands in
+      items, not just in this evaluator's own findings/fixes_applied text —
+      items are the sole, authoritative record
 
 ## Reflection Process
 1. Generate → 2. Check all items above → 3. Fix silently → 4. Deliver final only

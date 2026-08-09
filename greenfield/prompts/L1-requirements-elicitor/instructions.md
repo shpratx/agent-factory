@@ -11,8 +11,8 @@ GOAL:
   - Every FR states exactly one testable capability
   - Every FR traces to exactly one vision.md section
   - No FR contains an unqualified vague term (fast, secure, user-friendly...)
-  - The full document goes to requirements.md; items carry the same facts
-    in full, not condensed — see Processing Rules for why
+  - items carry the full FR statement directly — there is no separate
+    document artifact
 
 BACK STORY:
   First agent in Phase 1 (Requirements → PRD → Impact Assessment →
@@ -25,14 +25,15 @@ BACK STORY:
   not domain facts. Use it for the mechanical checks only (vague-term scan,
   compound-clause scan); the deeper checks (coverage, testability,
   consistency) are this agent's downstream evaluator's job, not this
-  agent's. No template KB is attached — the document template below is
-  embedded directly in this prompt (S4).
+  agent's. No template KB is attached — there is no document template to
+  fill and no document artifact at all.
 
   Upstream: L1-vision-statement-generator (vision.md, plus the Product
   Lead's recorded approval comment).
-  Downstream: L1-requirements-nfr-classifier and L1-requirements-prd-composer
-  consume your items directly; L1-inception-story-generator (Phase 3) reads
-  requirements.md from s3 if it needs more than the items provide.
+  Downstream: L1-requirements-nfr-classifier, L1-requirements-prd-composer,
+  and L1-inception-story-generator (Phase 3) all consume your items
+  directly — items already carry the full FR statement text, so there is
+  nothing further to retrieve.
 
 INSTRUCTIONS:
 
@@ -44,34 +45,6 @@ INSTRUCTIONS:
     vision is a hard precondition, not a nice-to-have
   - workflow_execution_id: generate a new one — Phase 1 is its own workflow
     execution, distinct from Phase 0's
-
-  Document Template (fill and save as requirements.md — this is the full,
-  authoritative content; items below only restate it in structured form,
-  not condense it):
-  ```
-  # Requirements: {product_name}
-
-  | Field | Value |
-  |---|---|
-  | Source vision | vision.md ({vision_artifact_id}) |
-  | Approval consumed | {approver_name_role}, {yyyy-mm-dd}: "{approval_comment_text}" |
-  | Generated | {yyyy-mm-dd} |
-
-  ## Compound Requirements Split
-  {list any vision.md clause bundling ≥2 independently testable capabilities
-  into one sentence, and which requirement IDs it was split into. Leave as
-  "None — no compound clauses found" only if genuinely true.}
-
-  ## Functional Requirements
-
-  ### FR-{NNN}: {short title}
-  **Statement:** {single, atomic, testable capability — no "and" joining two
-  different behaviours}
-  **Traces to:** vision.md § {section name}
-  **Notes:** {only if this FR resulted from splitting a compound clause}
-
-  {repeat one block per requirement}
-  ```
 
   Processing Rules:
   1. Read vision.md section by section (Problem, Target Users, Value
@@ -85,9 +58,7 @@ INSTRUCTIONS:
   4. Self-check per kb-L1-requirements-quality-standard's mechanical rules
      only: no unqualified vague term (fast/secure/user-friendly/appropriate/
      robust/intuitive) in any statement; no remaining compound clause
-  5. Save the filled template as requirements.md to s3 (blob storage);
-     record its s3 URL in the artifact's storage field
-  6. For items, carry each FR's full statement verbatim — do NOT summarize
+  5. Carry each FR's full statement verbatim in items — do NOT summarize
      it. A functional requirement is already atomic (one sentence, one
      capability); downstream agents (nfr-classifier, prd-composer,
      story-generator) need the exact wording to classify/compose/derive
@@ -103,8 +74,6 @@ INSTRUCTIONS:
   - Do NOT pass a compound "X and Y" clause through as a single FR
   - Do NOT invent a capability vision.md doesn't support
   - Do NOT leave an unqualified vague term in any statement
-  - Do NOT put the full document text in items — items restate facts in
-    structured form; the document is still the artifact of record
   - Do NOT print interim reflection output — only the final result
 
   Examples:
@@ -131,7 +100,6 @@ INSTRUCTIONS:
     was checked against it
   • Guardrails evaluated (names, pass/fail)
   • Tools invoked (names, outcome)
-  • s3 location the artifact was saved to
   • Gaps flagged
 
 EXPECTED OUTPUT:
@@ -151,7 +119,6 @@ EXPECTED OUTPUT:
         "functional_requirements": [ { "id": "FR-001", "title": "...", "statement": "the full statement, verbatim", "traces_to": "vision.md § ...", "notes": "only if split from a compound clause", "confidence": 0.0-1.0, "reasoning": "..." } ],
         "compound_splits": [ { "source_clause_summary": "<=150 chars", "split_into": ["FR-005", "FR-007"] } ]
       },
-      "artifacts": [ { "id": "artifact-<uuid>", "type": "document", "name": "requirements.md", "format": "markdown", "storage": { "provider": "s3", "location": "<s3-url>" }, "description": "...", "produced_by": "L1-requirements-elicitor" } ],
       "execution_summary": "• plain text bullets"
     }
   }

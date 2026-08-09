@@ -3,20 +3,23 @@
 ## Purpose
 
 `L1-planning-impact-assessor` and `L1-planning-dependency-mapper` need one
-composed source of truth instead of fetching and cross-referencing
-`requirements.md` and `nfr-spec.md` separately. This agent is also the last
-automated checkpoint that could silently drop a requirement or an NFR
-boundary condition between elicitation/classification and downstream
-planning — zero-drop composition is the concrete test, not just formatting.
+composed source of truth instead of cross-referencing the elicitor's and
+classifier's items separately. This agent is also the last automated
+checkpoint that could silently drop a requirement or an NFR boundary
+condition between elicitation/classification and downstream planning —
+zero-drop composition is the concrete test, not just formatting.
 
 ## What does it do?
 
-Accepts `requirements.md` (from `L1-requirements-elicitor`), `nfr-spec.md`
-(from `L1-requirements-nfr-classifier`), and `vision.md` (read-only, from
-`L1-vision-statement-generator`), and produces one composed `prd.md`:
+Accepts `functional_requirements`/`compound_splits` items (from
+`L1-requirements-elicitor` — items only, no document, 2026-08-07),
+`nfr_classifications` items (from `L1-requirements-nfr-classifier` — items
+only, no document, 2026-08-07), `vision.md` (read-only artifact, from
+`L1-vision-statement-generator`), and this agent's own `approval_comment`
+input parameter, and produces one composed `prd.md`:
 - Every FR-NNN together with its full NFR boundary-condition table, in one
-  block, carried verbatim from the two upstream documents — this agent does
-  not re-derive requirements or NFRs, it composes what already exists
+  block, carried verbatim from the two upstream agents' items — this agent
+  does not re-derive requirements or NFRs, it composes what already exists
 - Assumptions, Constraints, and Risks condensed from `vision.md`'s
   Regulatory Posture and Open Risks Carried Forward sections, each tagged
   with the FR(s) it underlies/constrains/affects (or `program-level`)
@@ -36,7 +39,7 @@ authoritative source, referenced via each FR's own trace.
    fails fast (`INSUFFICIENT_CONTEXT`) if `requirements_output` or
    `nfr_spec_output` is missing/failed; these two are hard preconditions
 2. Carries every FR's statement, `traces_to`, and NFR table forward verbatim
-   from `requirements.md` / `nfr-spec.md` — same ids and order
+   from the elicitor's/classifier's items — same ids and order
 3. Condenses `vision.md`'s Regulatory Posture and Open Risks Carried Forward
    into Assumptions / Constraints / Risks, each tagged to specific FR(s) or
    `program-level`
@@ -52,11 +55,13 @@ authoritative source, referenced via each FR's own trace.
 
 ## Input
 
-- **Source:** agent_output (`requirements.md`, `nfr-spec.md`, and read-only
-  `vision.md`)
+- **Source:** agent_output (elicitor's/classifier's items — no document; and
+  read-only `vision.md` artifact) plus a direct `approval_comment` input
+  parameter
 - **Required:** `requirements_output`, `nfr_spec_output` — both must be
   `status: success`; `vision_output` — read-only, Assumptions/Constraints/
-  Risks only
+  Risks only; `approval_comment` — the Product Lead's approval text, quoted
+  verbatim (no requirements document header to retrieve it from, 2026-08-07)
 
 ## Output
 

@@ -24,13 +24,14 @@ BACK STORY:
   Third agent in Phase 1. Same synthesis pattern as
   L1-vision-statement-generator in Phase 0, one level up: that agent
   reconciled three analyses into vision.md; this agent composes two
-  already-atomic Phase 1 documents into one, with vision.md read only for
-  Regulatory Posture / Open Risks. No KB attached — both source documents
+  already-atomic Phase 1 outputs into one, with vision.md read only for
+  Regulatory Posture / Open Risks. No KB attached — both source outputs
   are consumed in full, and the ≤3K-token template below is embedded here
   (S4).
 
-  Upstream: L1-requirements-elicitor (requirements.md), L1-requirements-nfr-
-  classifier (nfr-spec.md), L1-vision-statement-generator (vision.md, read-only).
+  Upstream: L1-requirements-elicitor (items only, no document, 2026-08-07),
+  L1-requirements-nfr-classifier (items only, no document, 2026-08-07),
+  L1-vision-statement-generator (vision.md artifact, read-only).
   Downstream: L1-planning-impact-assessor and L1-planning-dependency-mapper
   consume prd.md as their single Phase 1 source of truth.
 
@@ -42,10 +43,12 @@ INSTRUCTIONS:
   - Extract: requirements_output.content.items (functional_requirements[],
     compound_splits[]), nfr_spec_output.content.items (every FR's boundary-
     condition table), vision_output.content.items.regulatory_posture and
-    .open_risks. Header fields (approver name/role/date/comment, artifact
-    ids) live in the documents, not items — retrieve requirements.md via
-    requirements_output.content.artifacts[0].storage.location for its own
-    header's Approval-consumed line, and carry it forward verbatim
+    .open_risks. requirements_output/nfr_spec_output are items-only — there
+    is no document to retrieve. The Approval-consumed header line instead
+    comes directly from this agent's own approval_comment input parameter
+    (same vision-approval gate L1-requirements-elicitor consumed) — carry it
+    forward verbatim; vision.md's own artifact id (for the Source vision row)
+    comes from vision_output.content.artifacts[0]
   - Validate: if requirements_output.status != "success" or
     nfr_spec_output.status != "success", return INSUFFICIENT_CONTEXT — both
     are hard preconditions. vision_output is read-only context; a missing

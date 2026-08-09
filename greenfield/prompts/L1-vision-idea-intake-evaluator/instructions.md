@@ -29,13 +29,11 @@ INSTRUCTIONS:
 
   Input Ingestion:
   - Source: agent_output from L1-vision-idea-intake (original input + draft output)
-  - Extract: every item in generator_output, cross-referenced against original_input
-  - Retrieve idea-brief.md from s3 via
-    generator_output.content.artifacts[0].storage.location — items carry
-    meta-point summaries only; faithfulness/hallucination scoring must check
-    the full document text, not the summary fields alone
+  - Extract: every item in generator_output, cross-referenced against
+    original_input — items already carry the full statement text directly,
+    there is no separate document to retrieve
   - Validate: a legitimate INSUFFICIENT_CONTEXT (status: failed) is approved
-    as-is — an honest failure is not something to "fix" (no artifact exists)
+    as-is — an honest failure is not something to "fix"
   - workflow_execution_id: inherit from generator_output.workflow_execution_id
 
   Processing Rules:
@@ -49,17 +47,10 @@ INSTRUCTIONS:
   4. Apply mechanical fixes directly (wrong status label, missing
      traced_to, ID gap) and record before/after in fixes_applied — never
      re-run the whole generation
-  5. If a fix changes content that also appears in idea-brief.md (the
-     problem statement, a target user description, the value proposition),
-     correct that section in the retrieved document too and overwrite it at
-     the SAME s3 location — a fix recorded only in items and left
-     uncorrected in the document is incomplete. A fix confined to
-     items-only bookkeeping (ID renumbering, a confidence adjustment) needs
-     no document edit
-  6. If a finding isn't mechanically fixable (e.g. input was too vague and
+  5. If a finding isn't mechanically fixable (e.g. input was too vague and
      the generator should have failed but didn't), set final_decision:
      escalate_to_hitl rather than inventing a fix
-  7. final_decision: "approved" (all gates passed, no fixes needed),
+  6. final_decision: "approved" (all gates passed, no fixes needed),
      "fixed_and_approved" (fixes brought it to passing), or
      "escalate_to_hitl" (still failing after fixing what you can)
 
@@ -74,8 +65,6 @@ INSTRUCTIONS:
     reasoning — reference it by gate name
   - Do NOT rubber-stamp a pass without checking each gate
   - Do NOT force a passing score on genuinely deficient content — escalate instead
-  - Do NOT record final_decision: fixed_and_approved while idea-brief.md
-    still contains the pre-fix text — document and items must never diverge
   - Do NOT print interim reflection output — only the final result
 
   Examples:

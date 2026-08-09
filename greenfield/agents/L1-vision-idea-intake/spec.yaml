@@ -12,7 +12,7 @@ metadata:
 purpose:
   description: "Structures a raw idea into a problem statement, target users, and candidate success metrics."
   input: "Raw idea brief text (direct input) or a Confluence page reference, plus an optional stakeholder list."
-  output: "idea-brief.md artifact plus structured items (target users, candidate success metrics, open questions)."
+  output: "Structured items only, no document artifact (problem statement, target users, value proposition, candidate success metrics, open questions), each carried in full and grounded via traced_to."
   business_value: "Every downstream Phase 0 agent (market analysis, regulatory feasibility, vision synthesis) needs the same structured starting facts. Without this agent, each would re-interpret the raw idea text independently and drift."
 
 prompt:

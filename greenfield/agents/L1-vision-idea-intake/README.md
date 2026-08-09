@@ -46,8 +46,9 @@ than filling gaps with plausible-sounding guesses.
 
 - **Type:** `idea_brief`
 - **Items:** `problem_statement`, `target_users[]`, `value_proposition`,
-  `candidate_success_metrics[]`, `open_questions[]` — see `output_schema.json`
-- **Artifacts:** `idea-brief.md` — the human-readable document version
+  `candidate_success_metrics[]`, `open_questions[]` — see `output_schema.json`.
+  No document artifact is produced; the narrative fields (`statement`) carry
+  the full text directly.
 - **Metadata:** every item carries `confidence`, `reasoning`, and `traced_to`
   (this agent's substitute for KB citation, since it grounds against the raw
   input, not a knowledge base)

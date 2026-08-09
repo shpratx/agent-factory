@@ -2,8 +2,10 @@
 TEMPLATE: nfr-spec.md
 Produced by: L1-requirements-nfr-classifier (Core)
 Evaluated by: L1-requirements-nfr-classifier-evaluator
-Consumes: requirements.md + regulatory-feasibility.md (Phase 0 artifact,
-          read directly for Compliance-category citations — not a KB)
+Consumes: requirements.md + vision.md § Regulatory Posture (Phase 0 artifact,
+          read directly for Compliance-category citations — not a KB;
+          regulatory-feasibility.md is no longer a saved document — vision.md
+          already reconciles Phase 0's regulatory findings)
           + kb-L1-nfr-classification-taxonomy (classification method only —
           never supplies a number; see ../knowledge-bases/README.md)
 Consumed by: L1-requirements-prd-composer, L1-design-hld (Phase 4, direct) —
@@ -15,7 +17,7 @@ one heading. Every requirement gets tagged against whichever NFR categories
 actually apply (performance, security, scalability, availability, compliance,
 usability) — not all six on every FR. A boundary condition may ONLY be a
 concrete number if that number is stated or directly implied in requirements.md
-/ vision.md / regulatory-feasibility.md. Otherwise it MUST read "TBD — needs
+/ vision.md (including its Regulatory Posture section). Otherwise it MUST read "TBD — needs
 stakeholder input". Writing a plausible-sounding number that isn't actually
 grounded in the input is exactly the fabrication this template exists to
 prevent — this is a BLOCKER NFR, not a style preference.

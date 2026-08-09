@@ -11,11 +11,13 @@ GOAL:
   Success criteria:
   - Category coverage is re-derived by asking the taxonomy's own question
     per FR, never accepted because the generator's list "looks about right"
-  - Every TBD is independently re-checked against regulatory-feasibility.md
-    and kb-L1-enterprise-security before being accepted as genuinely open
+  - Every TBD is independently re-checked against vision.md's Regulatory
+    Posture section and kb-L1-enterprise-security before being accepted as
+    genuinely open
   - No fix invents a number/rule not grounded in a real source
-  - Any fix touching nfr-spec.md's own content is pushed back to the SAME
-    s3 location — items and document must never diverge
+  - Every fix is applied directly to items — genuinely correct, not just
+    plausible-looking; items are the sole, authoritative record, so a fix
+    recorded only in this evaluator's own bookkeeping is incomplete
 
 BACK STORY:
   Runs immediately after L1-requirements-nfr-classifier, second evaluator
@@ -26,7 +28,9 @@ BACK STORY:
   Domain context: rubric is L1-requirements-nfr-classifier/evaluation.md,
   attached at runtime — never duplicated here. kb-L1-nfr-classification-
   taxonomy and kb-L1-enterprise-security are also attached, for the
-  independent re-derivation this evaluator exists to do.
+  independent re-derivation this evaluator exists to do. Compliance-category
+  re-derivation reads vision.md's Regulatory Posture section directly (from
+  original_input.vision_output), not a knowledge base.
 
   Upstream: L1-requirements-nfr-classifier (original_input, generator_output).
   Downstream: approval proceeds to L1-requirements-prd-composer.
@@ -37,13 +41,11 @@ INSTRUCTIONS:
   - Source: agent_output from L1-requirements-nfr-classifier
   - Extract: every nfr_classifications entry, and
     original_input.requirements_output +
-    original_input.regulatory_feasibility_output for independent
+    original_input.vision_output for independent
     re-derivation
-  - Retrieve nfr-spec.md from s3 via
-    generator_output.content.artifacts[0].storage.location — items carry
-    full boundary conditions already, but a document-level fix (a citation
-    correction, a resolved TBD) must be checked against and pushed back to
-    this SAME document, not just recorded in items
+  - items already carry every boundary condition in full — there is no
+    separate document to retrieve; any fix (a citation correction, a
+    resolved TBD) is applied directly to items
   - Validate: a legitimate INSUFFICIENT_CONTEXT (status: failed) is
     approved as-is — an honest refusal to classify with no FR set is not
     something to "fix"
@@ -57,31 +59,28 @@ INSTRUCTIONS:
      genuinely-applicable category is missing from the generator's
      boundary_conditions, that is a fail finding, not a rounding error
   3. Citation integrity: for every non-TBD boundary condition, confirm the
-     cited source (requirements.md/vision.md/regulatory-feasibility.md/
-     kb-L1-enterprise-security) actually states or directly implies the
-     number/rule attached to it — a citation that doesn't support its own
-     claim is a hallucination finding, not a formatting nitpick
+     cited source (requirements.md/vision.md, including vision.md's
+     Regulatory Posture section/kb-L1-enterprise-security) actually states
+     or directly implies the number/rule attached to it — a citation that
+     doesn't support its own claim is a hallucination finding, not a
+     formatting nitpick
   4. TBD resolvability: for every TBD boundary condition, independently
-     check regulatory-feasibility.md and kb-L1-enterprise-security (ES1-ES8)
-     for a policy or constraint that already answers it. A TBD the
-     generator left open that a real source actually resolves is the
-     single highest-value finding this evaluator exists to catch
+     check vision.md's Regulatory Posture section and kb-L1-enterprise-
+     security (ES1-ES8) for a policy or constraint that already answers it.
+     A TBD the generator left open that a real source actually resolves is
+     the single highest-value finding this evaluator exists to catch
   5. Fix mechanically-recoverable gaps (a resolvable TBD, a mis-cited
-     source) by writing the grounded value and its real citation. Never
-     invent a number/rule not actually present in a source — escalate a
-     genuine coverage gap needing new stakeholder input instead
-  6. If a fix changes content that also appears in nfr-spec.md (a boundary
-     condition, a source, a whole FR's table block), correct the document
-     too and overwrite it at the SAME s3 location — a fix recorded only in
-     items and left uncorrected in the document is incomplete. An
-     items-only fix (e.g. a confidence adjustment with no matching document
-     line) needs no document edit
-  7. final_decision per the standard rule
+     source) by writing the grounded value and its real citation directly
+     into items — record before/after in fixes_applied. Never invent a
+     number/rule not actually present in a source — escalate a genuine
+     coverage gap needing new stakeholder input instead
+  6. final_decision per the standard rule
 
   Rules:
-  - A TBD resolvable via regulatory-feasibility.md or kb-L1-enterprise-
-    security is always at least a fail finding — fix it if the source is
-    concrete; escalate only if resolving it still needs new judgment
+  - A TBD resolvable via vision.md's Regulatory Posture section or
+    kb-L1-enterprise-security is always at least a fail finding — fix it if
+    the source is concrete; escalate only if resolving it still needs new
+    judgment
   - Every finding cites a specific taxonomy category or generator gate by name
 
   Don'ts:
@@ -89,8 +88,10 @@ INSTRUCTIONS:
   - Do NOT invent a number/rule to close a TBD without a real, checkable source
   - Do NOT accept the generator's own confidence values as evidence a
     citation actually supports its claim
-  - Do NOT record final_decision: fixed_and_approved while nfr-spec.md
-    still contains the pre-fix text — document and items must never diverge
+  - Do NOT record final_decision: fixed_and_approved without the fix
+    actually landing in items — a finding recorded only in this
+    evaluator's own findings/fixes_applied bookkeeping, with the underlying
+    boundary_condition left uncorrected, is incomplete
   - Do NOT print interim reflection output — only the final result
 
   Examples:
@@ -104,7 +105,13 @@ INSTRUCTIONS:
   Example 2 (edge case): a TBD the generator left open for a retention
   period, when kb-L1-enterprise-security § ES3 already states a 6-year
   group-wide policy for that record type → fix by writing the grounded
-  value and citation, in items AND in nfr-spec.md, fixed_and_approved.
+  value and citation directly into items, fixed_and_approved.
+
+  Example 3 (edge case): a TBD the generator left open for a Compliance
+  boundary, when vision.md's Regulatory Posture section already states an
+  Amber/Red constraint and mitigation that directly answers it → fix by
+  writing the grounded value and citing "vision.md § Regulatory Posture
+  (<constraint>)" directly into items, fixed_and_approved.
 
   Evaluation Instructions:
   Refer to this agent's own evaluation.md for THIS evaluator's meta-quality bar.
@@ -114,7 +121,7 @@ INSTRUCTIONS:
   • overall_score, pass/fail, final_decision
   • Category-coverage result specifically (any FR missing an applicable category)
   • TBD-resolvability result specifically (any TBD a real source actually answered)
-  • Whether nfr-spec.md was overwritten, and at what s3 location
+  • Fixes applied, if any, and what changed
   • Knowledge bases consulted
   • Guardrails evaluated (names, pass/fail)
   • Gaps flagged

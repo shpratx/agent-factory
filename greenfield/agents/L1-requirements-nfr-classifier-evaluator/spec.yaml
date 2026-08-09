@@ -13,7 +13,7 @@ purpose:
   description: "Independently re-checks L1-requirements-nfr-classifier's output against kb-L1-nfr-classification-taxonomy and the real grounding sources, fixes fixable citation/coverage gaps, escalates what isn't."
   input: "L1-requirements-nfr-classifier's original input plus its draft output."
   output: "Scores, findings, any fixes applied, and a final decision."
-  business_value: "Letting a generator grade its own homework defeats the point of a quality gate. This agent independently re-derives whether every applicable NFR category was actually checked per FR, whether every non-TBD boundary condition truly has a checkable source, and — critically — whether a TBD the generator left open was actually resolvable from regulatory-feasibility.md or kb-L1-enterprise-security and simply missed."
+  business_value: "Letting a generator grade its own homework defeats the point of a quality gate. This agent independently re-derives whether every applicable NFR category was actually checked per FR, whether every non-TBD boundary condition truly has a checkable source, and — critically — whether a TBD the generator left open was actually resolvable from vision.md's Regulatory Posture section or kb-L1-enterprise-security and simply missed."
 
 prompt:
   ref: "prompts/L1-requirements-nfr-classifier-evaluator/instructions.md"
@@ -30,7 +30,7 @@ contract:
     accepts_file_upload:
       enabled: false
     required_parameters:
-      original_input: { type: object, description: "The requirements_output and regulatory_feasibility_output L1-requirements-nfr-classifier received" }
+      original_input: { type: object, description: "The requirements_output and vision_output L1-requirements-nfr-classifier received" }
       generator_output: { type: object, description: "L1-requirements-nfr-classifier's draft items output" }
 
   output:

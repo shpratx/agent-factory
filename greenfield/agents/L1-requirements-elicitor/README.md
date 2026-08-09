@@ -39,10 +39,10 @@ its own acceptance test.
    vague-term scan (Unambiguous) and compound-clause scan (Singular) — the
    cheap, deterministic checks only; full rubric (Complete's coverage
    check, Verifiable, Consistent, Feasible/Correct) is delegated to
-   `L1-requirements-elicitor-evaluator` downstream, per S6
-6. Saves the filled `requirements.md` template to blob storage; items carry
-   the same facts in full (not condensed — see output_schema.json's own
-   note on why this differs from Phase 0's meta-points pattern)
+   `L1-requirements-elicitor-evaluator` downstream, per S6. No document is
+   produced or saved — `items` carries the full FR statements directly (not
+   condensed — see output_schema.json's own note on why this differs from
+   Phase 0's meta-points pattern)
 
 ## Input
 
@@ -58,8 +58,6 @@ its own acceptance test.
   `output_schema.json`. Unlike Phase 0, FR statements are carried in FULL
   in items, not summarized — a functional requirement is already atomic,
   and downstream agents need the exact wording, not a gloss
-- **Artifacts:** `requirements.md` — the human-readable document, including
-  the header table and Compound Requirements Split narrative
 - **Metadata:** every FR carries `confidence` and `reasoning`; `traces_to`
   is this agent's citation equivalent, since it grounds against `vision.md`
   directly, not a knowledge base

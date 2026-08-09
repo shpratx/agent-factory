@@ -32,7 +32,7 @@ This is NOT a check on the evaluator's own scores/findings/final_decision
 step exists to enforce, run against what actually ships downstream.
 
 **Why it matters:** an evaluator reporting `fixed_and_approved` is a claim,
-not a guarantee. If a "fix" left `mitigation_summary` null on a Red
+not a guarantee. If a "fix" left `mitigation` null on a Red
 constraint with `requires_legal_review: false`, or a citation still reads
 "applicable regulations" instead of a named section, that is exactly the
 false negative this evaluator exists to prevent — reaching
@@ -63,8 +63,8 @@ L1-vision-regulatory-feasibility-checker-evaluator concludes
 │  open_items with fixes_applied[].before→after resolved in            │
 │                                                                      │
 │  DETERMINISTIC (actions.py):                                        │
-│  1. Schema: rationale/mitigation length, citation shape, enums?     │
-│  2. Every Amber/Red: mitigation_summary OR requires_legal_review?    │
+│  1. Schema: rationale/mitigation full-text fields present, citation shape, enums? │
+│  2. Every Amber/Red: mitigation OR requires_legal_review?    │
 │     (re-checked on the RESULTANT content — zero tolerance)          │
 │  3. CON-NN / OI-NN ids sequential, no gaps/duplicates?               │
 │  4. citation.regulation is a specific section, not a generic phrase?│
@@ -72,7 +72,7 @@ L1-vision-regulatory-feasibility-checker-evaluator concludes
 │  Any ✗ → BLOCK, retry once, then escalate_to_hitl                    │
 │                                                                      │
 │  SEMANTIC (self_check_output, LLM):                                  │
-│  5. overall_status.rationale_summary names the driving constraint?   │
+│  5. overall_status.rationale names the driving constraint?   │
 │  6. severity actually matches what the rationale describes?          │
 │  7. requires_legal_review not overused as a blanket escape?          │
 │                                                                      │
@@ -110,21 +110,21 @@ gr-L1-regulatory-feasibility-quality-gate/
 ```json
 {
   "constraints": [
-    {"id": "CON-01", "name": "Food business registration", "status": "Red", "citation": {"source_reference": "kb-L2-domain-regulatory", "regulation": "Food Safety Act 1990, s.19"}, "rationale_summary": "Registration required before trading; not yet structured for it", "mitigation_summary": "Register with local authority 28 days before trading start", "requires_legal_review": false, "confidence": 0.9, "reasoning": "Directly required for any food business"}
+    {"id": "CON-01", "name": "Food business registration", "status": "Red", "citation": {"source_reference": "kb-L2-domain-regulatory", "regulation": "Food Safety Act 1990, s.19"}, "rationale": "Registration required before trading; not yet structured for it", "mitigation": "Register with local authority 28 days before trading start", "requires_legal_review": false, "confidence": 0.9, "reasoning": "Directly required for any food business"}
   ],
-  "overall_status": {"status": "Amber", "rationale_summary": "CON-01 (Red) has a precedented mitigation, discounted one level per the stated rule"},
+  "overall_status": {"status": "Amber", "rationale": "CON-01 (Red) has a precedented mitigation, discounted one level per the stated rule"},
   "open_items": []
 }
 ```
 
-**Invalid resultant output (expected: "no")** — same Red constraint, but mitigation_summary is null and requires_legal_review is false, even after evaluation concluded:
+**Invalid resultant output (expected: "no")** — same Red constraint, but mitigation is null and requires_legal_review is false, even after evaluation concluded:
 
 ```json
 {
   "constraints": [
-    {"id": "CON-01", "name": "Food business registration", "status": "Red", "citation": {"source_reference": "kb-L2-domain-regulatory", "regulation": "Food Safety Act 1990, s.19"}, "rationale_summary": "Registration required before trading; not yet structured for it", "mitigation_summary": null, "requires_legal_review": false, "confidence": 0.9, "reasoning": "..."}
+    {"id": "CON-01", "name": "Food business registration", "status": "Red", "citation": {"source_reference": "kb-L2-domain-regulatory", "regulation": "Food Safety Act 1990, s.19"}, "rationale": "Registration required before trading; not yet structured for it", "mitigation": null, "requires_legal_review": false, "confidence": 0.9, "reasoning": "..."}
   ],
-  "overall_status": {"status": "Red", "rationale_summary": "..."},
+  "overall_status": {"status": "Red", "rationale": "..."},
   "open_items": []
 }
 ```
@@ -134,10 +134,10 @@ gr-L1-regulatory-feasibility-quality-gate/
 | Test | Mutation | Expected |
 |------|----------|----------|
 | Clean, fully-mitigated resultant content | None | "yes" |
-| Unmitigated Amber/Red | mitigation_summary=null, requires_legal_review=false | "no" |
+| Unmitigated Amber/Red | mitigation=null, requires_legal_review=false | "no" |
 | Generic citation | regulation = "applicable regulations" | "no" |
 | ID gap | CON-01 then CON-03, no CON-02 | "no" |
-| Over-length rationale | rationale_summary > 140 chars | "no" |
+| Missing full-text field | `rationale` empty/absent | "no" |
 | Vague overall_status rationale | "some constraints need attention" | "no" |
 | Downgraded severity | rationale describes a hard blocker, status="Green" | "no" |
 | requires_legal_review overused | every single Amber/Red constraint flagged for legal review | "no" |
@@ -172,10 +172,10 @@ generator_output = json.dumps({"status": "success", "content": {"items": {
     "constraints": [{
         "id": "CON-01", "name": "Food business registration", "status": "Red",
         "citation": {"source_reference": "kb-L2-domain-regulatory", "regulation": "Food Safety Act 1990, s.19"},
-        "rationale_summary": "r" * 30, "mitigation_summary": None, "requires_legal_review": False,
+        "rationale": "r" * 30, "mitigation": None, "requires_legal_review": False,
         "confidence": 0.9, "reasoning": "s" * 25,
     }],
-    "overall_status": {"status": "Red", "rationale_summary": "t" * 20},
+    "overall_status": {"status": "Red", "rationale": "t" * 20},
     "open_items": [],
 }}})
 

@@ -19,6 +19,6 @@
       ],
       "final_decision": "fixed_and_approved"
     },
-    "execution_summary": "• overall_score 7.3, pass=true, final_decision=fixed_and_approved.\n• Found and fixed one mis-cited source; the boundary condition itself is genuinely grounded, just cited the wrong source.\n• Category-coverage check: no genuinely-applicable category was skipped for FR-002.\n• TBD-resolvability check: not applicable — no TBD present in this excerpt.\n• nfr-spec.md was not overwritten — this fix is confined to a citation string with no separate document line to correct in this abbreviated example.\n• Knowledge bases consulted: L1-requirements-nfr-classifier/evaluation.md, kb-L1-nfr-classification-taxonomy.\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass).\n• Gaps flagged: none."
+    "execution_summary": "• overall_score 7.3, pass=true, final_decision=fixed_and_approved.\n• Found and fixed one mis-cited source; the boundary condition itself is genuinely grounded, just cited the wrong source.\n• Category-coverage check: no genuinely-applicable category was skipped for FR-002.\n• TBD-resolvability check: not applicable — no TBD present in this excerpt.\n• Knowledge bases consulted: L1-requirements-nfr-classifier/evaluation.md, kb-L1-nfr-classification-taxonomy.\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass).\n• Gaps flagged: none."
   }
 }

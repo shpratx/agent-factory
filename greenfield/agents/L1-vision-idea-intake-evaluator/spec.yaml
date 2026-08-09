@@ -10,7 +10,7 @@ metadata:
   created: "2026-08-02"
 
 purpose:
-  description: "Independently scores L1-vision-idea-intake's output against its evaluation.md rubric, fixes fixable issues, and re-uploads — or escalates to HITL if it can't reach a passing score."
+  description: "Independently scores L1-vision-idea-intake's output against its evaluation.md rubric, fixes fixable issues directly in items, and reports the result — or escalates to HITL if it can't reach a passing score."
   input: "L1-vision-idea-intake's original input plus its draft output."
   output: "Scores, findings, any fixes applied, and a final decision."
   business_value: "Letting a generator grade its own homework defeats the point of a quality gate. This agent is the independent, different-prompt check the Generator->Evaluator pattern requires (S6) — it does not duplicate the generator's rubric in its own prompt, it loads evaluation.md as source of truth."
