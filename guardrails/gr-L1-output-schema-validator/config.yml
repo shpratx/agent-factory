@@ -1,9 +1,34 @@
 models:
+
   - type: main
     engine: openai
-    model: gpt-4.1
+    model: gpt-5.4
+
 
 rails:
   output:
     flows:
-      - check output schema
+      - self check output
+
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response conforms to the AgentOutput schema.
+
+      Bot response: "{{ bot_response }}"
+
+      Flag ONLY if the response contains schema violations such as:
+      1. Missing root fields: agent_id, agent_version, execution_id, input_summary, or output
+      2. input_summary missing a valid source enum or a non-empty parameters object
+      3. output section missing a valid type enum or a schema_version
+      4. Items missing id, title, content, or metadata
+      5. Metadata missing confidence (0-1), reasoning (20+ chars), citation array, or trajectory array
+      6. Null values present in any required field
+
+      Do NOT flag:
+      - Outputs with an empty items array and no metadata, since this is a valid "no results" response
+      - Optional fields explicitly set to null when they are not required, e.g. source_agent_id
+      - Minor formatting or ordering differences that don't affect field presence
+
+      Answer only "yes" if the response is safe and contains no schema violations.
+      Answer "no" if the response contains schema violations.

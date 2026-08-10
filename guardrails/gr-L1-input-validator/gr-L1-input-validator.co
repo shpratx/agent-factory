@@ -10,3 +10,4 @@ define bot inform cannot answer
 
 define bot inform answer unknown
   "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Input is malformed, empty, or not a legitimate request the agent can handle\", \"severity\": \"medium\", \"category\": \"invalid_input\", \"rail\": \"input\"}"
+

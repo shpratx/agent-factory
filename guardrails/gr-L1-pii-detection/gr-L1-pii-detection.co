@@ -10,3 +10,4 @@ define bot inform cannot answer
 
 define bot inform answer unknown
   "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Output contains real personally identifiable information (PII)\", \"severity\": \"high\", \"category\": \"pii\", \"rail\": \"output\"}"
+
