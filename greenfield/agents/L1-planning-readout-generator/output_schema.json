@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentfactory.internal/schemas/L1-planning-readout-generator/output_schema.json",
+  "title": "L1-planning-readout-generator agent_output",
+  "description": "This is a pure meta-point index, NOT the readout itself. readout.md is the full, authoritative artifact, saved to blob storage separately (see storage.readout_md_url) — this JSON object is what is printed directly in the agent's response, and is the ONLY output ever consumed programmatically by Phase 2 agents for routing/gating. No field here may contain narrative/prose content duplicated from readout.md; every field is either an id, an enum, a count, a boolean, or a URL. A separate plain-text execution_summary (bullet points, not JSON) is appended AFTER this object in the agent's response — it is not a field of this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "readout_id",
+    "product_name",
+    "source_artifacts",
+    "requirement_ids",
+    "overall_impact_level",
+    "blast_radius_rollup",
+    "dependency_graph_status",
+    "sources_available",
+    "open_question_count",
+    "flags_present",
+    "storage"
+  ],
+  "properties": {
+    "readout_id": {
+      "type": "string",
+      "pattern": "^artifact-[0-9a-fA-F-]{8,}$",
+      "description": "Unique id of the readout.md artifact just produced. Format: artifact-<uuid>."
+    },
+    "product_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Product/feature name, carried from prd.md's title. Not a summary field — this is an id-like label, not prose."
+    },
+    "source_artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prd", "impact_assessment", "dependency_graph"],
+      "properties": {
+        "prd": {
+          "type": ["string", "null"],
+          "description": "Artifact id of the source prd.md, or null if that source was unavailable (see sources_available.prd)."
+        },
+        "impact_assessment": {
+          "type": ["string", "null"],
+          "description": "Artifact id of the source impact-assessment.md, or null if unavailable."
+        },
+        "dependency_graph": {
+          "type": ["string", "null"],
+          "description": "Artifact id of the source dependency-graph.mmd, or null if unavailable."
+        }
+      }
+    },
+    "requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^FR-[0-9]{3}$"
+      },
+      "description": "Every FR-NNN carried into Section 2, same ids and order as prd.md. Empty array only if prd.md itself was unavailable."
+    },
+    "overall_impact_level": {
+      "type": "string",
+      "enum": ["Low", "Medium", "High", "Unknown"],
+      "description": "Carried verbatim from impact-assessment.md's Impact Summary. 'Unknown' only if impact-assessment.md was unavailable."
+    },
+    "blast_radius_rollup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["high", "medium", "low"],
+      "properties": {
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 }
+      },
+      "description": "Computed directly from Section 3's Components Identified table — counts of Blast Radius values, never re-scored."
+    },
+    "dependency_graph_status": {
+      "type": "string",
+      "enum": ["valid", "cyclic", "unresolved"],
+      "description": "'valid' = graph rendered with no upstream cycle/validation flag. 'cyclic' = rendered WITH the warning callout (never suppressed). 'unresolved' = dependency-graph.mmd was unavailable from all three input channels."
+    },
+    "sources_available": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prd", "impact_assessment", "dependency_graph"],
+      "properties": {
+        "prd": { "type": "boolean" },
+        "impact_assessment": { "type": "boolean" },
+        "dependency_graph": { "type": "boolean" }
+      },
+      "description": "Whether each of the three source documents was resolved via any input channel. false triggers a 'Not available' section in readout.md rather than a hard failure."
+    },
+    "open_question_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of FR-tagged Open Questions bullet items carried into Section 5 (excludes the separate Coverage gap line, if present)."
+    },
+    "flags_present": {
+      "type": "boolean",
+      "description": "true if Section 7 (Flags & Data Quality) carries forward one or more flags from impact-assessment.md; false if that section states 'None'."
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["readout_md_url"],
+      "properties": {
+        "readout_md_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Blob storage location readout.md was saved to. This is the only blob write this agent performs — agent_output itself is never written to blob."
+        }
+      }
+    }
+  }
+}

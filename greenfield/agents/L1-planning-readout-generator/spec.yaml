@@ -1,0 +1,97 @@
+# Agent Specification Document
+spec_version: "1.0"
+artifact_type: agent
+metadata:
+  name: L1-planning-readout-generator
+  version: "1.0.0"
+  layer: L1
+  phase: planning
+  owner: agentic-ai-coe
+  created: "2026-08-13"
+
+purpose:
+  description: "Synthesizes prd.md, impact-assessment.md, and dependency-graph.mmd into a single standalone, stakeholder-facing program readout — the terminal document of Phase 1."
+  input: "prd.md (from L1-requirements-prd-composer), impact-assessment.md (from L1-planning-impact-assessor), dependency-graph.mmd (from the mermaid-conversion agent downstream of L1-planning-dependency-mapper) — via direct input, file upload, or blob storage tool call"
+  output: "readout.md saved to blob storage (the human-read terminal artifact) plus a compact agent_output JSON index for Phase 2 routing/gating without re-parsing markdown"
+  business_value: "Gives a PM one document that answers what's being built, what it touches, how it sequences, and what's still open — without opening three separate upstream artifacts — while giving downstream agents a lightweight, structured index (e.g. dependency_graph_status) to gate on programmatically."
+
+prompt:
+  ref: "prompts/L1-planning-readout-generator/instructions.md"
+  version: "1.0.0"
+  description: "Carries forward requirements, impact, dependencies, and risks verbatim from three source documents into readout.md, writing the Executive Summary last; performs no re-scoring, re-classification, or new analysis."
+
+contract:
+  input_schema: "$ref: schemas/agent-input-contract-schema.json"
+  output_schema: "$ref: schemas/agent-output-schema.json"
+
+  input:
+    accepts_from_agents:
+      - L1-requirements-prd-composer      # prd.md
+      - L1-planning-impact-assessor       # impact-assessment.md
+      - mermaid-conversion-agent          # dependency-graph.mmd (downstream of L1-planning-dependency-mapper)
+    accepts_direct_input: true
+    accepts_file_upload:
+      enabled: true
+      formats: [".md", ".mmd"]
+    required_parameters: {}
+      # No parameter is unconditionally required — the Input Protocol resolves each of the
+      # three source documents independently, and any genuinely unavailable source degrades
+      # to a "Not available" section rather than failing the run (see PROCESSING RULES §1).
+    optional_parameters:
+      prd:
+        type: string
+        default: ""
+        description: "Direct-input text of prd.md, if supplied via that channel."
+      impact_assessment:
+        type: string
+        default: ""
+        description: "Direct-input text of impact-assessment.md, if supplied via that channel."
+      dependency_graph_mmd:
+        type: string
+        default: ""
+        description: "Direct-input text of dependency-graph.mmd, if supplied via that channel."
+      folder_name:
+        type: string
+        default: ""
+        description: "Blob storage folder to read prd.md, impact-assessment.md, and dependency-graph.mmd from, if using the tool-call input channel."
+
+  output:
+    $ref: "output_schema.json"
+
+context:
+  knowledge_bases: []
+    # Deliberately empty — this is a pure composer agent (same class as L1-requirements-prd-composer).
+    # Every claim in readout.md must trace to one of the three source documents, never to a KB.
+    # The readout.md template itself is embedded literally in the prompt (S4 — no template KB exists).
+  guardrails:
+    - gr-L1-output-schema-validator
+      # Enforces required-section presence AND that dependency_graph_status is set and,
+      # if cyclic/unresolved, that the readout carries the warning callout. Reused as-is.
+    - gr-L1-consistency-check
+      # Readout must not contradict prd.md, impact-assessment.md, or dependency-graph.mmd. Reused as-is.
+    - gr-L1-pii-detection
+      # Baseline for all L1 agents per the Guardrails Selection Guide.
+  tools:
+    - tool-L1-blob-storage-read-object
+    - tool-L1-blob-storage-write-object
+      # NOTE — deviation from the standard Core/Utility tool split: this agent both reads its
+      # three source documents AND writes readout.md itself, matching the explicit build spec
+      # ("Blob storage writer tool (to save readout.md ONLY...)") and the established precedent
+      # of its sibling composer, L1-requirements-prd-composer. This is acceptable because
+      # readout.md is this agent's single, fixed-format terminal artifact (not a general-purpose
+      # publish action to an arbitrary platform) — there is no meaningful decoupling gained by
+      # routing a single, template-fixed write through a separate Utility agent here.
+
+quality:
+  evaluation_ref: "evaluation.md"
+  min_score: 7.0
+  hallucination_check: true
+  consistency_check: true
+  # Full completeness/consistency re-derivation (did every source item survive into the
+  # readout) is explicitly delegated to the sibling evaluator, L1-planning-readout-generator-evaluator
+  # (built separately) — this agent performs only the basic self-check in evaluation.md.
+
+versioning:
+  input_version: "1.0"
+  output_version: "1.0"
+  instruction_hash: "sha256:pending"
