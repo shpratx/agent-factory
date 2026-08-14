@@ -1,0 +1,15 @@
+{
+  "upstream_agent_output": {
+    "agent_id": "L1-planning-dependency-graph-evaluator",
+    "status": "success",
+    "workflow_execution_id": "wf-9d8c7b6a-5e4f-4a3b-8c1d-2e3f4a5b6c7d",
+    "content": {
+      "artifacts": [
+        { "id": "artifact-001", "name": "L1-impact-assessment.md", "storage": { "provider": "s3", "location": "s3://phase1-artifacts/merchant-onboarding-hub/phase-1/L1-impact-assessment.md", "blob_storage_url": "https://blob.internal/merchant-onboarding-hub/phase-1/L1-impact-assessment.md" } },
+        { "id": "artifact-002", "name": "L1-dependency-graph.json", "storage": { "provider": "s3", "location": "s3://phase1-artifacts/merchant-onboarding-hub/phase-1/L1-dependency-graph.json", "blob_storage_url": "https://blob.internal/merchant-onboarding-hub/phase-1/L1-dependency-graph.json" } },
+        { "id": "artifact-003", "name": "L1-dependency-graph.mmd", "storage": { "provider": "s3", "location": "s3://phase1-artifacts/merchant-onboarding-hub/phase-1/L1-dependency-graph.mmd", "mmd_blob_storage_url": "https://blob.internal/merchant-onboarding-hub/phase-1/L1-dependency-graph.mmd" } }
+      ]
+    }
+  },
+  "folder_name": "merchant-onboarding-hub/phase-1"
+}

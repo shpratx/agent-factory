@@ -36,7 +36,7 @@ INSTRUCTIONS:
 
     - Since content.items IS the dependency graph itself (unlike every other Phase 0/1 pair, where items is a condensed extract of a separate document), retrieving L1-dependancy-graph.json is mostly a consistency check that the saved file matches items exactly, not a separate full-content read
 
-    - Validate: a legitimate cycle escalation (generator status: "failed", cycle_check.status: "FAIL") is approved as-is if this evaluator's own DFS confirms the same cycle — an honest escalation is not something to "fix" into a forced-acyclic graph
+    - Validate: a legitimate cycle escalation (generator status: "failed", cycle_check.status: "FAIL") is approved as-is if this evaluator's own DFS confirms the same cycle AND no edge in the cycle has a demonstrably wrong direction per L1-impact-assessment.md or kb-L1-enterprise-architecture — if a back-edge is clearly contradicted by the source data's prerequisite language, that edge is a mechanically-recoverable fix, not a forced-acyclic invention
 
     Processing Rules:
 
@@ -59,7 +59,7 @@ INSTRUCTIONS:
         - (f) if cycle_check.status is FAIL: every node in cycles_found carries a classDef cycleNode highlight and a %% CYCLE: comment — a clean diagram over a cyclic graph is a fail finding
         - (g) if cycle_check.status is PASS: a %% CRITICAL PATH: comment line exists for every tied chain from critical_path
 
-    7. Fix mechanically-recoverable issues (a reversed edge, a missed tie, a dropped FR closeable by adding it to the correct existing node's source_requirement[], a wrong MMD node shape or edge style, a missing cycle annotation). Never invent a node/edge not grounded in impact-assessment.md/prd.md — escalate a genuine, confirmed cycle instead of forcing acyclicity by dropping an edge
+    7. Fix mechanically-recoverable issues (a reversed edge, a missed tie, a dropped FR closeable by adding it to the correct existing node's source_requirement[], a wrong MMD node shape or edge style, a missing cycle annotation). If a confirmed cycle is caused by an edge whose direction is clearly contradicted by L1-impact-assessment.md's prerequisite language or kb-L1-enterprise-architecture's narrative, correct that edge direction — this is a mechanical fix, not an invention. Never drop an edge to force acyclicity, and never correct an edge direction when both directions are plausible from the source data — escalate those instead
 
     8. If a fix changes content in items (a node, an edge, cycle_check, or critical_path), correct L1-dependancy-graph.json and overwrite it at the SAME blob storage location. If a fix changes the MMD rendering, correct L1-dependency-graph.mmd and overwrite it at its SAME blob storage location. Both files must reflect the fixed state before final_decision is recorded
 
@@ -71,7 +71,7 @@ INSTRUCTIONS:
 
         - Never report MMD verification as passed without explicitly counting nodes and edges in the .mmd and confirming they equal the JSON counts
 
-        - A confirmed cycle is always escalate_to_hitl or approved-as-failed, never fixed_and_approved by removing an edge
+        - A confirmed cycle whose back-edge direction is clearly contradicted by L1-impact-assessment.md or kb-L1-enterprise-architecture is a mechanically-recoverable fix (correct the edge, update both JSON and MMD, record fixed_and_approved) — escalate_to_hitl only when the correct direction cannot be determined from source data alone; never resolve a cycle by dropping an edge
 
         - Every finding cites a specific node id or edge (from/to) by name
 
@@ -95,7 +95,9 @@ INSTRUCTIONS:
 
         Example 1 (typical): the generator's critical_path.nodes reports a single winning chain, but independent longest-path re-derivation finds a second chain of equal length through a parallel branch → fix by adding the tied chain to critical_path.nodes and updating rationale in items, correct the same fields in L1-dependancy-graph.json at its blob location, record it in fixes_applied with reasoning, fixed_and_approved.
 
-        Example 2 (edge case): the generator's own DFS and this evaluator's independent DFS both find the same back-edge and agree cycle_check.status: "FAIL" → approved-as-failed as-is; this is a legitimate escalation, not a fix target.
+        Example 2a (ambiguous cycle — escalate): the generator's own DFS and this evaluator's independent DFS both find the same back-edge and agree cycle_check.status: "FAIL"; L1-impact-assessment.md's prerequisite language does not clearly indicate which direction the edge should run → escalate_to_hitl as-is; this is a legitimate escalation, not a fix target.
+
+        Example 2b (fixable cycle): the generator's DFS and this evaluator's DFS both confirm a cycle via edge A→B; however, L1-impact-assessment.md's Components Identified table explicitly states "B must be deployed before A" and kb-L1-enterprise-architecture's narrative confirms the same prerequisite direction → the edge is demonstrably reversed; fix by correcting A→B to B→A in both L1-dependancy-graph.json and L1-dependency-graph.mmd, overwrite both at their blob storage locations, record the correction in fixes_applied with the source citation, fixed_and_approved.
 
         Example 3 (MMD mismatch): dependency-graph.json has 12 nodes and 15 edges; dependency-graph.mmd has 12 nodes but only 14 edges (one integrates-with edge was silently dropped) → fail finding FND-MMD-01, fix the .mmd to add the missing edge verbatim, overwrite at its blob location, fixed_and_approved.
 

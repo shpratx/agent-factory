@@ -1,0 +1,16 @@
+{
+  "prd": {
+    "agent_id": "L1-requirements-prd-composer",
+    "status": "failed",
+    "workflow_execution_id": "wf-1a2b3c4d-5e6f-4a5b-8c9d-0e1f2a3b4c5d",
+    "content": {
+      "items": {
+        "product_name": "",
+        "requirements": []
+      }
+    }
+  },
+  "folder_name": "unclear-product/phase-1",
+  "service_catalog": {},
+  "cmdb_export": {}
+}

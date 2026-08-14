@@ -1,0 +1,28 @@
+{
+  "prd": {
+    "agent_id": "L1-requirements-prd-composer",
+    "status": "success",
+    "workflow_execution_id": "wf-2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e",
+    "content": {
+      "items": {
+        "product_name": "Subscription Billing Revamp",
+        "requirements": [
+          { "id": "FR-001", "statement": "Plan pricing is centrally managed in a Plan Catalog." },
+          { "id": "FR-002", "statement": "Billing Engine generates a finalized invoice draft per subscription." },
+          { "id": "FR-003", "statement": "Proration Calculator computes mid-cycle proration amounts for plan changes." }
+        ],
+        "architecture_notes": "Billing Engine requires Plan Catalog's pricing to compute charges. Billing Engine requires Proration Calculator's proration amount before it can finalize the invoice draft. Proration Calculator, in turn, requires Billing Engine's finalized invoice draft as the base amount to prorate against."
+      }
+    }
+  },
+  "folder_name": "subscription-billing-revamp/phase-1",
+  "service_catalog": {
+    "export_metadata": { "exported_at": "2026-08-13T11:00:00Z" },
+    "services": []
+  },
+  "cmdb_export": {
+    "export_metadata": { "exported_at": "2026-08-13T11:00:00Z" },
+    "configuration_items": [],
+    "relationships": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "agent_id": "L1-planning-impact-dependency-aggregator",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-9e8d7c6b-5a4f-4321-8c9d-0e1f2a3b4c5d",
+  "workflow_execution_id": "wf-1a2b3c4d-5e6f-4a5b-8c9d-0e1f2a3b4c5d",
+  "status": "failed",
+  "content": {
+    "type": "impact_dependency_aggregation",
+    "schema_version": "1.0",
+    "items": {
+      "product_name": "",
+      "source_artifacts": {
+        "impact_assessment": {
+          "name": "L1-impact-assessment.md",
+          "blob_storage_url": ""
+        },
+        "dependency_graph_mmd": {
+          "name": "L1-dependency-graph.mmd",
+          "blob_storage_url": ""
+        }
+      },
+      "aggregation_method": "verbatim-concatenation",
+      "sections_included": ["impact-assessment", "dependency-graph-mermaid"]
+    },
+    "artifacts": [],
+    "execution_summary": "• INSUFFICIENT_CONTEXT — upstream L1-planning-impact-dependency-mapper status was \"failed\"; no artifacts were produced to aggregate.\n• Source artifacts consumed: none — both L1-impact-assessment.md and L1-dependency-graph.mmd were absent from blob storage.\n• Tools invoked: blob storage reader attempted for L1-impact-assessment.md — not found; blob storage reader attempted for L1-dependency-graph.mmd — not found.\n• Guardrails evaluated: gr-L1-output-schema-validator (pass — empty-artifacts shape is schema-valid), gr-L1-pii-detection (pass, no content to scan).\n• Blob storage locations: none — no artifact was produced or saved.\n• Gaps flagged: upstream L1-planning-impact-dependency-mapper must be re-run to a success status before this agent can proceed."
+  }
+}
