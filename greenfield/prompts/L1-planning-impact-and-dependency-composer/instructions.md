@@ -254,7 +254,7 @@ EXPECTED OUTPUT:
 
   agent_output Schema (see output_schema.json for full definitions):
   {
-    "readout_id": "artifact-<uuid>",
+    "L1_impact_dependency_md_id": "artifact-<uuid>",
     "product_name": "{product_name}",
     "source_artifacts": {
       "prd": "{prd_artifact_id} | null",
