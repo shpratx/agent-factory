@@ -1,0 +1,52 @@
+spec_version: "1.0"
+artifact_type: knowledge_base
+metadata:
+  name: kb-L1-regulatory-feasibility-evaluation-rubric
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+  content_hash: "sha256:15e6aaf0db69e8c77cda56f285e0d267bf134dd5ea9a8c02b1a3813d9d42c890"
+  last_reviewed: "2026-08-11"
+  review_cadence: quarterly
+
+purpose:
+  description: >
+    A static, non-domain rubric KB — a verbatim runtime mirror of
+    L1-vision-regulatory-feasibility-checker/evaluation.md (Quality Gates,
+    pass-threshold Scores table, Reflection Checklist, Reflection Process),
+    not a fact base. Scoped to a single checker/evaluator pair rather than
+    reusable across domains: unlike kb-L1-regulatory-frameworks-index or
+    kb-L2-domain-regulatory, it carries no regulatory facts and has no
+    independent update cadence of its own — it changes only when
+    evaluation.md changes, and exists purely so
+    L1-vision-regulatory-feasibility-checker-evaluator can retrieve it via
+    a runtime KB query instead of the rubric being duplicated into the
+    evaluator's own prompt.
+
+content:
+  format: markdown
+  documents:
+    - path: content/evaluation-rubric.md
+      sections: [quality-gates, scores, reflection-checklist, reflection-process]
+  total_tokens_estimate: 650
+  chunking: by-section   # one chunk per H2 section — matches the by-section pattern used by every other multi-section KB in this repo (whole-document is reserved for single-section KBs like kb-L1-regulatory-frameworks-index)
+  chunk_size_tokens:
+    quality-gates: 179
+    scores: 255
+    reflection-checklist: 87
+    reflection-process: 63
+  chunk_overlap_tokens: 0   # each section is a self-contained checklist/table/list — no cross-section continuity to preserve
+  semantic_boundary: "markdown H2 headers (##) — one chunk per heading in content/evaluation-rubric.md"
+  embedding_model: text-embedding-3-small
+
+grounding_rules:
+  accessed_by: [L1-vision-regulatory-feasibility-checker-evaluator]
+  visibility: "L1 — visible to all layers (L1/L2/L3/L4) per standard visibility rule"
+
+freshness:
+  trigger_for_update: "L1-vision-regulatory-feasibility-checker/evaluation.md changes — this KB is a runtime copy of that file, not a fork; keep both in sync"
+  note: >
+    L1-vision-regulatory-feasibility-checker/evaluation.md remains the
+    source of truth for this rubric. This KB exists so the evaluator can
+    query it at runtime; it must never be edited independently of that
+    source file.

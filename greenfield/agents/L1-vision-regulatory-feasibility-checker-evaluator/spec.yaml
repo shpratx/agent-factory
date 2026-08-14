@@ -38,7 +38,7 @@ contract:
 
 context:
   knowledge_bases:
-    - ref: "../L1-vision-regulatory-feasibility-checker/evaluation.md"
+    - kb-L1-regulatory-feasibility-evaluation-rubric   # runtime copy of L1-vision-regulatory-feasibility-checker/evaluation.md — see that KB's spec.yaml for source-of-truth note
     - kb-L1-regulatory-frameworks-index   # to independently sanity-check that a constraint's citation is a real, applicable regulation
   guardrails:
     - gr-L1-output-schema-validator

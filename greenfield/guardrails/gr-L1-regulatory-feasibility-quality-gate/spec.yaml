@@ -54,5 +54,10 @@ rules:
     action: flag
     severity: medium
 
+  - name: no-omitted-red-constraint
+    description: "No Red-severity constraint discussed in overall_status's rationale or another constraint's reasoning is missing from the resultant constraints[] array (evaluation.md Quality Gate #6 — the one gate marked BLOCKER)"
+    action: block
+    severity: critical
+
 evaluation:
   false_positive_threshold: 0.03

@@ -38,7 +38,7 @@ contract:
 
 context:
   knowledge_bases:
-    - ref: "../L1-vision-statement-generator/evaluation.md"
+    - kb-L1-vision-statement-evaluation-rubric   # runtime copy of L1-vision-statement-generator/evaluation.md — see that KB's spec.yaml for source-of-truth note
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection

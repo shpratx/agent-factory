@@ -1,0 +1,56 @@
+spec_version: "1.0"
+artifact_type: guardrail
+metadata:
+  name: gr-L1-citation-verifier
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+  implementation: colang
+
+purpose:
+  description: "Fires directly on L1-vision-regulatory-feasibility-checker's own output (not the evaluator). Validates that every constraint in output_schema.json's constraints[] carries a citation object whose source_reference and regulation are both populated with real, specific values — not a placeholder, not an empty object, not missing entirely. BLOCKER: a Red/Amber constraint with an ungrounded citation is a compliance claim with no traceable source, exactly the failure mode this agent exists to prevent."
+
+triggers_on:
+  - output   # output rail — fires on the generator's own response, before the evaluator ever sees it
+
+on_fail: block
+applies_to: configured_agents   # wired into L1-vision-regulatory-feasibility-checker/spec.yaml context.guardrails — not global
+
+rules:
+  - name: source-reference-present
+    description: "Every citation object's source_reference must be non-empty, non-null — the machine-readable pointer back to an attached KB chunk, document, or regulatory-db lookup (e.g. kb-L2-domain-regulatory#allergen-labelling). Primary pass/fail field; a populated regulation field does not compensate for a missing source_reference."
+    action: block
+    severity: critical
+
+  - name: regulation-specific-not-generic
+    description: "Every citation object's regulation must name a specific regulation, section, or standard (e.g. 'Regulation (EC) 852/2004 Art. 6') — not a vague placeholder like 'applicable regulations', 'relevant law', or 'comply with regulations', which counts as equivalent to missing."
+    action: block
+    severity: critical
+
+  - name: every-constraint-cited
+    description: "Every constraint in constraints[] requires a citation object per output_schema.json's Constraint.required — applies unconditionally, even if every constraint in the response is missing one (do not require one valid example before flagging the rest)."
+    action: block
+    severity: critical
+
+  - name: no-empty-citation-array
+    description: "A citations/citation array present but empty is a violation, not a pass — same as a missing citation object."
+    action: block
+    severity: high
+
+  - name: source-not-fabricated
+    description: "source_reference must plausibly resolve to a real, attached KB, document, or regulatory-db source — a KB name or document id that does not plausibly exist is a fabricated citation."
+    action: block
+    severity: critical
+
+  - name: no-self-assessment-shortcut
+    description: "Fields such as execution_summary, self_check, or a 'guardrails evaluated' note that assert citations are complete are claims by the agent under review, not evidence — this guardrail verifies the citation objects itself and disregards the response's own verdict."
+    action: block
+    severity: high
+
+  - name: sibling-field-does-not-substitute
+    description: "A populated, human-readable sibling field on the same constraint (e.g. rationale_summary, mitigation_summary, reasoning) that names a KB or regulation in prose does not satisfy source_reference or regulation on its own — only the citation object's own fields count."
+    action: block
+    severity: high
+
+evaluation:
+  false_positive_threshold: 0.03

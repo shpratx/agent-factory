@@ -45,7 +45,9 @@ context:
     - gr-L1-pii-detection
     - gr-L1-hallucination-check
     - gr-L1-consistency-check   # checks reconciliation: no upstream Amber/Red item silently dropped
-  tools: []   # no direct tool access — this agent produces an artifact only; publishing is L1-confluence-publisher's job
+  tools:
+    - tool-L1-azure-blob-reader      # reads idea-brief.md/market-analysis.md/regulatory-feasibility.md from blob storage
+    - tool-L1-azure-blob-writer      # writes vision.md to blob storage; publishing itself is still L1-confluence-publisher's job
 
 quality:
   evaluation_ref: "evaluation.md"

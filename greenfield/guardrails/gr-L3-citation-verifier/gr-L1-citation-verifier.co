@@ -1,0 +1,12 @@
+# gr-L1-citation-verifier — Prompt-Only Mode
+# Layer: L1
+# Triggers on: output
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Citation check failed — a claim with an empty or missing source_reference, a generic regulation placeholder, no citation object at all, an empty citation array, a fabricated source, or prose in a sibling field standing in for a real citation\", \"severity\": \"critical\", \"category\": \"citation\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Citation check failed — a claim with an empty or missing source_reference, a generic regulation placeholder, no citation object at all, an empty citation array, a fabricated source, or prose in a sibling field standing in for a real citation\", \"severity\": \"critical\", \"category\": \"citation\", \"rail\": \"output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Citation check failed — a claim with an empty or missing source_reference, a generic regulation placeholder, no citation object at all, an empty citation array, a fabricated source, or prose in a sibling field standing in for a real citation\", \"severity\": \"critical\", \"category\": \"citation\", \"rail\": \"output\"}"

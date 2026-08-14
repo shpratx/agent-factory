@@ -25,9 +25,11 @@ BOM's original 4-KB list conflated the two.
 ## What's here
 
 ```
-kb-L1-regulatory-frameworks-index/     L1, cross-domain regulator lookup
-kb-L2-domain-market/         L2, food market/competitor facts
-kb-L2-domain-regulatory/     L2, food safety/hygiene/labelling/cold-chain facts
+kb-L1-regulatory-frameworks-index/             L1, cross-domain regulator lookup
+kb-L2-domain-market/                 L2, food market/competitor facts
+kb-L2-domain-regulatory/             L2, food safety/hygiene/labelling/cold-chain facts
+kb-L1-regulatory-feasibility-evaluation-rubric/  L1, evaluator rubric (not domain knowledge — see note below)
+kb-L1-vision-statement-evaluation-rubric/        L1, evaluator rubric (not domain knowledge — see note below)
 ```
 
 Each follows the KB Spec Template from `02-agent-development-guide.html`
@@ -39,8 +41,26 @@ max 1 line per bullet, max 15 words, no explanations, numbers not words,
 each bullet annotated with the downstream section it feeds (e.g.
 `(→ Constraint: Cold Chain)`).
 
-All three are well under the ≤1.5K-token micro-KB budget (346 / 720 / 624
-estimated tokens respectively) — none needed further splitting.
+The first three are well under the ≤1.5K-token micro-KB budget (346 / 720 /
+624 estimated tokens respectively) — none needed further splitting.
+
+**On the rubric KBs:** `kb-L1-regulatory-feasibility-evaluation-rubric` and
+`kb-L1-vision-statement-evaluation-rubric` are a different category from
+the other three and don't affect the "3 KBs, not 4" reasoning above — that
+section is about the original BOM's *domain-fact* KB slots. These carry no
+domain facts; each is a runtime-queryable copy of an agent's own
+`evaluation.md`, consumed only by that agent's evaluator:
+
+| Rubric KB | Copy of | Consumed by |
+|---|---|---|
+| `kb-L1-regulatory-feasibility-evaluation-rubric` | `L1-vision-regulatory-feasibility-checker/evaluation.md` | `L1-vision-regulatory-feasibility-checker-evaluator` |
+| `kb-L1-vision-statement-evaluation-rubric` | `L1-vision-statement-generator/evaluation.md` | `L1-vision-statement-generator-evaluator` |
+
+The respective `evaluation.md` files remain the source of truth — these KBs
+must be kept in sync with them, never edited independently. Note this does
+not change the "no KB" verdict for `L1-vision-statement-generator` in the
+table above: the generator itself still retrieves no knowledge base; the
+rubric KB belongs to its evaluator.
 
 ## Freshness note
 

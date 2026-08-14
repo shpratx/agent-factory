@@ -1,9 +1,67 @@
 models:
   - type: main
     engine: openai
-    model: gpt-4.1
+    model: gpt-5.4
+
 
 rails:
   output:
     flows:
-      - check output regulatory feasibility quality gate
+      - self check output
+
+prompts:
+  - task: self_check_input
+    content: |
+      Your task is to check if the user input contains regulatory feasibility content that fails its quality gate.
+
+      User input: "{{ user_input }}"
+
+      Flag ONLY if the input contains issues such as:
+      1. Unmitigated risk: an Amber or Red constraint whose own mitigation_summary is null, empty, or a placeholder while requires_legal_review is not true — including when the mitigation appears only in reasoning, in a summary, or as a recommendation ("should adopt", "if the platform operates as X")
+      2. Vague citation: a regulation that is missing or generic ("applicable regulations", "relevant law") instead of a named act or section
+      3. Broken identifiers: CON-NN or OI-NN ids malformed, duplicated, or not sequential from 01
+      4. Dropped blocker: a Red constraint referenced in overall_status, in another constraint's reasoning, or in an open item but absent from the constraints list
+      5. Softened severity: a Green constraint whose own rationale describes an activity that is prohibited, or barred without a licence, registration, or approval not yet held
+      6. Unearned verdict: an overall_status that is hedged or conditional ("Red, but Amber if..."), more than one level less severe than the worst constraint, discounted while any Amber or Red constraint lacks a real mitigation_summary, or whose rationale names no CON id, constraint name, or regulation
+      7. Contradicted records: a summary or conclusion claiming a mitigation is in place for a constraint whose mitigation_summary is null, or claiming an overall status different from the recorded one
+      8. Lost structure: constraints given as narrative prose, without CON-NN ids and per-constraint fields
+
+      Flag issues 1, 4, and 7 even when the input reports the problem itself, marks itself failed, or says it is escalating — describing a violation does not remove it.
+
+      Do NOT flag:
+      - A Green constraint with no mitigation_summary, or an Amber or Red constraint carrying requires_legal_review true, however often that flag is used
+      - Short summaries, an empty open items list, or a low confidence value
+      - Scores, findings, fixes_applied, or a final_decision of escalate_to_hitl on their own
+      - Input with no regulatory feasibility content, or an INSUFFICIENT_CONTEXT envelope that produced no constraints
+
+      Answer "yes" if the input contains a regulatory feasibility quality gate failure (should be blocked).
+      Answer "no" if the input is safe (no quality gate failure found).
+      Reply with one word only.
+
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response contains regulatory feasibility content that fails its quality gate.
+
+      Bot response: "{{ bot_response }}"
+
+      Flag ONLY if the response contains issues such as:
+      1. Unmitigated risk: an Amber or Red constraint whose own mitigation_summary is null, empty, or a placeholder while requires_legal_review is not true — including when the mitigation appears only in reasoning, in a summary, or as a recommendation ("should adopt", "if the platform operates as X")
+      2. Vague citation: a regulation that is missing or generic ("applicable regulations", "relevant law") instead of a named act or section
+      3. Broken identifiers: CON-NN or OI-NN ids malformed, duplicated, or not sequential from 01
+      4. Dropped blocker: a Red constraint referenced in overall_status, in another constraint's reasoning, or in an open item but absent from the constraints list
+      5. Softened severity: a Green constraint whose own rationale describes an activity that is prohibited, or barred without a licence, registration, or approval not yet held
+      6. Unearned verdict: an overall_status that is hedged or conditional ("Red, but Amber if..."), more than one level less severe than the worst constraint, discounted while any Amber or Red constraint lacks a real mitigation_summary, or whose rationale names no CON id, constraint name, or regulation
+      7. Contradicted records: a summary or conclusion claiming a mitigation is in place for a constraint whose mitigation_summary is null, or claiming an overall status different from the recorded one
+      8. Lost structure: constraints given as narrative prose, without CON-NN ids and per-constraint fields
+
+      Flag issues 1, 4, and 7 even when the response reports the problem itself, marks itself failed, or says it is escalating — describing a violation does not remove it.
+
+      Do NOT flag:
+      - A Green constraint with no mitigation_summary, or an Amber or Red constraint carrying requires_legal_review true, however often that flag is used
+      - Short summaries, an empty open items list, or a low confidence value
+      - Scores, findings, fixes_applied, or a final_decision of escalate_to_hitl on their own
+      - A response with no regulatory feasibility content, or an INSUFFICIENT_CONTEXT envelope that produced no constraints
+
+      Answer "yes" if the response contains a regulatory feasibility quality gate failure (should be blocked).
+      Answer "no" if the response is safe (no quality gate failure found).
+      Reply with one word only.

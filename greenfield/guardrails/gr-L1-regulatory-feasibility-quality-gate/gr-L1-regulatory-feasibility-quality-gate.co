@@ -1,16 +1,12 @@
-# gr-L1-regulatory-feasibility-quality-gate — LLM-Driven Colang Implementation
-# Layer: L1 — fires at L1-vision-regulatory-feasibility-checker-evaluator's post_execution
-# Validates L1-vision-regulatory-feasibility-checker's RESULTANT output (not the evaluator's own bookkeeping)
-# Python actions preserved in actions.py for reference/hybrid mode
-# Zero-tolerance gate: a false negative here is a compliance risk, not a quality nuance.
+# gr-L1-regulatory-feasibility-quality-gate — Prompt-Only Mode
+# Layer: L1
+# Triggers on: input, output
 
-define flow check output regulatory feasibility quality gate
-  """LLM validates L1-vision-regulatory-feasibility-checker's resultant output against its own schema and zero-tolerance rubric."""
-  $result = execute self_check_output
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Regulatory feasibility content failed its quality gate — an unmitigated Amber or Red constraint, a mitigation present only in prose, a generic citation, a softened severity, an unearned overall status, or a blocker missing from the final list\", \"severity\": \"critical\", \"category\": \"regulatory-quality-gate\", \"rail\": \"input+output\"}"
 
-  if not $result
-    bot block regulatory feasibility quality gate violation
-    stop
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Regulatory feasibility content failed its quality gate — an unmitigated Amber or Red constraint, a mitigation present only in prose, a generic citation, a softened severity, an unearned overall status, or a blocker missing from the final list\", \"severity\": \"critical\", \"category\": \"regulatory-quality-gate\", \"rail\": \"input+output\"}"
 
-define bot block regulatory feasibility quality gate violation
-  "L1-vision-regulatory-feasibility-checker's resultant output (post-evaluation) failed its quality gate: schema violation, a generic citation, or an Amber/Red constraint still lacking a mitigation_summary or requires_legal_review flag. This is a zero-tolerance gate — the workflow cannot proceed to L1-vision-statement-generator with a non-conformant regulatory verdict. Retrying."
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Regulatory feasibility content failed its quality gate — an unmitigated Amber or Red constraint, a mitigation present only in prose, a generic citation, a softened severity, an unearned overall status, or a blocker missing from the final list\", \"severity\": \"critical\", \"category\": \"regulatory-quality-gate\", \"rail\": \"input+output\"}"

@@ -1,0 +1,72 @@
+models:
+  - type: main
+    engine: openai
+    model: gpt-5.4
+
+
+rails:
+  input:
+    flows:
+      - self check input
+  output:
+    flows:
+      - self check output
+
+prompts:
+  - task: self_check_input
+    content: |
+      Your task is to check if the user input contains claims that are missing required citations.
+
+      User input: "{{ user_input }}"
+
+      A citation object carries two required fields, both of which must be non-empty: "source_reference" — the machine-readable pointer back to an attached KB chunk, document, or regulatory-db lookup (e.g. "kb-L2-domain-regulatory#allergen-labelling") — and "regulation" — the specific named regulation, section, or standard (e.g. "Regulation (EC) 852/2004 Art. 6"). Citations may appear under any key or nesting ("citation", "citations", "metadata.citation", "items.constraints[].citation"), as a single object or an array. Check every occurrence and every item individually — never judge the input as a whole, and never assume the rest are fine because most are.
+
+      Flag ONLY if the input contains issues such as:
+      1. Missing source: a citation object whose source_reference (or an equivalent source pointer field such as source_id or source) is empty, missing, or null — regardless of how complete and legitimate the rest of that same citation object looks
+      2. Vague regulation: a citation object whose regulation is empty, missing, null, or a generic placeholder ("applicable regulations", "relevant law", "comply with regulations") instead of a named act or section
+      3. Uncited claim: a substantive claim or item carrying no citation object at all — unconditionally, even when not one item in the input has one
+      4. Empty citation array: a citation or citations array present but empty
+      5. Fabricated source: a source_reference naming a KB, document, or id that does not plausibly resolve to a real attached source
+      6. Substituted evidence: a citation field left empty while a sibling field on the same item (reasoning, rationale_summary, mitigation_summary, description, label, name) names a KB or regulation in prose — only the citation object's own fields count
+
+      Flag issues 1, 2, and 3 even when the input reports the problem itself, marks itself failed, or says it is escalating — describing a violation does not remove it. An execution_summary, self_check, or "guardrails evaluated" note asserting that citations are complete is a claim by the agent under review, not evidence.
+
+      Do NOT flag:
+      - A source_reference matching a KB, document, or source attached to this agent, even one unfamiliar to you
+      - Items that are not substantive claims — section headers, formatting elements, restated user questions
+      - A terse citation, a low confidence value, or a constraint that is simply Green
+      - Scores, findings, fixes_applied, or a final_decision of escalate_to_hitl on their own
+      - Input with no citable content, or an INSUFFICIENT_CONTEXT envelope that produced no constraints
+
+      Answer "yes" if the input contains a citation violation (should be blocked).
+      Answer "no" if the input is safe (every substantive claim carries a citation with both fields populated).
+      Reply with one word only.
+
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response contains claims that are missing required citations.
+
+      Bot response: "{{ bot_response }}"
+
+      A citation object carries two required fields, both of which must be non-empty: "source_reference" — the machine-readable pointer back to an attached KB chunk, document, or regulatory-db lookup (e.g. "kb-L2-domain-regulatory#allergen-labelling") — and "regulation" — the specific named regulation, section, or standard (e.g. "Regulation (EC) 852/2004 Art. 6"). Citations may appear under any key or nesting ("citation", "citations", "metadata.citation", "items.constraints[].citation"), as a single object or an array. Check every occurrence and every item individually — never judge the response as a whole, and never assume the rest are fine because most are.
+
+      Flag ONLY if the response contains issues such as:
+      1. Missing source: a citation object whose source_reference (or an equivalent source pointer field such as source_id or source) is empty, missing, or null — regardless of how complete and legitimate the rest of that same citation object looks
+      2. Vague regulation: a citation object whose regulation is empty, missing, null, or a generic placeholder ("applicable regulations", "relevant law", "comply with regulations") instead of a named act or section
+      3. Uncited claim: a substantive claim or item carrying no citation object at all — unconditionally, even when not one item in the response has one
+      4. Empty citation array: a citation or citations array present but empty
+      5. Fabricated source: a source_reference naming a KB, document, or id that does not plausibly resolve to a real attached source
+      6. Substituted evidence: a citation field left empty while a sibling field on the same item (reasoning, rationale_summary, mitigation_summary, description, label, name) names a KB or regulation in prose — only the citation object's own fields count
+
+      Flag issues 1, 2, and 3 even when the response reports the problem itself, marks itself failed, or says it is escalating — describing a violation does not remove it. An execution_summary, self_check, or "guardrails evaluated" note asserting that citations are complete is a claim by the agent under review, not evidence.
+
+      Do NOT flag:
+      - A source_reference matching a KB, document, or source attached to this agent, even one unfamiliar to you
+      - Items that are not substantive claims — section headers, formatting elements, restated user questions
+      - A terse citation, a low confidence value, or a constraint that is simply Green
+      - Scores, findings, fixes_applied, or a final_decision of escalate_to_hitl on their own
+      - A response with no citable content, or an INSUFFICIENT_CONTEXT envelope that produced no constraints
+
+      Answer "yes" if the response contains a citation violation (should be blocked).
+      Answer "no" if the response is safe (every substantive claim carries a citation with both fields populated).
+      Reply with one word only.
