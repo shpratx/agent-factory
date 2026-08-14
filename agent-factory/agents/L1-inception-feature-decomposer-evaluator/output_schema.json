@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-inception-epic-creator-output-v1.0",
+  "title": "Epic Creator Output",
+  "description": "Output schema for the epic creator agent. Converts an approved roadmap and vision into a grounded, deduplicated set of epics with full traceability.",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "content"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L1-inception-epic-creator-agent"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "input_summary": {
+      "type": "object",
+      "required": ["source", "parameters"],
+      "properties": {
+        "source": {"type": "string", "enum": ["agent_output", "direct_input", "file_upload"]},
+        "source_agent_id": {"type": ["string", "null"]},
+        "parameters": {"type": "object"}
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "execution_summary"],
+      "properties": {
+        "type": {"type": "string", "const": "epics"},
+        "schema_version": {"type": "string", "const": "1.0"},
+        "items": {"$ref": "#/$defs/Items"},
+        "execution_summary": {
+          "type": "string",
+          "minLength": 50,
+          "description": "Plain-text summary: epic count, roadmap coverage, dedupe results, grouping decisions, reflection findings"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Items": {
+      "type": "object",
+      "required": ["epics", "open_questions", "delivery_summary"],
+      "properties": {
+        "epics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/Epic"},
+          "description": "Business capability epics, grounded and deduplicated, ordered by dependency"
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Plain-language unresolved items — unmappable roadmap items, ambiguous grounding, unresolved dedupe matches"
+        },
+        "delivery_summary": {
+          "type": "string",
+          "minLength": 50,
+          "description": "Plain-text summary of the epic set and phase allocation"
+        }
+      }
+    },
+    "Epic": {
+      "type": "object",
+      "required": ["epic_id", "title", "description", "business_value", "priority", "target_phase", "source_refs", "dedupe_check", "metadata"],
+      "description": "A business capability epic. Must represent a business capability, NOT a technical layer.",
+      "properties": {
+        "epic_id": {"type": "string", "pattern": "^EPIC-\\d{2}$"},
+        "title": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Business capability title, <=10 words, verb-first — not a technical layer"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 30,
+          "description": "What this epic delivers and why, grounded in roadmap/vision content"
+        },
+        "business_value": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Must cite a specific vision value theme, not a generic statement"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["Must", "Should", "Could", "Won't"],
+          "description": "MoSCoW priority, derived from roadmap ordering"
+        },
+        "target_phase": {
+          "type": "string",
+          "description": "Roadmap phase/quarter this epic belongs to"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Grounding citations, e.g. ['roadmap:R-04','vision:V-02']"
+        },
+        "dedupe_check": {"$ref": "#/$defs/DedupeCheck"},
+        "metadata": {"$ref": "#/$defs/EpicMetadata"}
+      }
+    },
+    "DedupeCheck": {
+      "type": "object",
+      "required": ["checked", "matches"],
+      "properties": {
+        "checked": {"type": "boolean", "description": "Must be true on every execution, regardless of suspected overlap"},
+        "matches": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Existing tracker epic IDs found to be potential duplicates/overlaps"
+        }
+      }
+    },
+    "EpicMetadata": {
+      "type": "object",
+      "required": ["confidence", "reasoning"],
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "0.9+ for epics directly grounded in explicit roadmap/vision content. 0.7-0.9 for inferred groupings."
+        },
+        "reasoning": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Why this epic exists, why this scope, why this priority"
+        }
+      }
+    }
+  }
+}

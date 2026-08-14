@@ -1,0 +1,20 @@
+{
+  "epics": [
+    {
+      "id": "EP-01",
+      "title": "Customer Onboarding",
+      "description": "Enable a new retail customer to open an account by capturing identity information, uploading verification documents, and having them reviewed and approved by a compliance officer.",
+      "capability": "Digital account opening with KYC verification",
+      "acceptance_criteria": [
+        "Customer can submit identity details online",
+        "Customer can upload supporting documents",
+        "Compliance officer can review and approve or reject submissions",
+        "Customer receives status notifications throughout the process"
+      ],
+      "sprint_allocation": "Sprint 1",
+      "nfr_mapping": ["Data privacy (PII encryption)", "Availability 99.5%"]
+    }
+  ],
+  "max_features_per_epic": 4,
+  "target_sprint_length_weeks": 2
+}

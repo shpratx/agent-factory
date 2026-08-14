@@ -1,0 +1,34 @@
+{
+  "epics": [
+    {
+      "id": "EP-01",
+      "title": "Customer Onboarding",
+      "description": "Enable a new retail banking customer to open a current account entirely digitally: capture personal and identity details, upload KYC verification documents, route the application to a compliance officer for review, and keep the customer informed of status at every stage. Must support both individual and joint applicants.",
+      "capability": "Digital account opening with KYC verification",
+      "acceptance_criteria": [
+        "Customer can submit identity details online, including for a joint applicant",
+        "Customer can upload supporting documents (ID, proof of address)",
+        "Compliance officer can review, approve, or reject submissions with a reason code",
+        "Customer receives status notifications by email at each stage transition",
+        "Rejected applications can be resubmitted once with corrected information"
+      ],
+      "sprint_allocation": "Sprint 1",
+      "nfr_mapping": ["Data privacy (PII encryption at rest and in transit)", "Availability 99.5%", "Audit trail for all compliance decisions"]
+    },
+    {
+      "id": "EP-02",
+      "title": "Account Funding",
+      "description": "Once an account is approved, allow the customer to fund it via bank transfer or debit card, and view their starting balance.",
+      "capability": "Initial account funding",
+      "acceptance_criteria": [
+        "Customer can initiate a funding transfer from an external bank account",
+        "Customer can fund via debit card with real-time confirmation",
+        "Customer can view current balance after funding completes"
+      ],
+      "sprint_allocation": "Sprint 2",
+      "nfr_mapping": ["PCI-DSS compliance for card payments", "Availability 99.9%"]
+    }
+  ],
+  "max_features_per_epic": 5,
+  "target_sprint_length_weeks": 2
+}

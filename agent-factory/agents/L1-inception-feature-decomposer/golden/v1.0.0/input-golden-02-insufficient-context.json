@@ -1,0 +1,13 @@
+{
+  "epics": [
+    {
+      "id": "EP-99",
+      "title": "asdf",
+      "description": "tbd",
+      "capability": "",
+      "acceptance_criteria": []
+    }
+  ],
+  "max_features_per_epic": 6,
+  "target_sprint_length_weeks": 2
+}

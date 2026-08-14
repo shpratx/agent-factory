@@ -1,0 +1,93 @@
+{
+  "output": {
+    "type": "features",
+    "schema_version": "1.0",
+    "items": {
+      "features": [
+        {
+          "id": "F-01.1",
+          "epic_id": "EP-01",
+          "title": "Identity capture form",
+          "description": "Web form allowing a new customer to enter personal and identity details required to begin account opening.",
+          "acceptance_criteria": [
+            "Customer can enter name, date of birth, address, and government ID number",
+            "Form validates required fields before submission",
+            "Submitted data is persisted and linked to a new application record"
+          ],
+          "nfr_mapping": ["Data privacy (PII encryption)"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.95,
+            "reasoning": "Directly derived from acceptance criterion 'Customer can submit identity details online'.",
+            "citation": "EP-01: 'Customer can submit identity details online'",
+            "trajectory": "Stable once launched; may later add address auto-complete."
+          }
+        },
+        {
+          "id": "F-01.2",
+          "epic_id": "EP-01",
+          "title": "Document upload & validation",
+          "description": "Allows the customer to upload verification documents (ID scan, proof of address) with basic format and size validation.",
+          "acceptance_criteria": [
+            "Customer can upload one or more documents",
+            "System validates file type and size before accepting upload",
+            "Uploaded documents are linked to the customer's application"
+          ],
+          "nfr_mapping": ["Data privacy (PII encryption)", "Availability 99.5%"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.95,
+            "reasoning": "Directly derived from acceptance criterion 'Customer can upload supporting documents'.",
+            "citation": "EP-01: 'Customer can upload supporting documents'",
+            "trajectory": "May be extended with OCR-assisted validation in a later release."
+          }
+        },
+        {
+          "id": "F-01.3",
+          "epic_id": "EP-01",
+          "title": "Compliance review workflow",
+          "description": "Gives a compliance officer a queue of submitted applications to review, approve, or reject.",
+          "acceptance_criteria": [
+            "Compliance officer can view a queue of pending applications",
+            "Officer can approve or reject an application with a reason",
+            "Decision is recorded against the application record"
+          ],
+          "nfr_mapping": ["Availability 99.5%"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.9,
+            "reasoning": "Directly derived from acceptance criterion 'Compliance officer can review and approve or reject submissions'.",
+            "citation": "EP-01: 'Compliance officer can review and approve or reject submissions'",
+            "trajectory": "Stable; potential future addition of automated risk scoring."
+          }
+        },
+        {
+          "id": "F-01.4",
+          "epic_id": "EP-01",
+          "title": "Application status notifications",
+          "description": "Notifies the customer by email/SMS as their application moves through submission, review, and decision states.",
+          "acceptance_criteria": [
+            "Customer receives a notification on submission",
+            "Customer receives a notification on approval or rejection",
+            "Notification includes next steps if rejected"
+          ],
+          "nfr_mapping": ["Availability 99.5%"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.85,
+            "reasoning": "Derived from acceptance criterion 'Customer receives status notifications throughout the process'; channel details inferred as standard email/SMS.",
+            "citation": "EP-01: 'Customer receives status notifications throughout the process'",
+            "trajectory": "May expand to in-app notifications later."
+          }
+        }
+      ]
+    },
+    "traceability_matrix": [
+      {
+        "epic_id": "EP-01",
+        "feature_ids": ["F-01.1", "F-01.2", "F-01.3", "F-01.4"]
+      }
+    ],
+    "execution_summary": "• Produced 4 features from 1 epic (EP-01 Customer Onboarding).\n• Each feature maps to a distinct acceptance criterion in the source epic.\n• All features sized for Sprint 1 within the 2-week target sprint length.\n• Reflection found no gaps; feature count (4) at max_features_per_epic cap.\n• No issues flagged."
+  }
+}

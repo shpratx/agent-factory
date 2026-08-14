@@ -1,0 +1,66 @@
+# Agent Specification Document
+spec_version: "1.0"
+artifact_type: agent
+metadata:
+  name: L1-inception-epic-creator
+  version: "1.0.0"
+  layer: L1
+  phase: inception
+  owner: agentic-ai-coe
+  created: 2026-07-30
+
+purpose:
+  description: "Converts the approved PRD, impact assessment, and dependency graph into a verifiable, dependency-ordered set of business-capability epics"
+  input: "prd.md (from L1-requirements-prd-composer), impact-assessment.md (from L1-planning-impact-assessor), and dependency_graph.json (from L1-planning-dependency-mapper)"
+  output: "Epics with full PRD-requirement traceability, dependency-based sequencing, and impact-assessment grounding"
+  business_value: "Transforms approved Phase 1 planning artifacts into a plannable, dependency-ordered epic backlog that the Feature Decomposer can break down further"
+
+prompt:
+  ref: "prompts/L1-inception-epic-creator/instructions.md"
+  version: "1.0.0"
+  description: "Generates dependency-ordered, PRD-grounded epics with explicit citation and self-check reflection"
+
+contract:
+  input_schema: "$ref: schemas/agent-input-contract-schema.json"
+  output_schema: "$ref: schemas/agent-output-schema.json"
+
+  input:
+    accepts_from_agents: [L1-requirements-prd-composer, L1-planning-impact-assessor, L1-planning-dependency-mapper]
+    accepts_direct_input: true
+    accepts_file_upload:
+      enabled: true
+      formats: [".md", ".json"]
+    required_parameters:
+      prd: {type: object, description: "prd.md content — full FR-NNN/NFR set, plus carried-forward vision themes from Assumptions/Constraints/Risks"}
+      impact_assessment: {type: object, description: "impact-assessment.md content — affected systems/services, blast-radius ratings, risk flags per requirement or capability area"}
+      dependency_graph: {type: object, description: "dependency_graph.json content — nodes (proposed epics/services/integrations) and edges (dependency ordering) among them"}
+    optional_parameters:
+      folder_name: {type: string, description: "Blob storage folder used by the attached reader/writer tool, if attached; supplied by the user at runtime"}
+
+  output:
+    $ref: "output_schema.json"
+
+context:
+  tools:
+    - tool-L1-blob-storage-reader    # Retrieves prd.md, impact-assessment.md, dependency_graph.json when Tool Call source is used
+    - tool-L1-blob-storage-writer    # Saves the completed epic set as L1-epics.json; blob_storage_url is captured in output
+  guardrails:
+    - gr-L1-schema-validator
+    - gr-L1-pii-detection
+    - gr-L1-hallucination-check
+
+quality:
+  evaluation_ref: "Self-check / Reflection section in instructions.md"
+  min_score: 7.0
+  hallucination_check: true
+  consistency_check: true
+
+verification:
+  method: "downstream automated evaluator"
+  evaluator: L1-inception-epic-creator-evaluator
+  note: "Independently re-derives PRD coverage and dependency-graph ordering, and can apply mechanically-recoverable fixes, before L1-inception-feature-decomposer is authorized to run against this epic set."
+
+versioning:
+  input_version: "1.0"
+  output_version: "1.0"
+  instruction_hash: "sha256:pending"

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-factory/schemas/L1-inception-feature-decomposer/output_schema.json",
+  "title": "L1-inception-feature-decomposer Output",
+  "type": "object",
+  "required": ["output"],
+  "properties": {
+    "output": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "traceability_matrix", "execution_summary"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "features"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "items": {
+          "type": "object",
+          "required": ["features"],
+          "properties": {
+            "features": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/Feature" }
+            }
+          }
+        },
+        "traceability_matrix": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TraceabilityEntry" }
+        },
+        "gaps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Gap" }
+        },
+        "execution_summary": {
+          "type": "string",
+          "description": "Plain text bullet-point summary of what was produced, decisions made, and reflection results. Must NOT be a JSON object."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ItemMetadata": {
+      "type": "object",
+      "description": "Standard confidence/reasoning/citation/trajectory wrapper attached to every generated item.",
+      "required": ["confidence", "reasoning", "citation"],
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Self-assessed confidence: 0.9+ explicit in source, 0.7-0.8 inferred, <0.7 uncertain."
+        },
+        "reasoning": {
+          "type": "string",
+          "description": "Explanation of the decomposition logic used to derive this feature."
+        },
+        "citation": {
+          "type": "string",
+          "description": "Exact source epic id or phrase this feature was derived from."
+        },
+        "trajectory": {
+          "type": "string",
+          "description": "Optional note on how this feature is expected to evolve across sprints."
+        }
+      }
+    },
+    "Feature": {
+      "type": "object",
+      "required": ["id", "epic_id", "title", "description", "acceptance_criteria", "metadata"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^F-\\d{2}\\.\\d+$",
+          "description": "Feature ID in F-{epic}.{seq} format, e.g. F-01.1"
+        },
+        "epic_id": {
+          "type": "string",
+          "pattern": "^EP-\\d{2}$",
+          "description": "ID of the parent epic this feature was decomposed from"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short human-readable feature name"
+        },
+        "description": {
+          "type": "string",
+          "description": "What the feature delivers and to whom"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Criteria derived from and consistent with the parent epic's acceptance criteria"
+        },
+        "nfr_mapping": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Non-functional requirements inherited or refined from the parent epic"
+        },
+        "sprint_hint": {
+          "type": "string",
+          "description": "Guidance on which sprint this feature best fits, based on target_sprint_length_weeks"
+        },
+        "metadata": { "$ref": "#/$defs/ItemMetadata" }
+      }
+    },
+    "TraceabilityEntry": {
+      "type": "object",
+      "required": ["epic_id", "feature_ids"],
+      "properties": {
+        "epic_id": {
+          "type": "string",
+          "pattern": "^EP-\\d{2}$"
+        },
+        "feature_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^F-\\d{2}\\.\\d+$"
+          }
+        }
+      }
+    },
+    "Gap": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string" },
+        "related_epic_id": { "type": ["string", "null"] },
+        "suggested_question": { "type": "string" }
+      }
+    }
+  }
+}
