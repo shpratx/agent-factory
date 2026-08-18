@@ -29,14 +29,13 @@ class AWSSecretReaderPodIdentity(BaseTool):
     # SETUP-REQUIRED: must match the secret name created in your AWS Secrets Manager
     SECRET_NAME: str = "aava-secret-manager-confluence-credentials"
 
-    # SETUP-REQUIRED: AWS region where that secret lives (us-east-1 or us-east-2 depending on deployment)
-    region_name = "us-east-1"
-
 
     def _run(self) -> Dict[str, Any]:
         try:
 
-            client = boto3.client('secretsmanager', region_name=self.region_name)
+            # SETUP-REQUIRED: AWS region where that secret lives (us-east-1 or us-east-2 depending on deployment)
+
+            client = boto3.client('secretsmanager', region_name='us-east-1')
             get_secret_value_response = client.get_secret_value(SecretId=self.SECRET_NAME)
             secret_string = get_secret_value_response.get('SecretString', '{}')
             secret_dict = json.loads(secret_string)
