@@ -10,9 +10,9 @@ metadata:
   created: "2026-08-02"
 
 purpose:
-  description: "Produces a competitor matrix and SWOT analysis for a proposed idea."
+  description: "Produces a five-dimension market analysis for a proposed idea: competitive intelligence (competitor matrix), market sizing (TAM/SAM/SOM), industry trends, customer insights, and pricing benchmarks, plus a SWOT synthesis."
   input: "idea-brief.md items (problem statement, target users) from L1-vision-idea-intake."
-  output: "market-analysis.md artifact plus structured competitor/SWOT items."
+  output: "Structured competitor/market-sizing/industry-trends/customer-insights/pricing-benchmarks/SWOT items only — no separate document; items carry the full analysis directly."
   business_value: "No idea should reach a funding decision without knowing who else already solves this problem — this agent makes that check mandatory and consistent rather than ad hoc."
 
 prompt:
@@ -47,7 +47,7 @@ context:
     - gr-L1-hallucination-check
     - gr-L1-citation-verifier   # BLOCKER — every competitor claim must cite a source
   tools:
-    - tool-L1-web-search-competitor-scan   # read-only; invoked directly, per the Core/Utility split
+    - tool-L1-web-search-competitor-scan   # read-only; invoked directly, per the Core/Utility split. Used for market research broadly — sizing, trends, pricing benchmarks, and customer insights — not competitor-scanning alone; name is legacy and unchanged to avoid rippling across the BOM/catalog/workflow
 
 quality:
   evaluation_ref: "evaluation.md"

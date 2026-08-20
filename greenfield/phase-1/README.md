@@ -2,14 +2,23 @@
 
 Continues the HarvestLink scenario from `../phase-0/`. `vision.md`'s recorded
 Product Lead approval (2026-08-04) is the entry point — `L1-requirements-elicitor`
-refuses to run without it, and `requirements.md` below quotes that exact
-approval comment as a consumed input.
+refuses to run without it, and consumes that exact approval comment directly
+as its own `approval_comment` input parameter (carried forward to
+`L1-requirements-prd-composer` the same way, 2026-08-07).
 
-Four artifacts are markdown (`templates/*.template.md`, annotated with
-placeholders); `dependency-graph.json` is JSON, so its "template" is the JSON
-Schema it must validate against (`templates/dependency-graph.template.json`),
-consistent with how `output_schema.json` works everywhere else in this
-framework — a prose template with `{{placeholders}}` doesn't make sense for a
+**Update 2026-08-07:** `requirements.md` and `nfr-spec.md` are dropped as
+saved documents — the elicitor's and classifier's full content lives only
+under `items` in their own `agent_output`, same treatment as
+`idea-brief.md`/`market-analysis.md`/`regulatory-feasibility.md` in Phase 0.
+The `templates/requirements.template.md`, `templates/nfr-spec.template.md`,
+and their worked `examples/*.md` files below remain on disk as historical
+reference (same precedent as Phase 0's own orphaned templates) but are no
+longer produced or fetched by any agent. Two markdown artifacts remain real
+documents (`templates/prd.template.md`, `templates/impact-assessment.template.md`);
+`dependency-graph.json` is JSON, so its "template" is the JSON Schema it must
+validate against (`templates/dependency-graph.template.json`), consistent
+with how `output_schema.json` works everywhere else in this framework — a
+prose template with `{{placeholders}}` doesn't make sense for a
 machine-consumed graph.
 
 ```
@@ -24,7 +33,8 @@ requirements.md          (L1-requirements-elicitor)
 nfr-spec.md               (L1-requirements-nfr-classifier)
       │  one section per FR-NNN, same ids and order as requirements.md
       │  — every boundary condition either traces to an explicit number in
-      │    vision.md/regulatory-feasibility.md, or is honestly marked TBD
+      │    vision.md (including its Regulatory Posture section), or is
+      │    honestly marked TBD
       ▼
 prd.md                     (L1-requirements-prd-composer)
       │  composes requirements.md + nfr-spec.md into one document — every
@@ -68,17 +78,20 @@ dependency-graph.json     (L1-planning-dependency-mapper)  ← FINAL OUTCOME
      hop, same as before this update.
 ```
 
-Note: `impact-assessor` and `dependency-mapper` consume `prd.md`, not
-`requirements.md`/`nfr-spec.md` directly — those two documents still exist
-as the elicitor's and classifier's own atomic outputs (and Phase 3's
-`story-generator` still reads `requirements.md` directly), but Phase 1's own
-downstream steps read the composed PRD as their single source of truth.
+Note: `impact-assessor` and `dependency-mapper` consume `prd.md`, not the
+elicitor's/classifier's items directly — those two agents' items are read
+directly by other consumers instead (Phase 3's `story-generator` and
+Phase 4's `design-api-spec`/`design-hld`/`design-data-architect` all read
+`agent_output` from `L1-requirements-elicitor`/`L1-requirements-nfr-classifier`
+directly, per the workflow YAML), but Phase 1's own downstream steps read
+the composed PRD as their single source of truth.
 
 **What to check when validating a real agent's output against these examples:**
-- Same `workflow_execution_id` across all five Phase 1 artifacts
+- Same `workflow_execution_id` across all five Phase 1 outputs
   (`wf-6d3f8b04` here) — different from Phase 0's, since each phase is its own
   workflow execution.
-- Every `FR-NNN` in `requirements.md` reappears in `nfr-spec.md` (same id),
+- Every `FR-NNN` in the elicitor's `functional_requirements` items reappears
+  in the classifier's `nfr_classifications` items (same id),
   `prd.md` (composed, with its NFR table attached), `impact-assessment.md`
   (mapped to a component), and `dependency-graph.json` (in some node's
   `source_requirement` array). A requirement that vanishes partway through

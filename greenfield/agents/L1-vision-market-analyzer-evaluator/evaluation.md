@@ -4,10 +4,11 @@ This covers THIS evaluator's own meta-quality — not L1-vision-market-analyzer'
 rubric (loaded at runtime from `../L1-vision-market-analyzer/evaluation.md`).
 
 ## Quality Gates
-- [ ] Citation check was exhaustive (100% of competitor_matrix entries), not sampled
+- [ ] Citation check was exhaustive (100% of competitor_matrix, market_sizing tam/sam/som, industry_trends, customer_insights, and pricing_benchmarks entries), not sampled
 - [ ] No fabricated citation was added to "fix" an uncited claim — that path always escalates
 - [ ] Every SWOT finding checks the reasoning field's specificity, not just its presence
-- [ ] A legitimate data_sufficiency: "insufficient" verdict is evaluated for honesty, not treated as an automatic defect
+- [ ] Every market_sizing, industry_trends, customer_insights, and pricing_benchmarks finding checks the reasoning field's specificity, same treatment as SWOT/competitor_matrix
+- [ ] A legitimate data_sufficiency: "insufficient" verdict is evaluated for honesty, not treated as an automatic defect — including a per-dimension "thin" note, not just an overall status
 
 ## Scores (≥ threshold to pass)
 | Evaluator | ≥ | Checks |

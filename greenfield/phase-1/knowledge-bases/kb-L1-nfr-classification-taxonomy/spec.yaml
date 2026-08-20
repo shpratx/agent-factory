@@ -16,8 +16,8 @@ purpose:
     compliance, usability): what question to ask per category and what
     FORM a boundary condition should take. Used by
     L1-requirements-nfr-classifier as the first lookup, regardless of which
-    vertical it's deployed into, before checking requirements.md/vision.md/
-    regulatory-feasibility.md for the actual grounded values. This KB never
+    vertical it's deployed into, before checking requirements.md or vision.md
+    (including its Regulatory Posture section) for the actual grounded values. This KB never
     supplies a number, threshold, or regulation citation itself — asserting
     one without a grounded source is exactly the fabrication
     nfr-spec.template.md's zero-tolerance rule exists to prevent. Same

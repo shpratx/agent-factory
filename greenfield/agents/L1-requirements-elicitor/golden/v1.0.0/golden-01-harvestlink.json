@@ -23,9 +23,6 @@
         { "source_clause_summary": "Pilot launch with a capped cohort AND transaction limits scaled to completeness — vision.md Roadmap Phase 3", "split_into": ["FR-007", "FR-005"] }
       ]
     },
-    "artifacts": [
-      { "id": "artifact-9f2c7a11", "type": "document", "name": "requirements.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-9a41d0e2/requirements.md" }, "description": "Structured functional requirements for HarvestLink, traced to vision.md", "produced_by": "L1-requirements-elicitor" }
-    ],
     "execution_summary": "• Produced 9 functional requirements (FR-001–FR-009).\n• Key decision: Roadmap Phase 3's compound clause split into FR-007 (cohort cap) and FR-005 (completeness-scaled limits) — independently testable, a system could satisfy one without the other.\n• Reflection: confirmed every FR singular (no remaining 'and'/'or'), every FR traces to a real vision.md section, no unqualified vague term found, IDs sequential.\n• Knowledge bases consulted: kb-L1-requirements-quality-standard — vague-term scan and compound-clause scan both run against every FR.\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass), gr-L1-hallucination-check (pass), gr-L1-consistency-check (pass).\n• Tools invoked: none — approval_comment was passed inline, no Confluence fetch needed.\n• Gaps flagged: none — every vision.md section produced at least one FR."
   }
 }

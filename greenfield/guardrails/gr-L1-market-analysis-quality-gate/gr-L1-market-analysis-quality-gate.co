@@ -4,7 +4,9 @@
 # Python actions preserved in actions.py for reference/hybrid mode
 
 define flow check output market analysis quality gate
-  """LLM validates L1-vision-market-analyzer's resultant output against its own schema and evaluation.md rubric."""
+  """LLM validates L1-vision-market-analyzer's resultant output — across all five dimensions
+  (competitor_matrix, market_sizing, industry_trends, customer_insights, pricing_benchmarks,
+  swot) — against its own schema and evaluation.md rubric."""
   $result = execute self_check_output
 
   if not $result
@@ -12,4 +14,4 @@ define flow check output market analysis quality gate
     stop
 
 define bot block market analysis quality gate violation
-  "L1-vision-market-analyzer's resultant output (post-evaluation) failed its quality gate: schema violation or incomplete citation coverage in L1-vision-market-analyzer/evaluation.md's rubric. The workflow cannot proceed to L1-vision-statement-generator with non-conformant content. Retrying."
+  "L1-vision-market-analyzer's resultant output (post-evaluation) failed its quality gate: schema violation, incomplete citation coverage across competitor/market-sizing/industry-trends/customer-insights/pricing-benchmarks entries, or a fabricated figure, per L1-vision-market-analyzer/evaluation.md's rubric. The workflow cannot proceed to L1-vision-statement-generator with non-conformant content. Retrying."

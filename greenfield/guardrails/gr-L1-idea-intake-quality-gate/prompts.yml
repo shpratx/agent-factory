@@ -12,9 +12,9 @@ prompts:
       and L1-vision-idea-intake/evaluation.md:
 
       1. Schema compliance: does the resultant problem_statement and
-         value_proposition each have summary (<=100 chars), confidence,
+         value_proposition each have statement, confidence,
          reasoning, traced_to? Does every target_users[] entry have id,
-         summary (<=100 chars), confidence, reasoning, traced_to? Does every
+         statement, confidence, reasoning, traced_to? Does every
          candidate_success_metrics[] entry have id, metric, status
          (stated|suggested), confidence, reasoning? Does every
          open_questions[] entry have id, question, reasoning?

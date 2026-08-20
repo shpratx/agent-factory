@@ -4,7 +4,9 @@
 # Deterministic checks via actions.py + LLM for semantic checks
 
 define flow check output market analysis quality gate
-  """Deterministic schema/rubric check on the resultant content, then LLM semantic check."""
+  """Deterministic schema/rubric check (across all five dimensions: competitor_matrix,
+  market_sizing, industry_trends, customer_insights, pricing_benchmarks, swot) on the
+  resultant content, then LLM semantic check."""
   $has_issues = execute check_market_analysis_quality_gate(output=$bot_message, generator_output=$generator_output)
 
   if $has_issues
@@ -18,4 +20,4 @@ define flow check output market analysis quality gate
     stop
 
 define bot block market analysis quality gate violation
-  "L1-vision-market-analyzer's resultant output (post-evaluation) failed its quality gate: schema violation or incomplete citation coverage in L1-vision-market-analyzer/evaluation.md's rubric. The workflow cannot proceed to L1-vision-statement-generator with non-conformant content. Retrying."
+  "L1-vision-market-analyzer's resultant output (post-evaluation) failed its quality gate: schema violation, incomplete citation coverage across competitor/market-sizing/industry-trends/customer-insights/pricing-benchmarks entries, or a fabricated figure, per L1-vision-market-analyzer/evaluation.md's rubric. The workflow cannot proceed to L1-vision-statement-generator with non-conformant content. Retrying."

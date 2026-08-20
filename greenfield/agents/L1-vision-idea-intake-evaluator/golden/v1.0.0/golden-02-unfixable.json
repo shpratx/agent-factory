@@ -19,7 +19,7 @@
       "overall_score": 5.4,
       "pass": false,
       "findings": [
-        { "id": "FND-01", "gate": "Quality Gates — traced_to is a real excerpt", "status": "fail", "detail": "TU-03 ('Government food-safety regulators seeking a centralized national compliance dashboard') has a traced_to quote — 'regulators want a centralized dashboard to monitor all producer compliance nationwide' — that does not appear anywhere in the fetched source page. The source names producers and foodservice buyers as target users; it says nothing about regulators wanting a dashboard. This is a fabricated item, not a grounded extraction." },
+        { "id": "FND-01", "gate": "Quality Gates — traced_to is a real excerpt", "status": "fail", "detail": "TU-03 ('Government food-safety regulators who want a centralized national dashboard to monitor all producer compliance nationwide') has a traced_to quote — 'regulators want a centralized dashboard to monitor all producer compliance nationwide' — that does not appear anywhere in the fetched source page. The source names producers and foodservice buyers as target users; it says nothing about regulators wanting a dashboard. This is a fabricated item, not a grounded extraction." },
         { "id": "FND-02", "gate": "Quality Gates — all required fields present", "status": "pass", "detail": "All other required fields present and correctly formed." }
       ],
       "fixes_applied": [],

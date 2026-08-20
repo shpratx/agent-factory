@@ -12,7 +12,7 @@ metadata:
 purpose:
   description: "Classifies regulatory feasibility (licensing, compliance regimes) for a proposed idea as Green/Amber/Red per constraint, with citation and mitigation."
   input: "idea-brief.md items (problem statement, target geography/product category) from L1-vision-idea-intake."
-  output: "regulatory-feasibility.md artifact plus structured constraint items."
+  output: "Structured constraint items only — no separate document; items carry the full rationale and mitigation directly."
   business_value: "A viable-looking idea can be dead on arrival for regulatory reasons — this must surface before roadmap commitment, not after. Zero tolerance for omitting a Red-classified constraint: a false negative here is a compliance risk, not a quality nuance."
 
 prompt:

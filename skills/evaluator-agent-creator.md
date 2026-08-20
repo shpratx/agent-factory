@@ -129,9 +129,9 @@ INSTRUCTIONS:
   4. For each failure: record finding (category, description)
   5. Apply fix for each finding (grounded only — no hallucinated content)
   6. Determine verdict: pass (all scores ≥ threshold) or fail
-  7. If fixes applied: re-upload corrected content
-     - Tool: tool-L1-azure-blob-writer
-     - folder_name = <workflow_execution_id>/{artifact-folder}
+  7. If fixes applied: re-upload corrected content to the SAME location
+     - Tool: whichever storage-write tool is attached to this evaluator (e.g. tool-L1-azure-blob-writer, tool-L1-github-writer) — never hard-code a specific platform's tool name if a different one is actually in context.tools
+     - folder_name = <workflow_execution_id>/{artifact-folder} — NEVER <execution_id>; every agent in the same workflow run shares this one folder, so the fix lands where the generator's own artifact already is
      - file_name = {artifact-filename}
      - content = corrected content VERBATIM
   8. Return evaluation output

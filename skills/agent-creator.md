@@ -184,7 +184,7 @@ INSTRUCTIONS:
   - Source: {direct_input | agent_output | file_upload}
   - Extract: {what to extract from the input}
   - Validate: {validation rules — reject if invalid}
-  - workflow_execution_id: inherit from upstream agent's output (input.workflow_execution_id); if absent or source is direct_input, generate a new one. Format: `wf-<uuid>`
+  - workflow_execution_id: inherit from upstream agent's output (input.workflow_execution_id); if absent or source is direct_input, generate a new one. Format: `wf-<uuid>`. Any document this agent saves to blob/object storage is written into a folder keyed by THIS id — never the agent's own `execution_id` — so every agent in the same workflow run lands in one shared folder.
 
   Processing Rules:
   1. {step 1}
@@ -220,10 +220,16 @@ INSTRUCTIONS:
   - Citations: Primary output items must cite the exact source phrase or ID.
   - Reasoning: Every item must explain the decision logic.
   - Validation: Self-check IDs, required fields, enums, and counts.
-  - Reflection (basic self-check before delivery):
+  - Reflection (basic self-check before delivery — light-touch, not the evaluator's job):
     1. All required sections/items present
     2. No placeholder text or vague language
     3. IDs sequential and no duplicates
+    Fix anything this check finds — silently, before delivery. This stays a
+    cheap, mechanical pass (completeness/format), never a faithfulness,
+    hallucination, or consistency judgment call, and never an independent
+    re-derivation of a computed result (e.g. re-running a graph traversal).
+    That depth of checking belongs ONLY to the paired evaluator agent (S6) —
+    see "Core vs. Evaluator Depth" in Key Patterns below.
     Do NOT print interim output or reflection logs.
     If a separate evaluator agent exists downstream, detailed evaluation is delegated there.
 
@@ -269,7 +275,7 @@ designing `items` for a document-producing agent:
       "type": "{type}",
       "schema_version": "1.0",
       "items": { ... },   // meta-point summaries ONLY — see pattern below
-      "artifacts": [ { "id": "artifact-<uuid>", "type": "document", "name": "{doc-name}.md", "format": "markdown", "storage": { "provider": "s3", "location": "<s3-url>" }, "description": "...", "produced_by": "{agent-name}" } ],
+      "artifacts": [ { "id": "artifact-<uuid>", "type": "document", "name": "{doc-name}.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://<bucket>/{workflow_execution_id}/{doc-name}.md" }, "description": "...", "produced_by": "{agent-name}" } ],
       "execution_summary": "• plain text bullets"
     }
 ```
@@ -288,6 +294,7 @@ combining several upstream analyses). This is a deliberate exception to
   `schemas/agent-output-schema.json`'s actual enum (`s3 | local |
   confluence | github | jira_attachment`) rather than inventing a literal
   like `"blob"`, which is not a valid value.
+- **The save is performed by the tool actually attached to this agent, into a `workflow_execution_id`-keyed folder.** Name the tool explicitly in Processing Rules — e.g. "save via `tool-L1-azure-blob-writer`" or "via `tool-L1-github-writer`" — never a vague "save to blob storage." The folder is `{workflow_execution_id}/`, not the agent's own `execution_id`: every agent invoked within one workflow run shares that single folder, so an evaluator (or any other agent) retrieving `generator_output.content.artifacts[0].storage.location` always knows exactly where every artifact from that run lives, without tracking a different folder per agent.
 - **Items = meta points, never a copy of the document.** In the agent's
   own `output_schema.json`, every narrative field (a problem statement, a
   rationale, a description) becomes a `summary`/`*_summary` string with a
@@ -448,6 +455,26 @@ Golden responses MUST be:
     only; the full narrative lives in the artifact, saved via
     `storage.provider: "s3"` (never `"blob"` — check the schema's actual
     enum). See "Items + Artifacts: The Meta-Points Pattern" above.
+18. **Core vs. Evaluator Depth is a hard boundary, not a suggestion** —
+    confirmed building the Phase 0/1 agent pairs. The generator's Reflection
+    is a light, mechanical self-check (complete? no placeholders? IDs
+    valid?) that fixes what it finds and stops there. Faithfulness/
+    hallucination/consistency scoring, independent re-derivation of any
+    computed result (re-running a graph traversal, re-checking a CMDB/KB
+    cross-reference), and cross-source mismatch-flagging belong ONLY to the
+    paired evaluator agent (S6). Never let the generator's own Reflection
+    grow into that depth, and never let the evaluator trust the generator's
+    self-check instead of independently re-deriving the result itself.
+19. **Every artifact save is keyed by `workflow_execution_id`, via the tool
+    actually attached to the agent** — confirmed building the Phase 1
+    quality gates. The folder a document is saved into is
+    `{workflow_execution_id}/`, never the agent's own `execution_id` — every
+    agent in one workflow run shares that one folder, so any other agent in
+    the same run can find any prior artifact without tracking a different
+    location per agent. Perform the save by invoking whichever storage
+    tool is actually listed in this agent's `context.tools` (e.g.
+    `tool-L1-azure-blob-writer`, `tool-L1-github-writer`), named explicitly
+    in Processing Rules — never a bare "save to blob storage."
 
 ## Agent Pipeline Chain Pattern
 
@@ -500,7 +527,7 @@ Processing (Two-Phase):
 ```
 
 **S6 Evaluator Agent Pattern:**
-- Generator prompt: basic 3-item self-check, no evaluation KB loaded
+- Generator prompt: basic 3-item self-check, no evaluation KB loaded — see Key Pattern 18 (Core vs. Evaluator Depth)
 - Separate evaluator agent: loads evaluation KB, scores, fixes, re-uploads
 - Evaluator references evaluation KB as SOURCE OF TRUTH (no rubric duplication in its prompt)
 - Evaluator's own `evaluation.md` covers meta-quality (are findings genuine? are fixes correct?)
@@ -508,7 +535,10 @@ Processing (Two-Phase):
   Meta-Points Pattern" above), the evaluator retrieves the artifact for
   full-content scoring and pushes any document-touching fix back to the
   SAME storage location — "re-uploads" above means the corrected artifact,
-  not just corrected items.
+  not just corrected items. Re-upload writes to the SAME
+  `{workflow_execution_id}/{doc-name}` path the generator used (see Key
+  Pattern 19), via whichever storage tool is attached to the evaluator —
+  the artifact `id` stays the same too, only its content changes.
 
 **Wiring the evaluator's spec.yaml to the generator's `evaluation.md`:** the
 generator's rubric is not a `kb-L{n}-...` artifact — it's a file living

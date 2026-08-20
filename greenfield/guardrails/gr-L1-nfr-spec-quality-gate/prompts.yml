@@ -24,9 +24,10 @@ prompts:
          boundary_condition ends in the literal "TBD — needs stakeholder
          input" phrase?
       4. Citation form: does every non-TBD source match one of
-         "requirements.md § FR-NNN", "vision.md § <section>",
-         "regulatory-feasibility.md § <constraint>", or
-         "kb-L1-enterprise-security § ES<n>" — never a bare guess?
+         "requirements.md § FR-NNN", "vision.md § <section>" (including
+         "vision.md § Regulatory Posture" for Compliance-category
+         conditions), or "kb-L1-enterprise-security § ES<n>" — never a bare
+         guess?
       5. Category coverage: for each FR, does at least one genuinely-
          applicable category appear in boundary_conditions — or, if
          boundary_conditions is empty, does reasoning explicitly say "No

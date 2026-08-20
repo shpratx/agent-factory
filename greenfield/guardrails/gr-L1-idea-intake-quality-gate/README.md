@@ -29,11 +29,11 @@ This is NOT a check on the evaluator's own scores/findings/final_decision
 — it's a check on whether evaluation, having concluded, actually produced
 schema-valid, rubric-compliant content ready for the next pipeline step.
 
-**Why it matters:** an evaluator can claim `fixed_and_approved` while a
-fix left a field over the length budget, an ID gap unresolved, or a
-`traced_to` weakened to something no longer grounded. This gate is
-independent of the evaluator's own self-report — it re-derives compliance
-from the actual resultant content.
+**Why it matters:** an evaluator can claim `fixed_and_approved` while an
+ID gap is left unresolved, a required field is missing, or a `traced_to`
+is weakened to something no longer grounded. This gate is independent of
+the evaluator's own self-report — it re-derives compliance from the
+actual resultant content.
 
 ### Rules
 
@@ -58,7 +58,7 @@ L1-vision-idea-intake-evaluator concludes (scores, fixes, final_decision)
 │  fixes_applied[].before→after resolved in                           │
 │                                                                      │
 │  DETERMINISTIC (actions.py):                                        │
-│  1. Schema: summary/confidence/reasoning/traced_to present + valid? │
+│  1. Schema: statement/confidence/reasoning/traced_to present + valid? │
 │  2. TU-NN/SM-NN/OQ-NN ids sequential, no gaps/duplicates?           │
 │  3. If status=failed: items empty + INSUFFICIENT_CONTEXT stated?    │
 │  6. No placeholder/filler text found (best-effort backstop)?        │
@@ -103,9 +103,9 @@ gr-L1-idea-intake-quality-gate/
 
 ```json
 {
-  "problem_statement": {"summary": "Expense claims stall in approvals with no visibility.", "confidence": 0.95, "reasoning": "Directly restates the stated problem.", "traced_to": "it goes through 2-3 manager approvals..."},
-  "target_users": [{"id": "TU-01", "summary": "Employees submitting claims", "confidence": 0.9, "reasoning": "Explicitly named.", "traced_to": "Employees don't know where their claim is stuck"}],
-  "value_proposition": {"summary": "Digital claims, single dashboard, clean export.", "confidence": 0.95, "reasoning": "Near-verbatim restatement.", "traced_to": "a small internal tool where employees submit claims digitally..."},
+  "problem_statement": {"statement": "Expense claims stall in approvals with no visibility.", "confidence": 0.95, "reasoning": "Directly restates the stated problem.", "traced_to": "it goes through 2-3 manager approvals..."},
+  "target_users": [{"id": "TU-01", "statement": "Employees submitting claims", "confidence": 0.9, "reasoning": "Explicitly named.", "traced_to": "Employees don't know where their claim is stuck"}],
+  "value_proposition": {"statement": "Digital claims, single dashboard, clean export.", "confidence": 0.95, "reasoning": "Near-verbatim restatement.", "traced_to": "a small internal tool where employees submit claims digitally..."},
   "candidate_success_metrics": [{"id": "SM-01", "metric": "Reduction in submission-to-payment time", "status": "suggested", "confidence": 0.7, "reasoning": "No baseline given, inferred metric."}],
   "open_questions": [{"id": "OQ-01", "question": "What specific reduction is the target?", "reasoning": "Input gives no target magnitude."}]
 }
@@ -115,12 +115,12 @@ gr-L1-idea-intake-quality-gate/
 
 ```json
 {
-  "problem_statement": {"summary": "...", "confidence": 0.95, "reasoning": "...", "traced_to": "..."},
+  "problem_statement": {"statement": "...", "confidence": 0.95, "reasoning": "...", "traced_to": "..."},
   "target_users": [
-    {"id": "TU-01", "summary": "Employees submitting claims", "confidence": 0.9, "reasoning": "...", "traced_to": "..."},
-    {"id": "TU-03", "summary": "Finance staff", "confidence": 0.9, "reasoning": "...", "traced_to": "..."}
+    {"id": "TU-01", "statement": "Employees submitting claims", "confidence": 0.9, "reasoning": "...", "traced_to": "..."},
+    {"id": "TU-03", "statement": "Finance staff", "confidence": 0.9, "reasoning": "...", "traced_to": "..."}
   ],
-  "value_proposition": {"summary": "...", "confidence": 0.95, "reasoning": "...", "traced_to": "..."},
+  "value_proposition": {"statement": "...", "confidence": 0.95, "reasoning": "...", "traced_to": "..."},
   "candidate_success_metrics": [{"id": "SM-01", "metric": "50% reduction in submission time", "status": "stated", "confidence": 0.95, "reasoning": "..."}],
   "open_questions": []
 }
@@ -133,10 +133,9 @@ gr-L1-idea-intake-quality-gate/
 | Clean, fully compliant resultant content | None | "yes" |
 | ID gap | TU-02 missing between TU-01 and TU-03 | "no" |
 | Duplicate ID | Two entries both SM-01 | "no" |
-| Over-length summary | `problem_statement.summary` > 100 chars | "no" |
 | Missing traced_to | `value_proposition.traced_to` absent | "no" |
 | Mislabeled metric | A number with no input basis marked "stated" | "no" |
-| Placeholder text | `target_users[].summary` = "TBD" | "no" |
+| Placeholder text | `target_users[].statement` = "TBD" | "no" |
 | Legitimate INSUFFICIENT_CONTEXT | status=failed, items empty, summary states it | "yes" |
 | Fabricated failure content | status=failed but items non-empty | "no" |
 
@@ -167,12 +166,12 @@ print("✅ ID gap blocked")
 from actions import check_idea_intake_quality_gate
 
 generator_output = json.dumps({"status": "success", "content": {"items": {
-    "problem_statement": {"summary": "x" * 30, "confidence": 0.9, "reasoning": "y" * 25, "traced_to": "z"},
+    "problem_statement": {"statement": "x" * 30, "confidence": 0.9, "reasoning": "y" * 25, "traced_to": "z"},
     "target_users": [
-        {"id": "TU-01", "summary": "a", "confidence": 0.9, "reasoning": "b" * 25, "traced_to": "c"},
-        {"id": "TU-03", "summary": "d", "confidence": 0.9, "reasoning": "e" * 25, "traced_to": "f"},
+        {"id": "TU-01", "statement": "a", "confidence": 0.9, "reasoning": "b" * 25, "traced_to": "c"},
+        {"id": "TU-03", "statement": "d", "confidence": 0.9, "reasoning": "e" * 25, "traced_to": "f"},
     ],
-    "value_proposition": {"summary": "g" * 20, "confidence": 0.9, "reasoning": "h" * 25, "traced_to": "i"},
+    "value_proposition": {"statement": "g" * 20, "confidence": 0.9, "reasoning": "h" * 25, "traced_to": "i"},
     "candidate_success_metrics": [{"id": "SM-01", "metric": "m", "status": "stated", "confidence": 0.9, "reasoning": "n" * 25}],
     "open_questions": [{"id": "OQ-01", "question": "q", "reasoning": "r" * 15}],
 }}})

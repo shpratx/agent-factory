@@ -14,12 +14,13 @@ prompts:
 
       1. Schema compliance: does every constraint have id, name, status
          (Green|Amber|Red), citation{source_reference, regulation},
-         rationale_summary (<=140 chars), mitigation_summary (nullable,
-         <=140), requires_legal_review, confidence, reasoning? Does
-         overall_status have status + rationale_summary? Does every
-         open_items entry have id + description_summary?
+         rationale (full text, no length cap), mitigation (nullable,
+         full text, no length cap), requires_legal_review, confidence,
+         reasoning? Does overall_status have status + rationale (full
+         text, no length cap)? Does every open_items entry have id +
+         description (full text, no length cap)?
       2. Amber/Red mitigation rule (ZERO TOLERANCE): does EVERY constraint
-         with status Amber or Red have a non-null mitigation_summary OR
+         with status Amber or Red have a non-null mitigation OR
          requires_legal_review=true, in the RESULTANT (post-fix) content —
          not just in the evaluator's claim that it fixed something?
       3. ID sequencing: are CON-NN and OI-NN ids each sequential, no gaps
@@ -27,10 +28,10 @@ prompts:
       4. Citation specificity: does every constraint's citation.regulation
          name an actual specific regulation/section, not a vague phrase
          like "applicable regulations"?
-      5. Overall-status rationale specificity: does overall_status.rationale_summary
+      5. Overall-status rationale specificity: does overall_status.rationale
          name the specific constraint(s) driving the verdict?
       6. Severity-rationale match: does every constraint's status actually
-         match what its own rationale_summary describes — no hard blocker
+         match what its own rationale describes — no hard blocker
          quietly labeled "Green" or "Amber"?
       7. Legal-review discipline: is requires_legal_review used sparingly,
          for genuinely unprecedented cases — not applied to every Amber/Red

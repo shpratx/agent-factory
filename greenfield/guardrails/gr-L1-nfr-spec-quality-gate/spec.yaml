@@ -35,7 +35,7 @@ rules:
     severity: critical
 
   - name: citation-form-validity
-    description: "Every non-TBD source matches one of the four legitimate citation forms (requirements.md § FR-NNN, vision.md § <section>, regulatory-feasibility.md § <constraint>, kb-L1-enterprise-security § ES<n>) — a source string that doesn't match any recognized pattern is a bare guess, not a citation (evaluation.md Quality Gate 3)"
+    description: "Every non-TBD source matches one of the three legitimate citation forms (requirements.md § FR-NNN, vision.md § <section> — including vision.md § Regulatory Posture for Compliance, kb-L1-enterprise-security § ES<n>) — a source string that doesn't match any recognized pattern is a bare guess, not a citation (evaluation.md Quality Gate 3)"
     action: block
     severity: high
 

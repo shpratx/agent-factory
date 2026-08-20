@@ -89,14 +89,11 @@ async def check_regulatory_feasibility_quality_gate(output: str, generator_outpu
         if c.get("status") not in ("Green", "Amber", "Red"):
             logger.warning(f"QUALITY-GATE: constraint {c.get('id')} has invalid status {c.get('status')!r}")
             return True
-        rationale = c.get("rationale_summary", "")
-        if not rationale or len(rationale) > 140:
-            logger.warning(f"QUALITY-GATE: constraint {c.get('id')} rationale_summary missing or over length")
+        rationale = c.get("rationale", "")
+        if not rationale:
+            logger.warning(f"QUALITY-GATE: constraint {c.get('id')} rationale missing")
             return True
-        mitigation = c.get("mitigation_summary")
-        if mitigation is not None and len(mitigation) > 140:
-            logger.warning(f"QUALITY-GATE: constraint {c.get('id')} mitigation_summary over length")
-            return True
+        mitigation = c.get("mitigation")
         if not c.get("confidence") or not c.get("reasoning"):
             logger.warning(f"QUALITY-GATE: constraint {c.get('id')} missing confidence/reasoning")
             return True
@@ -117,7 +114,7 @@ async def check_regulatory_feasibility_quality_gate(output: str, generator_outpu
             has_mitigation = bool(mitigation) and mitigation.strip() != ""
             legal_review = bool(c.get("requires_legal_review"))
             if not has_mitigation and not legal_review:
-                logger.warning(f"QUALITY-GATE: constraint {c.get('id')} is {c.get('status')} with no mitigation_summary and requires_legal_review=false — ZERO TOLERANCE violation")
+                logger.warning(f"QUALITY-GATE: constraint {c.get('id')} is {c.get('status')} with no mitigation and requires_legal_review=false — ZERO TOLERANCE violation")
                 return True
 
     if not _ids_sequential(constraints, "CON"):
@@ -126,7 +123,7 @@ async def check_regulatory_feasibility_quality_gate(output: str, generator_outpu
 
     open_items = items["open_items"]
     for oi in open_items:
-        if not re.match(r"^OI-\d{2}$", oi.get("id", "")) or not oi.get("description_summary"):
+        if not re.match(r"^OI-\d{2}$", oi.get("id", "")) or not oi.get("description"):
             logger.warning(f"QUALITY-GATE: open_item {oi.get('id')} fails schema")
             return True
     if open_items and not _ids_sequential(open_items, "OI"):
@@ -134,7 +131,7 @@ async def check_regulatory_feasibility_quality_gate(output: str, generator_outpu
         return True
 
     overall_status = items["overall_status"]
-    if overall_status.get("status") not in ("Green", "Amber", "Red") or not overall_status.get("rationale_summary"):
+    if overall_status.get("status") not in ("Green", "Amber", "Red") or not overall_status.get("rationale"):
         logger.warning("QUALITY-GATE: overall_status fails schema")
         return True
 

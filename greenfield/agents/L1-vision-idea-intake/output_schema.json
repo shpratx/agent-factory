@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "L1-vision-idea-intake-output-schema-v1.0",
   "title": "IdeaIntakeItems",
-  "description": "Shape of content.items for L1-vision-idea-intake, nested inside the standard AgentOutput envelope (schemas/agent-output-schema.json). items carries META POINTS about idea-brief.md, not the full document — the complete narrative (full problem statement, full value proposition) lives ONLY in the artifact, saved to s3 (blob storage). 'summary' fields here are short distillations (<=~15 words / 90 chars) for orchestration and downstream triage; a consumer needing the full text retrieves the artifact from its storage.location. Structured/classificatory fields (ids, status, confidence, citation-equivalents) are NOT prose duplication and are kept in full — those ARE the meta points. No citation objects — this agent grounds against the raw input text, not a knowledge base, so each item carries traced_to (the input excerpt supporting it) instead of a KB citation.",
+  "description": "Shape of content.items for L1-vision-idea-intake, nested inside the standard AgentOutput envelope (schemas/agent-output-schema.json). There is no separate idea-brief.md document — this agent produces no artifact. 'statement' fields here ARE the full, authoritative content (the complete problem statement, the complete value proposition, each target user's complete description), grounded via traced_to — not a distillation of something fuller stored elsewhere. Structured/classificatory fields (ids, status, confidence) are likewise kept in full. No citation objects — this agent grounds against the raw input text, not a knowledge base, so each item carries traced_to (the input excerpt supporting it) instead of a KB citation.",
   "type": "object",
   "required": ["problem_statement", "target_users", "value_proposition", "candidate_success_metrics", "open_questions"],
   "properties": {
@@ -25,9 +25,9 @@
   "$defs": {
     "TracedSummary": {
       "type": "object",
-      "required": ["summary", "confidence", "reasoning", "traced_to"],
+      "required": ["statement", "confidence", "reasoning", "traced_to"],
       "properties": {
-        "summary": { "type": "string", "maxLength": 100, "description": "Short distillation (~15 words), NOT the full sentence(s) written into idea-brief.md — see the artifact for the complete text" },
+        "statement": { "type": "string", "description": "The full statement text (no separate idea-brief.md document exists — this field IS the authoritative record), grounded via traced_to" },
         "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "0.9+ explicit in input, 0.7-0.8 inferred, <0.7 uncertain" },
         "reasoning": { "type": "string", "minLength": 20, "description": "Why this was extracted/synthesized this way" },
         "traced_to": { "type": "string", "description": "The specific input excerpt this is grounded in" }
@@ -35,10 +35,10 @@
     },
     "TargetUser": {
       "type": "object",
-      "required": ["id", "summary", "confidence", "reasoning", "traced_to"],
+      "required": ["id", "statement", "confidence", "reasoning", "traced_to"],
       "properties": {
         "id": { "type": "string", "pattern": "^TU-[0-9]{2}$" },
-        "summary": { "type": "string", "maxLength": 100, "description": "Short distillation — full description is in the artifact's Target Users section" },
+        "statement": { "type": "string", "description": "The full description of this target user segment (no separate idea-brief.md document exists — this field IS the authoritative record), grounded via traced_to" },
         "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
         "reasoning": { "type": "string", "minLength": 20 },
         "traced_to": { "type": "string" }

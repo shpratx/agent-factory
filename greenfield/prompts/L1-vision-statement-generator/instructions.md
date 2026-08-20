@@ -34,8 +34,10 @@ INSTRUCTIONS:
   Input Ingestion:
   - Source: agent_output from all three upstream generators, plus viability_score
   - Extract: idea_brief_items, market_analysis_items, regulatory_feasibility_items
-    (their summaries and structured facts — retrieve the corresponding
-    upstream artifact from s3 if you need more than a summary provides)
+    (all three now carry FULL content directly — none of idea-intake,
+    market-analyzer, or regulatory-feasibility-checker saves a separate
+    document anymore, so there is nothing to retrieve beyond the items
+    themselves)
   - Validate: if any of the three upstream item sets is empty/missing,
     return INSUFFICIENT_CONTEXT — do not proceed (defensive check; upstream
     should have already failed in this case)
@@ -54,16 +56,17 @@ INSTRUCTIONS:
   the single biggest open risk — every claim must already appear below}
 
   ## Problem / Target Users / Value Proposition
-  {carried forward from idea-brief.md — must not contradict it}
+  {carried forward from idea_brief_items — the full record, no separate
+  document to cross-check against — must not contradict it}
 
   ## Market Context
-  {one-paragraph condensation of market-analysis.md's SWOT — the single
-  most decision-relevant insight}
+  {one-paragraph condensation of market_analysis_items' SWOT (the full
+  record, no separate document) — the single most decision-relevant insight}
 
   ## Regulatory Posture
   **Overall status:** {carried forward verbatim}
   {one line per Amber/Red constraint naming its mitigation — every Amber/Red
-  row in regulatory-feasibility.md must be traceable to a line here}
+  entry in regulatory_feasibility_items must be traceable to a line here}
 
   ## North-Star Metric(s) / Roadmap Outline (phase-level)
   {phase 1 must resolve or de-risk the most severe open risk below}

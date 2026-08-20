@@ -12,9 +12,12 @@ to never fabricate a citation just to make a check pass.
 
 Accepts the original input and draft output from `L1-vision-market-analyzer`
 and produces:
-- Independent scores across 5 dimensions
-- An exhaustive citation-completeness check (100% of competitor entries)
-- SWOT-item findings checking that reasoning names a real competitor or fact
+- Independent scores across the rubric's scoring dimensions
+- An exhaustive citation-completeness check (100% of competitor_matrix,
+  market_sizing tam/sam/som, industry_trends, customer_insights, and
+  pricing_benchmarks entries)
+- SWOT-item and other findings checking that reasoning names a real
+  competitor, trend, insight, or fact — not generic filler
 - Fixes for mechanically-correctable issues; escalation for anything requiring
   a real, unavailable citation
 
@@ -22,12 +25,15 @@ and produces:
 
 1. Ingests the generator's original input and draft output
 2. Loads `L1-vision-market-analyzer/evaluation.md` as the scoring source of truth
-3. Checks every competitor_matrix entry's citation — exhaustively
-4. Checks every SWOT item's reasoning for real traceability
+3. Checks every competitor_matrix, market_sizing (tam/sam/som),
+   industry_trends, customer_insights, and pricing_benchmarks entry's
+   citation — exhaustively, across all five dimensions
+4. Checks every SWOT item's (and other dimensions') reasoning for real traceability
 5. Fixes what's mechanically correctable; escalates uncited/fabricated claims
    rather than inventing a citation to cover them
 6. Evaluates a legitimate "insufficient" data_sufficiency verdict for honesty,
-   not as an automatic defect
+   including whether the rationale names which dimensions were thin, not as
+   an automatic defect
 
 ## Input
 

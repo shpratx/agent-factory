@@ -51,8 +51,9 @@ mitigation nor a legal-review flag.
 
 - **Type:** `regulatory_feasibility`
 - **Items:** `constraints[]` (id, status, citation, rationale, mitigation,
-  requires_legal_review), `overall_status`, `open_items[]` — see `output_schema.json`
-- **Artifacts:** `regulatory-feasibility.md`
+  requires_legal_review), `overall_status`, `open_items[]` — see `output_schema.json`;
+  items carry the full rationale and mitigation directly, there is no separate
+  document produced
 - **Metadata:** every constraint carries `citation` (BLOCKER guardrail
   `gr-L1-citation-verifier`, 100% required, not just scored) and `reasoning`
 - **Summary:** constraint counts by status, overall verdict rationale, KB

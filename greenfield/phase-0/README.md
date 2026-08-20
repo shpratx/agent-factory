@@ -6,6 +6,18 @@ missing. Placeholders use `{{snake_case}}`; HTML comments at the top of each
 template name the producing/evaluating agent and the upstream artifact it
 depends on.
 
+**Update 2026-08-07:** `idea-brief.md`, `market-analysis.md`, and
+`regulatory-feasibility.md` are dropped as saved documents — each agent's
+full content lives only under `items` in its own `agent_output`; `vision.md`
+is the only real document Phase 0 still produces (it has an explicit Product
+Lead approval gate, and is reused directly by later phases). The three
+`templates/*.template.md` files and their worked `examples/*.md` files below
+remain on disk as historical reference but are no longer produced, fetched,
+or gated against by any agent — the "every section marked ✅ is a hard
+requirement" rule above now applies only to `vision.template.md`. See
+`Agent_Factory_Greenfield_BOM.html`'s Phase 0 callouts for the full
+rationale.
+
 `examples/` is one coherent worked example (a fictional product,
 "HarvestLink" — a compliance-enabled producer-to-foodservice marketplace,
 food production & distribution domain) run through the full chain, so you
@@ -33,11 +45,13 @@ vision.md                (L1-vision-statement-generator)  ← FINAL OUTCOME
 ```
 
 **What to check when validating a real agent's output against these examples:**
-- `workflow_execution_id` is identical across all four documents in one run.
-- `execution_id` is unique per document.
-- Every named entity in a downstream document (problem statement, target
-  users, artifact IDs) traces back to an upstream document — no drift, no
-  restating the same fact two different ways.
+- `workflow_execution_id` is identical across all four agent outputs in one
+  run — only `vision.md` is a real document; the other three exist solely as
+  `agent_output.content.items`.
+- `execution_id` is unique per agent output.
+- Every named entity in a downstream output (problem statement, target
+  users, artifact IDs) traces back to an upstream agent's items — no drift,
+  no restating the same fact two different ways.
 - Every Amber/Red regulatory item survives all the way to `vision.md`'s Open
   Risks section. If one goes missing between `regulatory-feasibility.md` and
   `vision.md`, that's the evaluator's `gr-L1-hallucination-check` /

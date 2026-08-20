@@ -60,8 +60,8 @@ This KB is a classification *method*, not a domain fact set — it reviews
 annually, not quarterly/monthly like Phase 0's market/regulatory KBs. It
 also never asserts a number, threshold, or regulation citation itself;
 `nfr-spec.template.md`'s zero-tolerance rule requires every boundary-
-condition value to trace to `requirements.md`/`vision.md`/
-`regulatory-feasibility.md` — this KB only supplies the question to ask and
+condition value to trace to `requirements.md` or `vision.md` (including its
+Regulatory Posture section) — this KB only supplies the question to ask and
 the form to fill in once a grounded value is found.
 
 ## Reconciled into the BOM (2026-08-07, corrected 2026-08-08)
@@ -77,3 +77,11 @@ flagged out-of-scope. See the BOM's two Phase 1 update callouts
 including what checking the security KB's identity boundary surfaced in
 `phase-1/examples/impact-assessment.md` (a genuinely new external
 dependency that wasn't visible at vision or requirements stage).
+
+**Superseded 2026-08-07:** `regulatory-feasibility.md` is no longer a saved
+document — `L1-vision-regulatory-feasibility-checker` dropped it as an
+artifact (same discriminator that dropped `idea-brief.md`/`market-analysis.md`
+earlier the same day). The nfr-classifier's direct input described above is
+now `vision.md` § Regulatory Posture instead, which already reconciles the
+same Phase 0 regulatory findings. See the BOM's Phase 1 callout dated
+2026-08-07 (the later one) for the full rationale.

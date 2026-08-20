@@ -19,12 +19,12 @@ applies_to: configured_agents   # wired into L1-vision-regulatory-feasibility-ch
 rules:
   # --- Output schema validation (of L1-vision-regulatory-feasibility-checker's own output_schema.json) ---
   - name: schema-compliance
-    description: "The resultant items must validate against L1-vision-regulatory-feasibility-checker/output_schema.json: constraints[] (id CON-NN, name, status Green|Amber|Red, citation{source_reference, regulation}, rationale_summary <=140 chars, mitigation_summary nullable <=140, requires_legal_review bool, confidence, reasoning), overall_status (status, rationale_summary), open_items[] (id OI-NN, description_summary)"
+    description: "The resultant items must validate against L1-vision-regulatory-feasibility-checker/output_schema.json: constraints[] (id CON-NN, name, status Green|Amber|Red, citation{source_reference, regulation}, rationale — full text, no length cap, mitigation nullable — full text, no length cap, requires_legal_review bool, confidence, reasoning), overall_status (status, rationale — full text, no length cap), open_items[] (id OI-NN, description — full text, no length cap)"
     action: block
     severity: critical
 
   - name: amber-red-mitigation-or-legal-review
-    description: "Every constraint with status Amber or Red must have a non-null mitigation_summary OR requires_legal_review=true, RE-CHECKED on the RESULTANT content (post-fix) — the schema's own allOf conditional, independently re-verified. A constraint the evaluator claims to have fixed but which still fails this in the resultant output is a violation, zero exceptions (evaluation.md Quality Gate #3, Reflection Checklist rule)"
+    description: "Every constraint with status Amber or Red must have a non-null mitigation OR requires_legal_review=true, RE-CHECKED on the RESULTANT content (post-fix) — the schema's own allOf conditional, independently re-verified. A constraint the evaluator claims to have fixed but which still fails this in the resultant output is a violation, zero exceptions (evaluation.md Quality Gate #3, Reflection Checklist rule)"
     action: block
     severity: critical
 
@@ -40,12 +40,12 @@ rules:
     severity: critical
 
   - name: overall-status-rationale-specific
-    description: "overall_status.rationale_summary references the specific constraint(s) driving the verdict, not a vague summary (evaluation.md Quality Gate #4)"
+    description: "overall_status.rationale references the specific constraint(s) driving the verdict, not a vague summary (evaluation.md Quality Gate #4)"
     action: flag
     severity: high
 
   - name: no-downgraded-severity
-    description: "No constraint's status reads inconsistently lenient relative to its own rationale_summary — a hard blocker described in the rationale but labeled 'Green' is a violation (evaluation.md Reflection Checklist #1). Semantic check: does severity match what the rationale actually describes?"
+    description: "No constraint's status reads inconsistently lenient relative to its own rationale — a hard blocker described in the rationale but labeled 'Green' is a violation (evaluation.md Reflection Checklist #1). Semantic check: does severity match what the rationale actually describes?"
     action: flag
     severity: high
 

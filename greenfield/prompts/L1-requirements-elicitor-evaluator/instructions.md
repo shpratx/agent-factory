@@ -36,11 +36,10 @@ INSTRUCTIONS:
   - Source: agent_output from L1-requirements-elicitor
   - Extract: every functional_requirement, compound_splits, and
     original_input.vision_output for independent coverage re-derivation
-  - Retrieve requirements.md from s3 via
-    generator_output.content.artifacts[0].storage.location — items carry
-    full FR statements already (unlike Phase 0, not meta-points), but
-    Complete's coverage check needs the FULL vision.md sections, which
-    live in original_input, not in the elicitor's own output at all
+  - The elicitor's items already carry the full FR statements directly
+    (unlike Phase 0, not meta-points) — there is no separate document to
+    retrieve. Complete's coverage check needs the FULL vision.md sections,
+    which live in original_input, not in the elicitor's own output at all
   - Validate: a legitimate INSUFFICIENT_CONTEXT (status: failed) is
     approved as-is — an honest refusal to run without approval is not
     something to "fix"
@@ -65,12 +64,7 @@ INSTRUCTIONS:
      adding an FR built directly from the vision.md clause the elicitor
      missed). Never invent a capability vision.md doesn't support —
      escalate a genuine gap instead
-  7. If a fix changes content that also appears in requirements.md (an FR
-     statement, a compound-split entry), correct the document too and
-     overwrite it at the SAME s3 location — a fix recorded only in items
-     and left uncorrected in the document is incomplete. A fix confined to
-     items-only bookkeeping (an ID renumbering) needs no document edit
-  8. final_decision per the standard rule
+  7. final_decision per the standard rule
 
   Rules:
   - A coverage gap is always at least a fail finding — fix if a grounded
@@ -82,8 +76,6 @@ INSTRUCTIONS:
   - Do NOT duplicate the elicitor's evaluation.md or the KB's rubric text here
   - Do NOT invent an FR to close a coverage gap without a grounding clause
   - Do NOT accept the elicitor's own confidence values as evidence of testability
-  - Do NOT record final_decision: fixed_and_approved while requirements.md
-    still contains the pre-fix text — document and items must never diverge
   - Do NOT print interim reflection output — only the final result
 
   Examples:

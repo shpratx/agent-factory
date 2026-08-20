@@ -1,7 +1,7 @@
 {
   "original_input": {
     "requirements_output": null,
-    "regulatory_feasibility_output": null
+    "vision_output": null
   },
   "generator_output": {
     "agent_id": "L1-requirements-nfr-classifier",

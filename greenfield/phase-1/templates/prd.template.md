@@ -51,10 +51,10 @@ without time to read the full document still knows what to worry about.
 
 | Field | Value |
 |---|---|
-| Source requirements | `requirements.md` ({{requirements_artifact_id}}) |
-| Source NFR spec | `nfr-spec.md` ({{nfr_spec_artifact_id}}) |
+| Source requirements | `requirements.md` (items from `L1-requirements-elicitor` — no document, 2026-08-07) |
+| Source NFR spec | `nfr-spec.md` (items from `L1-requirements-nfr-classifier` — no document, 2026-08-07) |
 | Source vision | `vision.md` ({{vision_artifact_id}}) — Assumptions/Constraints/Risks only |
-| Approval consumed | {{approver_name_role}}, {{yyyy-mm-dd}}: "{{approval_comment_text}}" — carried forward verbatim from requirements.md's own header field |
+| Approval consumed | {{approver_name_role}}, {{yyyy-mm-dd}}: "{{approval_comment_text}}" — passed in directly as this agent's own `approval_comment` input parameter (same vision-approval gate `L1-requirements-elicitor` consumed; no requirements document header to retrieve it from) |
 | Generated | {{yyyy-mm-dd}} |
 
 ## ✅ Executive Summary

@@ -5,8 +5,8 @@ L1-requirements-nfr-classifier. Micro-KB content rules apply: max 1
 line/bullet, max 15 words, no explanations, numbers not words, annotated
 with target category. This KB describes HOW to classify, not WHAT the
 numbers are — it never asserts a default threshold. A boundary condition
-is a real number ONLY if requirements.md/vision.md/regulatory-feasibility.md
-states or directly implies it; otherwise it MUST read "TBD — needs
+is a real number ONLY if requirements.md or vision.md (including its
+Regulatory Posture section) states or directly implies it; otherwise it MUST read "TBD — needs
 stakeholder input" per nfr-spec.template.md. Any example value below is a
 FORM to fill in from a grounded source, never a default to assert.
 -->
@@ -51,7 +51,7 @@ conditions before marking any of the six categories "not applicable."
 ## Compliance
 - Ask: does a named regulation/policy constrain this FR? (→ Category: Compliance)
 - Form: cite the specific regulation/section — never "comply with regulations" (→ Category: Compliance)
-- Primary source: regulatory-feasibility.md's per-constraint citation, not this KB (→ Category: Compliance)
+- Primary source: vision.md § Regulatory Posture's per-constraint citation, not this KB (→ Category: Compliance)
 - This KB never supplies a regulation citation — it only flags when to look (→ Category: Compliance)
 
 ## Usability

@@ -13,19 +13,20 @@ is classified once, consistently, against a real source or an honest
 
 ## What does it do?
 
-Accepts `requirements.md` (from `L1-requirements-elicitor`) and
-`regulatory-feasibility.md` (Phase 0's artifact, cited directly) and
-produces:
+Accepts `functional_requirements` items (from `L1-requirements-elicitor` —
+items only, no document, 2026-08-07) and `vision.md` (artifact, from
+`L1-vision-statement-generator`, cited directly for its Regulatory Posture
+section) and produces:
 - One NFR-classification entry per functional requirement, tagging only the
   categories that genuinely apply (never a padded fixed six)
 - For each applicable category, a boundary condition that is either an
-  explicit number/rule grounded in `requirements.md`, `vision.md`,
-  `regulatory-feasibility.md`, or `kb-L1-enterprise-security`, or the
+  explicit number/rule grounded in `requirements.md`, `vision.md` (including
+  its Regulatory Posture section), or `kb-L1-enterprise-security`, or the
   literal "TBD — needs stakeholder input" if genuinely ungrounded
 
 It never invents a number, threshold, or regulation citation not actually
 present in a real source, and it never marks something TBD that a group
-security policy or the regulatory-feasibility assessment already answers.
+security policy or vision.md's Regulatory Posture already answers.
 
 ## How does it work?
 
@@ -34,27 +35,26 @@ security policy or the regulatory-feasibility assessment already answers.
    and asks that category's question — applies only the categories that are
    genuinely relevant to that FR's statement
 3. For each applicable category, checks `requirements.md` (the FR's own
-   statement), `vision.md` (e.g. a North-Star Metric target), and
-   `regulatory-feasibility.md` for an explicit or directly-implied
-   number/rule; checks `kb-L1-enterprise-security` for a group policy that
-   already answers a Security/Compliance/Availability question (e.g. a
-   retention period or uptime tier) before ever writing TBD
+   statement) and `vision.md` (e.g. a North-Star Metric target, or its
+   Regulatory Posture section for Compliance) for an explicit or
+   directly-implied number/rule; checks `kb-L1-enterprise-security` for a
+   group policy that already answers a Security/Compliance/Availability
+   question (e.g. a retention period or uptime tier) before ever writing TBD
 4. Writes the literal "TBD — needs stakeholder input" only when genuinely
    ungrounded — never a fabricated placeholder value
 5. Self-checks mechanically: every non-TBD condition carries a specific
    source, every TBD condition carries source "—", ids match
-   `requirements.md` exactly
-6. Saves the filled `nfr-spec.md` template to blob storage; items carry the
-   same facts in full (not condensed — see `output_schema.json`'s own note
-   on why this differs from Phase 0's meta-points pattern)
+   `requirements.md` exactly. No document is produced — `items` is the
+   sole, authoritative output
 
 ## Input
 
-- **Source:** agent_output (`requirements.md` from `L1-requirements-elicitor`;
-  `regulatory-feasibility.md` from `L1-vision-regulatory-feasibility-checker`)
+- **Source:** agent_output (elicitor's items — no document; `vision.md`
+  artifact from `L1-vision-statement-generator`)
 - **Required:** `requirements_output` — the elicitor's full output, status
-  must be `success`; `regulatory_feasibility_output` — Phase 0's regulatory
-  agent's full output, read directly for Compliance citations, not a KB
+  must be `success`; `vision_output` — the vision agent's full output,
+  read directly for Compliance citations (vision.md § Regulatory Posture),
+  not a KB
 
 ## Output
 
@@ -63,8 +63,8 @@ security policy or the regulatory-feasibility assessment already answers.
   `boundary_conditions[]` (`category`, `boundary_condition`, `source`); see
   `output_schema.json`. Boundary conditions are carried in FULL in items,
   not summarized — a boundary condition is already a short, atomic phrase,
-  so unlike Phase 0's meta-points pattern there is nothing long to condense
-- **Artifacts:** `nfr-spec.md` — the human-readable per-FR table document
+  so unlike Phase 0's meta-points pattern there is nothing long to condense.
+  No document artifact is produced; items is the sole, authoritative record
 - **Metadata:** every classification carries `confidence` and `reasoning`;
   `source` is this agent's citation equivalent for each boundary condition
 - **Summary:** FR count classified, categories applied, TBDs left open and

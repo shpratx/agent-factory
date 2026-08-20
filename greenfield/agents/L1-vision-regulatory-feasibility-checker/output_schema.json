@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "L1-vision-regulatory-feasibility-checker-output-schema-v1.0",
   "title": "RegulatoryFeasibilityItems",
-  "description": "Shape of content.items for L1-vision-regulatory-feasibility-checker. items carries META POINTS about regulatory-feasibility.md, not the full document — full rationale/mitigation narrative lives ONLY in the artifact, saved to s3 (blob storage). '_summary' fields are short distillations (<=~20 words, slightly longer budget than other agents since a mitigation must remain actionable even in short form). Status, citation, id, and requires_legal_review are structural facts, not prose duplication, and stay in full. Every constraint is a primary category and MUST carry a citation. Every Amber/Red constraint MUST carry a mitigation_summary or an explicit requires_legal_review flag — a Red constraint with no mitigation_summary and requires_legal_review=false is an invalid output, not a stylistic gap.",
+  "description": "Shape of content.items for L1-vision-regulatory-feasibility-checker. This agent produces no separate document — items carry the FULL, authoritative rationale and mitigation narrative directly; there is no artifact to retrieve for more detail. Status, citation, id, and requires_legal_review are structural facts, not prose duplication, and stay in full. Every constraint is a primary category and MUST carry a citation. Every Amber/Red constraint MUST carry a mitigation or an explicit requires_legal_review flag — a Red constraint with no mitigation and requires_legal_review=false is an invalid output, not a stylistic gap.",
   "type": "object",
   "required": ["constraints", "overall_status", "open_items"],
   "properties": {
@@ -13,10 +13,10 @@
     },
     "overall_status": {
       "type": "object",
-      "required": ["status", "rationale_summary"],
+      "required": ["status", "rationale"],
       "properties": {
         "status": { "type": "string", "enum": ["Green", "Amber", "Red"] },
-        "rationale_summary": { "type": "string", "maxLength": 140, "description": "Short distillation — full rationale is in regulatory-feasibility.md's Feasibility Summary" }
+        "rationale": { "type": "string", "description": "Full rationale for the overall verdict — this is the only place this content lives, there is no separate document" }
       }
     },
     "open_items": {
@@ -35,14 +35,14 @@
     },
     "Constraint": {
       "type": "object",
-      "required": ["id", "name", "status", "citation", "rationale_summary", "confidence", "reasoning"],
+      "required": ["id", "name", "status", "citation", "rationale", "confidence", "reasoning"],
       "properties": {
         "id": { "type": "string", "pattern": "^CON-[0-9]{2}$" },
         "name": { "type": "string", "description": "Constraint name — short label, not prose, kept in full" },
         "status": { "type": "string", "enum": ["Green", "Amber", "Red"] },
         "citation": { "$ref": "#/$defs/Citation" },
-        "rationale_summary": { "type": "string", "maxLength": 140, "description": "Short distillation — full rationale is in the artifact" },
-        "mitigation_summary": { "type": ["string", "null"], "maxLength": 140, "description": "Short, still-actionable distillation. Required (non-null) if status is Amber or Red, unless requires_legal_review is true. Full mitigation detail is in the artifact." },
+        "rationale": { "type": "string", "description": "Full rationale for this constraint's status — this is the only place this content lives, there is no separate document" },
+        "mitigation": { "type": ["string", "null"], "description": "Full, concrete mitigation. Required (non-null) if status is Amber or Red, unless requires_legal_review is true. This is the only place this content lives, there is no separate document." },
         "requires_legal_review": { "type": "boolean", "default": false },
         "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
         "reasoning": { "type": "string", "minLength": 20 }
@@ -52,7 +52,7 @@
           "if": { "properties": { "status": { "const": "Red" } } },
           "then": {
             "anyOf": [
-              { "properties": { "mitigation_summary": { "type": "string", "minLength": 1 } }, "required": ["mitigation_summary"] },
+              { "properties": { "mitigation": { "type": "string", "minLength": 1 } }, "required": ["mitigation"] },
               { "properties": { "requires_legal_review": { "const": true } } }
             ]
           }
@@ -61,7 +61,7 @@
           "if": { "properties": { "status": { "const": "Amber" } } },
           "then": {
             "anyOf": [
-              { "properties": { "mitigation_summary": { "type": "string", "minLength": 1 } }, "required": ["mitigation_summary"] },
+              { "properties": { "mitigation": { "type": "string", "minLength": 1 } }, "required": ["mitigation"] },
               { "properties": { "requires_legal_review": { "const": true } } }
             ]
           }
@@ -70,10 +70,10 @@
     },
     "OpenItem": {
       "type": "object",
-      "required": ["id", "description_summary"],
+      "required": ["id", "description"],
       "properties": {
         "id": { "type": "string", "pattern": "^OI-[0-9]{2}$" },
-        "description_summary": { "type": "string", "maxLength": 140 },
+        "description": { "type": "string", "description": "Full description of the open item — this is the only place this content lives, there is no separate document" },
         "related_constraint": { "type": "string", "pattern": "^CON-[0-9]{2}$" }
       }
     }

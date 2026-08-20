@@ -16,8 +16,8 @@ cross-domain index, not a domain fact set.
 
 **What it deliberately does NOT do:** supply a number, threshold, or
 regulation citation. `nfr-spec.template.md`'s zero-tolerance rule requires
-every boundary-condition number to trace to `requirements.md`/`vision.md`/
-`regulatory-feasibility.md` — this KB only tells the classifier what to look
+every boundary-condition number to trace to `requirements.md` or `vision.md`
+(including its Regulatory Posture section) — this KB only tells the classifier what to look
 for and how to phrase it once found; asserting a default value here would
 be exactly the fabrication that rule exists to prevent.
 
