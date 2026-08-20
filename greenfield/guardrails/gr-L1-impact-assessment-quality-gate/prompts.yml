@@ -1,5 +1,6 @@
 models:
-    type: main
+
+  - type: main
     engine: openai
     model: gpt-5.4
 
@@ -16,9 +17,7 @@ prompts:
 
       Bot response: "{{ bot_response }}"
 
-      First, check status. If status is "failed" with reason "INSUFFICIENT_CONTEXT", this is a legitimate refusal — treat it as safe and skip the checks below.
-
-      Otherwise, flag ONLY if the response fails any of these Quality Gates:
+      Flag ONLY if the response fails any of these Quality Gates:
       1. Capability check genuinely run against service_catalog, not skipped — names the closest candidate service even when it is not a duplicate, never "no similar service found" with nothing checked.
       2. Every CMDB CI relevant to a proposed component is checked and cross-referenced against kb-L1-enterprise-architecture's narrative — a mismatch between what the CMDB shows and what the KB claims is flagged as a finding, never silently resolved by picking one source.
       3. Every FR in prd.md is mapped to a component with a stated blast-radius rationale (Low/Medium/High) — no FR silently unmapped.
