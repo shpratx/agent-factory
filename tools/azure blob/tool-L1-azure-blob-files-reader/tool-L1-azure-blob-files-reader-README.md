@@ -1,4 +1,4 @@
-# tool-L1-azure-blob-specific-files-reader
+# tool-L1-azure-blob-files-reader
 
 ## What does it do?
 
@@ -11,9 +11,9 @@ Reads and returns the decoded text contents of **only the named files** inside a
 | `connection_string` | **AWS Secrets Manager** — secret `aava-secret-manager-azure-blob-credentials`, key `connection_string` | Azure Storage account connection string. Never appears in the code. |
 | `container_name` | Set directly in code | Fixed per deployment — see "SETUP-REQUIRED" comment at the top of the tool file. |
 
-> Every value that must be reviewed before deploying this tool to a new environment or client — including `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-azure-blob-specific-files-reader-secrets-manager.py`. Search the file for that tag to find them all in one pass.
+> Every value that must be reviewed before deploying this tool to a new environment or client — including `SECRET_NAME` and `region_name` on the `AWSSecretReaderPodIdentity` class — is tagged `SETUP-REQUIRED:` directly in `tool-L1-azure-blob-files-reader-secrets-manager.py`. Search the file for that tag to find them all in one pass.
 
-The production tool (`tool-L1-azure-blob-specific-files-reader-secrets-manager.py`) retrieves its credentials at import time:
+The production tool (`tool-L1-azure-blob-files-reader-secrets-manager.py`) retrieves its credentials at import time:
 
 ```python
 reader = AWSSecretReaderPodIdentity()   # SECRET_NAME = "aava-secret-manager-azure-blob-credentials"
@@ -23,7 +23,7 @@ connection_string = secrets.get("connection_string")
 
 `AWSSecretReaderPodIdentity` calls `boto3.client("secretsmanager", region_name="us-east-1").get_secret_value(...)` — no AWS access key or secret is stored in this file; access is granted via the runtime's pod identity.
 
-> `tool-L1-azure-blob-specific-files-reader.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the connection string as a placeholder value in code.
+> `tool-L1-azure-blob-files-reader.py` (without the `-secrets-manager` suffix) is kept in this folder only for local debugging. It is not used in production and still has the connection string as a placeholder value in code.
 
 ## Parameters
 
@@ -56,7 +56,7 @@ Files that failed to download: my_folder/file-4.md
 Call the tool directly from Python (e.g. from a CrewAI orchestrator script, outside of an agent):
 
 ```python
-from tool_L1_azure_blob_specific_files_reader_secrets_manager import AzureBlobReaderTool
+from tool_L1_azure_blob_files_reader_secrets_manager import AzureBlobReaderTool
 
 tool = AzureBlobReaderTool()
 result = tool._run(folder_name="my-project/docs", file_names=["file-1.md", "file-2.md"])
