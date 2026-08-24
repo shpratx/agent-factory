@@ -6,13 +6,13 @@
   },
   "generator_output": {
     "agent_id": "L1-vision-regulatory-feasibility-checker",
-    "agent_version": "1.0.0",
+    "agent_version": "2.0.0",
     "execution_id": "exec-b5c6d7e8",
     "workflow_execution_id": "wf-f6a7b8c9",
     "status": "success",
     "content": {
       "type": "regulatory_feasibility",
-      "schema_version": "1.0",
+      "schema_version": "2.0",
       "items": {
         "constraints": [
           {
@@ -47,6 +47,21 @@
         "overall_status": {
           "status": "Amber",
           "rationale_summary": "CON-01 has a legal review flag in place, so the risk is being managed and overall status can be treated as Amber."
+        },
+        "categories_not_applicable": [
+          { "category": "Authorisation, licensing, registration", "reason": "Internal tool for one company's own staff; no regulated activity is carried on." },
+          { "category": "Financial crime (AML/KYC) and payments authorisation", "reason": "Reimbursements are paid through existing payroll rails; the tool holds no funds." },
+          { "category": "Consumer protection and unfair trading", "reason": "Users are employees under a contract of employment, not consumers." }
+        ],
+        "viability": {
+          "viability_score": 7.5,
+          "recommendation": "auto_publish_eligible",
+          "score_derivation": { "weighted_score": 7.5, "final_score": 7.5, "capped": false, "threshold": 7 },
+          "components": [
+            { "id": "VC-01", "name": "regulatory_posture", "weight": 0.60, "score": 6.5, "confidence": 0.6, "traced_to": "CON-01, CON-02", "reasoning": "Scored as though the legal-review flag were itself a mitigation. The invalid discount also suppressed both caps CON-01 should have fired — the defect the evaluator is expected to catch." },
+            { "id": "VC-02", "name": "idea_clarity", "weight": 0.40, "score": 9.0, "confidence": 0.9, "traced_to": "idea-brief.json: problem_statement, target_geography, product_category", "reasoning": "A named threshold, a named mechanism, and a bounded internal scope." }
+          ],
+          "caps_applied": []
         },
         "open_items": [
           {

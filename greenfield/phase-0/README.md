@@ -13,27 +13,37 @@ can see exactly how facts must propagate rather than just what the section
 headings are:
 
 ```
-idea-brief.md            (L1-vision-idea-intake)
+idea-brief.json          (L1-vision-idea-intake)   ← JSON, read by key path
       │  problem statement, target users, candidate metrics
-      ▼
-market-analysis.md       (L1-vision-market-analyzer)
-      │  consumes idea-brief's problem/users → competitor gap analysis
-      ▼
-regulatory-feasibility.md (L1-vision-regulatory-feasibility-checker)
-      │  consumes idea-brief's geography/category → Green/Amber/Red per constraint
-      ▼
+      ├──────────────────────────────┐
+      ▼                              ▼
+market-analysis.md          regulatory-feasibility.md
+(L1-vision-market-analyzer) (L1-vision-regulatory-feasibility-checker)
+  OPTIONAL — may not run      sweeps the regulatory scenario coverage list
+  consumes problem/users      → Green/Amber/Red per constraint
+  → competitor gap analysis   → categories assessed and not applicable
+      │                       → the VIABILITY SCORE (qg-L1-viability-score)
+      └──────────────────────────────┤
+                                     ▼
 vision.md                (L1-vision-statement-generator)  ← FINAL OUTCOME
-   reconciles all three inputs:
+   reconciles its inputs:
    - problem/users/value prop carried forward verbatim, not restated differently
    - market-analysis's competitive gap → Market Context section
    - regulatory-feasibility's Amber/Red items → Regulatory Posture, AND every
      Amber/Red item must reappear in Open Risks Carried Forward
    - the single worst risk (the Red item) must become roadmap Phase 1 —
      this is the concrete test of "reconciliation," not just summarization
+   - the viability score is CARRIED from regulatory-feasibility.md, never
+     recomputed here — the agent whose auto-publish depends on the number
+     must not be the agent that sets it
 ```
 
+When no market analysis was produced, `vision.md`'s Market Context reads
+"Not assessed" rather than being inferred from the idea brief, and the
+viability score is unaffected — it carries no market component.
+
 **What to check when validating a real agent's output against these examples:**
-- `workflow_execution_id` is identical across all four documents in one run.
+- `workflow_execution_id` is identical across every document in one run.
 - `execution_id` is unique per document.
 - Every named entity in a downstream document (problem statement, target
   users, artifact IDs) traces back to an upstream document — no drift, no

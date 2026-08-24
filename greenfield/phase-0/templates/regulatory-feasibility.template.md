@@ -2,7 +2,9 @@
 TEMPLATE: regulatory-feasibility.md
 Produced by: L1-vision-regulatory-feasibility-checker (Core)
 Evaluated by: L1-vision-regulatory-feasibility-checker-evaluator
-Consumes: idea-brief.md (problem statement + target geography/product category)
+Consumes: idea-brief.json (problem statement, target geography/product
+          category, target users, value proposition) — JSON, read by key
+          path, never scanned as markdown
 Consumed by: L1-vision-statement-generator
 
 Required sections marked ✅. Zero tolerance for omitting a Red-classified
@@ -11,15 +13,21 @@ Every constraint MUST cite the specific regulation/section (gr-L1-citation-verif
 is a BLOCKER here too). Every Amber/Red item MUST carry a mitigation or an
 explicit "requires legal review" flag — an Amber/Red row with no mitigation
 is an incomplete output, not a valid one.
+
+Since v2.0 this document also carries the viability score. It was previously
+produced by a separate L1-vision-viability-scorer into viability-assessment.md;
+both are retired. The score's binding term is always the regulatory posture,
+so the gate lives with the agent holding that evidence.
 -->
 
 # Regulatory Feasibility Assessment: {{idea_title}}
 
 | Field | Value |
 |---|---|
-| Source idea brief | `idea-brief.md` ({{idea_brief_artifact_id}}) |
+| Source idea brief | `idea-brief.json` ({{idea_brief_artifact_id}}) |
 | Target geography | {{geography}} |
 | Generated | {{yyyy-mm-dd}} |
+| Viability score | {{n}}/10 |
 
 ## ✅ Feasibility Summary
 **Overall status:** {{Green \| Amber \| Red}}
@@ -35,8 +43,40 @@ Regulations 2017, Part 3"}}
 **Mitigation:** {{required if Amber/Red — concrete recommendation, or
 "requires legal review"}}
 
-{{repeat one block per constraint assessed — minimum coverage: authorization/
-licensing, AML/KYC, and any constraint specific to the target user segment}}
+{{repeat one block per constraint assessed — minimum coverage: authorisation/
+licensing, data protection, and any constraint specific to the target user
+segment or product category}}
+
+## ✅ Categories Assessed and Not Applicable
+- {{one line per swept category that does not apply, with a one-line reason.
+  A category from kb-L1-regulatory-frameworks-index#coverage-categories is
+  either a constraint above or a line here — never silently absent. Empty
+  only if every swept category applies}}
+
+## ✅ Viability Score
+**Score:** {{n}}/10 — {{auto_publish_eligible \| human_review_required}}
+against the `qg-L1-viability-score` threshold of 7
+
+| Component | Weight | Score | Traced to |
+|---|---|---|---|
+| Regulatory posture | 0.60 | {{n}} | {{CON ids}} |
+| Idea clarity | 0.40 | {{n}} | {{idea-brief.json fields}} |
+
+**Weighted before caps:** {{n}}
+**Caps applied:** {{rule → cap value, triggered by {{CON ids}}; or "none"}}
+**What would raise the score:** {{the specific change that would lift the
+lowest component or clear the binding cap}}
+
+<!--
+Caps are ceilings, never averages. The final score is the LOWEST of the
+weighted score and every cap that fired:
+  red_constraint          6.0  — any constraint is Red
+  regulatory_overall_red  6.0  — overall status is Red
+  requires_legal_review    6.5  — any constraint requires legal review
+A score is never rounded up across the threshold: 6.95 is reported as 6.9.
+The number here, in the header table, and in the agent's items.viability
+must be identical — a correction touches all three.
+-->
 
 ## Open Items
 - {{anything flagged "requires legal review" — must be empty only if every

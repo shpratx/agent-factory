@@ -22,10 +22,10 @@
       "type": "object",
       "required": ["summary", "confidence", "reasoning", "traced_to"],
       "properties": {
-        "summary": { "type": "string", "maxLength": 150, "description": "Short gloss of the single most decision-relevant insight — the full paragraph is in vision.md's Market Context section" },
+        "summary": { "type": "string", "maxLength": 150, "description": "Short gloss of the single most decision-relevant insight — the full paragraph is in vision.md's Market Context section. Market analysis is an OPTIONAL upstream input: when none was available, this is exactly 'Not assessed — no market analysis available' with confidence 0 and traced_to 'none'. The key itself stays required so the absence is stated rather than silently omitted" },
         "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
         "reasoning": { "type": "string", "minLength": 20 },
-        "traced_to": { "type": "string", "description": "Which competitor_matrix entries or SWOT item ids this condenses" }
+        "traced_to": { "type": "string", "description": "Which competitor_matrix entries or SWOT item ids this condenses, or 'none' when no market analysis was available" }
       }
     },
     "regulatory_posture": {

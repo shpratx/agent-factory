@@ -3,7 +3,7 @@ TEMPLATE: vision.md — FINAL OUTCOME OF PHASE 0
 Produced by: L1-vision-statement-generator (Core) — artifact only, does NOT publish itself
 Evaluated by: L1-vision-statement-generator-evaluator (owns qg-L1-viability-score >= 7)
 Published by: L1-confluence-publisher (Utility) — separate step, per the Core/Utility split
-Consumes: idea-brief.md + market-analysis.md + regulatory-feasibility.md + viability_score
+Consumes: idea-brief.json + regulatory-feasibility.md (which carries the viability_score) + market-analysis.md where one was produced
 Consumed by: L1-requirements-elicitor (Phase 1) — REFUSES to run without a recorded
              human-approval comment on this document (see Approval section)
 
@@ -20,9 +20,37 @@ Approval status.
 | Field | Value |
 |---|---|
 | Status | {{Draft — Pending Product Lead Approval \| Approved}} |
-| Generated | {{yyyy-mm-dd}} |
+| Generated | {{yyyy-mm-dd — the date this run executes, never copied from an upstream document or an example}} |
 | Viability Score | {{score}}/10 — {{PASS if >=7 else FAIL}} (`qg-L1-viability-score`) |
-| Inputs | `idea-brief.md`, `market-analysis.md`, `regulatory-feasibility.md` |
+| Inputs | {{the documents actually read this run. Where no market analysis was available, say so — e.g. `idea-brief.json`, `regulatory-feasibility.md`; no market analysis available}} |
+
+<!--
+Every {{token}} above is filled before saving. A placeholder or a conditional
+phrase ("where available", "if known") surviving into the saved document is a
+defect: it reaches the Product Lead as an unfinished draft.
+-->
+
+<!--
+NUMBERS. Every quantity in this document — metric target, percentage,
+duration, pilot size, count — is either lifted from an upstream document and
+attributed, or replaced by the literal "to be baselined in phase 1". A stated
+derivation ("derived from the value proposition's emphasis on X", "typical for
+the sector") is not a source, and a hedge ("approximately", "typically") does
+not make an unsourced figure admissible. With no market analysis in the run,
+no sector rate or benchmark has a source by definition.
+-->
+
+<!--
+COUNTS. Any count stated in prose must equal the number of items listed
+beneath it. A reader auditing coverage compares the two, so a wrong count
+manufactures the appearance of a dropped constraint. If unsure, state no count.
+-->
+
+<!--
+IDs. Roadmap phases name the OR-NN risk they resolve, not the CON-NN
+constraint underneath it; the CON id may follow in parentheses.
+-->
+
 
 ## ✅ Executive Summary
 {{3–5 sentences: what this is, who it's for, why it's viable now, and the
@@ -32,13 +60,13 @@ condensation for a reader who won't go further, not a place to introduce a
 claim that doesn't otherwise appear in the document.}}
 
 ## ✅ Problem
-{{carried forward from idea-brief.md — must not contradict it}}
+{{carried forward from idea-brief.json — must not contradict it}}
 
 ## ✅ Target Users
-{{carried forward from idea-brief.md}}
+{{carried forward from idea-brief.json}}
 
 ## ✅ Value Proposition
-{{synthesized from idea-brief.md, sharpened using the competitive gap identified
+{{synthesized from idea-brief.json, sharpened using the competitive gap identified
 in market-analysis.md}}
 
 ## Market Context

@@ -1,0 +1,64 @@
+spec_version: "1.0"
+artifact_type: knowledge_base
+metadata:
+  name: kb-L1-regulatory-frameworks-index-uk
+  version: "1.0.0"
+  layer: L1
+  jurisdiction: GB   # United Kingdom
+  owner: agentic-ai-coe
+  content_hash: "sha256:pending"
+  last_reviewed: "2026-08-24"
+  review_cadence: quarterly
+
+purpose:
+  description: >
+    Domain-agnostic index mapping regulated activity categories to the UK
+    body that governs them, plus the coverage-category sweep list every
+    regulatory assessment must walk. Used by
+    L1-vision-regulatory-feasibility-checker as the first lookup, regardless
+    of which vertical it's deployed into, to identify which body's rules
+    apply before a domain-specific L2 regulatory KB (kb-L2-domain-regulatory-uk)
+    is loaded for the actual detailed constraints.
+
+    DOMAIN-AGNOSTIC, NOT JURISDICTION-AGNOSTIC. This KB is reusable across
+    every vertical the CoE builds for, but it holds one country's regulators.
+    The India counterpart is kb-L1-regulatory-frameworks-index-ind. Select the
+    pair by the idea brief's target_geography — never merge rows, which would
+    let a constraint cite the wrong country's regulator and still pass a
+    plausibility check.
+
+    The sweep list lives here, not in either agent's prompt, so that the
+    checker's sweep and the evaluator's audit of that sweep are provably the
+    same list. A list duplicated into two prompts can drift, and the failure
+    mode is the evaluator failing the checker for missing a category the
+    checker was never told about.
+
+    Categories only — what to look for. The BEHAVIOUR when a rule applies in
+    an awkward way (not yet in force, under a threshold, extraterritorial,
+    discharged through a third party) stays in the checker's prompt: a KB
+    states what is true, a prompt states what to do about it.
+
+content:
+  format: markdown
+  documents:
+    - path: content/regulatory-bodies-index.md
+      sections: [jurisdiction, cross-domain-index, coverage-categories]
+  total_tokens_estimate: 1000
+  chunking: whole-document   # still small enough not to need chunking
+  embedding_model: text-embedding-3-small
+
+grounding_rules:
+  accessed_by:
+    - L1-vision-regulatory-feasibility-checker             # walks the sweep list
+    - L1-vision-regulatory-feasibility-checker-evaluator   # re-runs it to audit coverage
+  visibility: "L1 — visible to all layers (L1/L2/L3/L4) per standard visibility rule"
+
+freshness:
+  trigger_for_update: "new regulated domain entered, a listed body is renamed/merged/split, a new cross-cutting regulatory category emerges, or the deployment's target geography changes"
+  note: >
+    Post-EU-exit divergence is ongoing: retained EU instruments are being
+    amended or replaced, and UKCA/CE marking arrangements for Great Britain
+    and Northern Ireland differ and have shifted more than once. Confirm a
+    body's current remit before a constraint citing it gates a real decision.
+    Note also that food, licensing and environmental regimes are devolved —
+    a UK-wide answer can be incomplete for Scotland, Wales or Northern Ireland.

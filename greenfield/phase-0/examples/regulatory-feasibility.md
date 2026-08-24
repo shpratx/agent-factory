@@ -11,9 +11,10 @@ requires actual legal review before any funding or build decision.
 
 | Field | Value |
 |---|---|
-| Source idea brief | `idea-brief.md` (idea-brief-2026-08-02-002) |
+| Source idea brief | `idea-brief.json` (idea-brief-2026-08-02-002) |
 | Target geography | United Kingdom |
 | Generated | 2026-08-02 |
+| Viability score | 6.0/10 |
 
 ## ✅ Feasibility Summary
 **Overall status:** Amber
@@ -67,6 +68,51 @@ infrastructure, not the legal declarant.
 buyer business data; not a feasibility blocker on its own.
 **Mitigation:** Not required for feasibility; carried forward as an ongoing
 design and monitoring requirement rather than a launch blocker.
+
+## ✅ Categories Assessed and Not Applicable
+- **Financial crime (AML/KYC) and payments authorisation** — contract value
+  settles directly between producer and buyer; the platform never holds or
+  moves funds.
+- **International data transfer and residency** — UK-only producers, buyers
+  and hosting at this scope; no transfer arises.
+- **Automated decision-making and AI obligations** — matching surfaces
+  candidates for human selection; no decision is made about an individual.
+- **Consumer protection and unfair trading** — both sides are businesses; no
+  consumer contracts are formed on the platform.
+- **Sector-specific safety regimes beyond food** — no workplace, medicines,
+  telecoms, energy or nuclear activity is carried on.
+- **Employment and worker classification** — the platform coordinates
+  contracts between businesses, not people's work.
+- **Accessibility** — assessed; standard WCAG-aligned design discharges the
+  duty for a B2B interface, so no separate constraint is raised.
+- **Sanctions and export control** — domestic UK trade only at this scope;
+  reassess if export is added.
+- **Age-restricted or conditional supply** — no age-restricted category is in
+  scope; would need reassessment if alcohol were added.
+
+## ✅ Viability Score
+**Score:** 6.0/10 — `human_review_required` against the
+`qg-L1-viability-score` threshold of 7
+
+| Component | Weight | Score | Traced to |
+|---|---|---|---|
+| Regulatory posture | 0.60 | 6.0 | CON-01, CON-02, CON-03, CON-04 |
+| Idea clarity | 0.40 | 9.0 | `idea-brief.json`: problem_statement, target_geography, product_category |
+
+**Weighted before caps:** 7.2
+**Caps applied:** `red_constraint` → 6.0, triggered by CON-01 (Food Business
+Operator status). A Red constraint caps the score below the gate even when it
+carries a precedented mitigation — the mitigation is a plan, not a resolution.
+**What would raise the score:** confirming the facilitation-only boundary with
+qualified counsel so CON-01 can be reclassified below Red. That single change
+releases the cap and lifts both the component and the final score.
+
+<!--
+Note the shape of this result: an idea can be well-formed and commercially
+sensible (idea clarity 9.0) and still route to human review, because the
+binding term is regulatory and a cap is a ceiling, never an average. This is
+the outcome the scoring model exists to produce — not an edge case.
+-->
 
 ## Open Items
 - None currently flagged "requires legal review" — every Amber/Red item

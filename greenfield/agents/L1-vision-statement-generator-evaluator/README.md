@@ -11,27 +11,40 @@ claimed in the generator's own execution_summary.
 
 ## What does it do?
 
-Accepts the original input (all three upstream item sets plus
-viability_score) and draft output from `L1-vision-statement-generator`, and
-produces:
+Accepts the original input (the upstream item sets plus viability_score) and
+draft output from `L1-vision-statement-generator`, and produces:
 - A reconciliation coverage check: every Amber/Red regulatory constraint_id
   must appear in at least one `open_risks` entry's `related_ids` — checked
   by set membership, not by trusting a count
+- A groundedness check: the Amber/Red set rebuilt from
+  `regulatory-feasibility.md` itself, so a constraint dropped *before*
+  `regulatory_posture` is caught rather than scored as full coverage
 - An executive-summary integrity check: every sentence checked individually
   against the sections below it
-- A viability_score consistency check against what the generator actually received
+- A viability_score consistency check across `regulatory-feasibility.md`,
+  `original_input`, `items` and `vision.md` — plus a narrative check that a
+  capped score is matched by an executive summary naming the constraint that
+  caused the cap
 - Fixes for mechanically-recoverable gaps (built from the constraint's own
   mitigation_summary); escalation for anything requiring new judgment
 
 ## How does it work?
 
 1. Ingests the generator's original input and draft output
-2. Loads `L1-vision-statement-generator/evaluation.md` as the scoring source of truth
-3. Computes the coverage-gap set (Amber/Red constraint_ids minus covered ids)
-4. Checks each executive_summary sentence for grounding elsewhere in the document
-5. Checks viability_score wasn't silently altered
-6. Fixes what's mechanically recoverable; escalates anything requiring new
-   analysis rather than inventing content
+2. Reads `vision.md`, `regulatory-feasibility.md`, `idea-brief.json` and
+   (optionally) `market-analysis.md` in a single blob-storage call. The brief
+   is **JSON**, parsed by key path
+3. Loads `L1-vision-statement-generator/evaluation.md` as the scoring source of truth
+4. Computes the coverage-gap set (Amber/Red constraint_ids minus covered ids)
+5. Checks each executive_summary sentence for grounding elsewhere in the document
+6. Checks viability_score wasn't silently altered — against
+   `regulatory-feasibility.md` as the authoritative source. It is **never
+   re-derived here**: that already happened in
+   `L1-vision-regulatory-feasibility-checker-evaluator`, and a discrepancy at
+   this point is a finding to report, not arithmetic to redo
+7. Fixes what's mechanically recoverable and writes changes back into
+   `vision.md`; escalates anything requiring new analysis rather than
+   inventing content
 
 ## Input
 
@@ -40,9 +53,14 @@ produces:
 
 ## Output
 
-- **Type:** `evaluation_result`
-- **Items:** `scores`, `overall_score`, `pass`, `findings[]`, `fixes_applied[]`,
-  `final_decision` — see `output_schema.json`
+- **Type:** `vision_statement` — the generator's own type. This agent
+  re-emits the corrected result with the evaluation attached under
+  `items.evaluation`, not a separate evaluation-only shape
+- **Items:** the generator's full item sections, plus `evaluation` carrying
+  `scores`, `overall_score`, `pass`, `findings[]`, `fixes_applied[]`,
+  `reconciliation_check`, `final_decision` — see `output_schema.json`
+- **Artifacts:** `vision.md` — re-saved if corrected, otherwise referenced at
+  its original location
 - **Summary:** overall score, coverage-gap result, executive-summary
   integrity result, viability_score consistency, guardrail results
 

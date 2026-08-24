@@ -1,0 +1,815 @@
+<title>L1-design-api-spec</title>
+<style>
+  :root {
+    --ground:    #F6FAFB;
+    --surface:   #FFFFFF;
+    --surface-2: #EDF4F6;
+    --ink:       #121A1F;
+    --body:      #33454E;
+    --muted:     #63767F;
+    --line:      #D3DFE4;
+    --line-soft: #E4EDF0;
+
+    --agent:  #0A7E8C;
+    --agent-bg: #E6F4F6;
+    --kb:     #A96A06;
+    --kb-bg:  #FBF0DC;
+    --guard:  #B8362A;
+    --guard-bg: #FBE8E6;
+    --tool:   #17762F;
+    --tool-bg: #E4F3E7;
+    --artifact: #22375E;
+    --artifact-bg: #E8EEF9;
+
+    --ok:      #17762F;
+    --missing: #B8362A;
+
+    --code-bg: #F0F6F8;
+
+    --mono: ui-monospace, "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+    --sans: ui-sans-serif, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+
+    --shadow: 0 1px 2px rgba(18,26,31,.05), 0 8px 24px -12px rgba(18,26,31,.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #0D1418;
+      --surface:   #141E24;
+      --surface-2: #1B282F;
+      --ink:       #E1ECF0;
+      --body:      #B3C4CC;
+      --muted:     #8497A0;
+      --line:      #26343C;
+      --line-soft: #1E2B32;
+
+      --agent:  #4FC1CE;
+      --agent-bg: #10333A;
+      --kb:     #E0A845;
+      --kb-bg:  #362913;
+      --guard:  #F08375;
+      --guard-bg: #3A1B18;
+      --tool:   #58C97A;
+      --tool-bg: #12321D;
+      --artifact: #93B4EC;
+      --artifact-bg: #1A2540;
+
+      --ok:      #58C97A;
+      --missing: #F08375;
+
+      --code-bg: #0F181D;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #0D1418;
+    --surface:   #141E24;
+    --surface-2: #1B282F;
+    --ink:       #E1ECF0;
+    --body:      #B3C4CC;
+    --muted:     #8497A0;
+    --line:      #26343C;
+    --line-soft: #1E2B32;
+
+    --agent:  #4FC1CE;
+    --agent-bg: #10333A;
+    --kb:     #E0A845;
+    --kb-bg:  #362913;
+    --guard:  #F08375;
+    --guard-bg: #3A1B18;
+    --tool:   #58C97A;
+    --tool-bg: #12321D;
+    --artifact: #93B4EC;
+    --artifact-bg: #1A2540;
+
+    --ok:      #58C97A;
+    --missing: #F08375;
+
+    --code-bg: #0F181D;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--body);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 28px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+  }
+
+  .prose { max-width: 68ch; }
+
+  /* ---------- masthead ---------- */
+  .mast { display: flex; flex-direction: column; gap: 14px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 {
+    font-size: clamp(30px, 4.6vw, 46px);
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: -.025em;
+    color: var(--ink);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .dek { font-size: 17px; color: var(--body); max-width: 62ch; text-wrap: pretty; }
+
+  .status-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--agent);
+    border-radius: 3px;
+    font-size: 13.5px;
+  }
+  .status-strip strong { color: var(--ink); font-weight: 650; }
+
+  /* ---------- sections ---------- */
+  section { display: flex; flex-direction: column; gap: 16px; }
+  h2 {
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--agent);
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--line);
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 680;
+    color: var(--ink);
+    letter-spacing: -.011em;
+  }
+  p { text-wrap: pretty; }
+  code {
+    font-family: var(--mono);
+    font-size: .88em;
+    background: var(--surface-2);
+    color: var(--ink);
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  a { color: var(--agent); }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.66;
+    color: var(--ink);
+    tab-size: 2;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    white-space: pre;
+  }
+
+  /* ---------- figures ---------- */
+  figure {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .scroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; min-width: 760px; height: auto; }
+  figcaption {
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 76ch;
+    text-wrap: pretty;
+  }
+  figcaption b { color: var(--body); font-weight: 620; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    padding-top: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .02em;
+    color: var(--muted);
+  }
+  .legend span { display: flex; align-items: center; gap: 7px; }
+  .swatch { width: 13px; height: 13px; border-radius: 2px; border: 1.5px solid; flex: none; }
+
+  /* ---------- tables ---------- */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+  th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    background: var(--surface);
+    color: var(--body);
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    border: 1px solid;
+  }
+  .pill.built   { color: var(--ok);      border-color: var(--ok);      background: var(--tool-bg); }
+  .pill.gap     { color: var(--missing); border-color: var(--missing); background: var(--guard-bg); }
+  .pill.partial { color: var(--kb);      border-color: var(--kb);      background: var(--kb-bg); }
+
+  /* ---------- callout ---------- */
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--guard);
+    border-radius: 3px;
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+  .note h3 { margin-bottom: 6px; font-size: 14.5px; }
+
+  /* ---------- processing order ---------- */
+  .flow { display: flex; flex-direction: column; gap: 2px; }
+  .flow-step {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 16px;
+    padding: 14px 18px 14px 0;
+    border-bottom: 1px solid var(--line-soft);
+    align-items: start;
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--agent);
+    background: var(--agent-bg);
+    border-radius: 3px;
+    text-align: center;
+    padding: 3px 0;
+    line-height: 1.4;
+  }
+  .flow-body { display: flex; flex-direction: column; gap: 3px; }
+  .flow-title { color: var(--ink); font-weight: 640; font-size: 14.5px; }
+  .flow-detail { font-size: 13.5px; color: var(--body); max-width: 78ch; }
+  .flow-halt {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    color: var(--guard);
+    margin-top: 3px;
+  }
+
+  ul.plain { list-style: none; display: flex; flex-direction: column; gap: 9px; max-width: 74ch; }
+  ul.plain li { display: grid; grid-template-columns: 14px 1fr; gap: 11px; }
+  ul.plain li::before { content: "—"; color: var(--muted); }
+
+  :focus-visible { outline: 2px solid var(--agent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="eyebrow">Agent Factory · Greenfield · Phase 4 Design</div>
+    <h1>L1-design-api-spec</h1>
+    <p class="dek">Derives the OpenAPI contract from the functional requirements and their NFR boundary conditions — the hub artifact the LLD, test and construction agents build on.</p>
+  </header>
+
+  <div class="status-strip">
+    <span class="pill partial">Design doc only</span>
+    <span><strong>Exists:</strong> <code>README.md</code> and this blueprint.</span>
+    <span><strong>Not yet:</strong> <code>spec.yaml</code>, <code>output_schema.json</code>, <code>instructions.md</code>, <code>examples/</code>, <code>golden/</code>.</span>
+  </div>
+
+  <section>
+    <h2>The agent in context</h2>
+    <figure>
+      <div class="scroll">
+        <svg viewBox="0 0 1120 800" role="img" aria-label="L1-design-api-spec calls tool-L1-azure-blob-reader to fetch requirements.md and nfr-spec.md from Azure Blob Storage, reads the enterprise architecture and enterprise security knowledge bases, and passes its openapi.yaml output through a four-gate guardrail chain before it reaches the LLD, test script and construction agents plus the GitHub orchestrator. The OpenAPI validator guardrail and all downstream consumers are not yet built.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+            </marker>
+            <marker id="arT" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--agent)"/>
+            </marker>
+            <marker id="arN" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--artifact)"/>
+            </marker>
+            <marker id="arG" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--tool)"/>
+            </marker>
+          </defs>
+
+          <!-- ============ BAND LABELS ============ -->
+          <g font-family="var(--mono)" font-size="10.5" font-weight="700" letter-spacing="1.3" fill="var(--muted)">
+            <text x="16" y="52">SOURCE</text>
+            <text x="16" y="172">READ</text>
+            <text x="16" y="428">GUARDRAILS</text>
+            <text x="16" y="596">OUTPUT</text>
+            <text x="16" y="700">CONSUMERS</text>
+          </g>
+
+          <!-- ============ BLOB STORAGE ============ -->
+          <rect x="270" y="26" width="580" height="104" rx="4" fill="none" stroke="var(--artifact)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".55"/>
+          <text x="286" y="45" font-family="var(--mono)" font-size="10" font-weight="700" letter-spacing=".9" fill="var(--artifact)" opacity=".8">AZURE BLOB STORAGE</text>
+
+          <rect x="286" y="54" width="250" height="60" rx="3" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="1.5"/>
+          <text x="411" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">requirements.md</text>
+          <text x="411" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-requirements-elicitor</text>
+
+          <rect x="584" y="54" width="250" height="60" rx="3" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="1.5"/>
+          <text x="709" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">nfr-spec.md</text>
+          <text x="709" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-requirements-nfr-classifier</text>
+
+          <!-- converge into the tool -->
+          <polyline points="411,114 411,138 709,138 709,114" fill="none" stroke="var(--artifact)" stroke-width="1.5"/>
+          <line x1="560" y1="138" x2="560" y2="156" stroke="var(--artifact)" stroke-width="1.5" marker-end="url(#arN)"/>
+
+          <!-- ============ BLOB READER TOOL ============ -->
+          <rect x="400" y="160" width="320" height="46" rx="3" fill="var(--tool-bg)" stroke="var(--tool)" stroke-width="2"/>
+          <text x="560" y="180" text-anchor="middle" font-family="var(--mono)" font-size="12" font-weight="700" fill="var(--tool)">tool-L1-azure-blob-reader</text>
+          <text x="560" y="197" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">folder_name &#8594; decoded file contents</text>
+
+          <line x1="560" y1="206" x2="560" y2="228" stroke="var(--tool)" stroke-width="2" marker-end="url(#arG)"/>
+
+          <!-- ============ AGENT ============ -->
+          <rect x="290" y="232" width="540" height="112" rx="4" fill="var(--agent-bg)" stroke="var(--agent)" stroke-width="2.5"/>
+          <text x="560" y="264" text-anchor="middle" font-family="var(--mono)" font-size="17" font-weight="700" fill="var(--agent)">L1-design-api-spec</text>
+          <text x="560" y="288" text-anchor="middle" font-size="12" fill="var(--body)">FR capability &#8594; resource model &#8594; endpoint contract</text>
+          <text x="560" y="307" text-anchor="middle" font-size="12" fill="var(--body)">NFR boundary conditions &#8594; auth, limits, error shape</text>
+          <text x="560" y="330" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="700" fill="var(--guard)">asserts both FR-NNN sets align before deriving</text>
+
+          <!-- ============ KNOWLEDGE BASES (left) ============ -->
+          <rect x="16" y="238" width="228" height="52" rx="3" fill="var(--kb-bg)" stroke="var(--kb)" stroke-width="1.5"/>
+          <text x="130" y="260" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="700" fill="var(--kb)">kb-L1-enterprise-architecture</text>
+          <text x="130" y="277" text-anchor="middle" font-size="10.5" fill="var(--muted)">gateway-first, no legacy writes</text>
+
+          <rect x="16" y="302" width="228" height="52" rx="3" fill="var(--kb-bg)" stroke="var(--kb)" stroke-width="1.5"/>
+          <text x="130" y="324" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="700" fill="var(--kb)">kb-L1-enterprise-security</text>
+          <text x="130" y="341" text-anchor="middle" font-size="10.5" fill="var(--muted)">external IdP, data class, retention</text>
+
+          <path d="M244 264 L268 264 L268 274 L288 274" fill="none" stroke="var(--kb)" stroke-width="1.5" marker-end="url(#ar)"/>
+          <path d="M244 328 L268 328 L268 300 L288 300" fill="none" stroke="var(--kb)" stroke-width="1.5" marker-end="url(#ar)"/>
+
+          <!-- ============ AGENT -> GUARDRAILS ============ -->
+          <line x1="560" y1="344" x2="560" y2="404" stroke="var(--agent)" stroke-width="2" marker-end="url(#arT)"/>
+          <text x="572" y="368" font-family="var(--mono)" font-size="10.5" fill="var(--muted)">draft openapi.yaml</text>
+          <text x="572" y="386" font-family="var(--mono)" font-size="10.5" fill="var(--muted)">+ structured items[]</text>
+
+          <!-- ============ GUARDRAIL CHAIN ============ -->
+          <rect x="16" y="410" width="1088" height="112" rx="4" fill="none" stroke="var(--guard)" stroke-width="1.2" opacity=".38"/>
+          <text x="34" y="432" font-family="var(--mono)" font-size="10" letter-spacing=".8" fill="var(--guard)">CHAIN &#183; ALL MUST PASS</text>
+
+          <rect x="34" y="442" width="254" height="62" rx="3" fill="var(--guard-bg)" stroke="var(--guard)" stroke-width="1.5"/>
+          <text x="161" y="466" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="700" fill="var(--guard)">gr-L1-output-schema-validator</text>
+          <text x="161" y="486" text-anchor="middle" font-size="10.5" fill="var(--muted)">items[] match the schema</text>
+
+          <rect x="302" y="442" width="254" height="62" rx="3" fill="var(--guard-bg)" stroke="var(--guard)" stroke-width="1.5"/>
+          <text x="429" y="466" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="700" fill="var(--guard)">gr-L3-hallucination-detector</text>
+          <text x="429" y="486" text-anchor="middle" font-size="10.5" fill="var(--muted)">no endpoint without an FR</text>
+
+          <rect x="570" y="442" width="254" height="62" rx="3" fill="var(--guard-bg)" stroke="var(--guard)" stroke-width="1.5"/>
+          <text x="697" y="466" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="700" fill="var(--guard)">gr-L3-consistency-checker</text>
+          <text x="697" y="486" text-anchor="middle" font-size="10.5" fill="var(--muted)">no FR left uncovered</text>
+
+          <rect x="838" y="442" width="254" height="62" rx="3" fill="none" stroke="var(--guard)" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="965" y="466" text-anchor="middle" font-family="var(--mono)" font-size="10" font-weight="700" fill="var(--guard)">gr-L1-schema-validator-openapi</text>
+          <text x="965" y="486" text-anchor="middle" font-size="10.5" fill="var(--guard)">hard fail &#183; invalid syntax</text>
+
+          <!-- ============ GUARDRAILS -> OUTPUT ============ -->
+          <line x1="560" y1="522" x2="560" y2="600" stroke="var(--agent)" stroke-width="2" marker-end="url(#arT)"/>
+          <text x="572" y="562" font-family="var(--mono)" font-size="10.5" fill="var(--muted)">on pass</text>
+
+          <!-- ============ OUTPUT ============ -->
+          <rect x="380" y="606" width="360" height="62" rx="4" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="2.5"/>
+          <text x="560" y="632" text-anchor="middle" font-family="var(--mono)" font-size="15" font-weight="700" fill="var(--artifact)">openapi.yaml</text>
+          <text x="560" y="653" text-anchor="middle" font-size="11" fill="var(--body)">OpenAPI 3.x &#183; every path carries fr_trace + nfr_trace</text>
+
+          <!-- ============ FAN OUT ============ -->
+          <line x1="560" y1="668" x2="560" y2="688" stroke="var(--artifact)" stroke-width="1.5"/>
+          <line x1="116" y1="688" x2="1004" y2="688" stroke="var(--artifact)" stroke-width="1.5" opacity=".55"/>
+          <g stroke="var(--artifact)" stroke-width="1.5" opacity=".55" marker-end="url(#arN)">
+            <line x1="116"  y1="688" x2="116"  y2="710"/>
+            <line x1="338"  y1="688" x2="338"  y2="710"/>
+            <line x1="560"  y1="688" x2="560"  y2="710"/>
+            <line x1="782"  y1="688" x2="782"  y2="710"/>
+            <line x1="1004" y1="688" x2="1004" y2="710"/>
+          </g>
+
+          <g font-family="var(--mono)" font-size="10.5" font-weight="700">
+            <rect x="16"  y="712" width="200" height="50" rx="3" fill="none" stroke="var(--agent)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".62"/>
+            <text x="116" y="734" text-anchor="middle" fill="var(--agent)" opacity=".85">L1-design-lld</text>
+            <text x="116" y="750" text-anchor="middle" font-weight="400" font-size="10" fill="var(--muted)">classes + sequences</text>
+
+            <rect x="238" y="712" width="200" height="50" rx="3" fill="none" stroke="var(--agent)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".62"/>
+            <text x="338" y="730" text-anchor="middle" fill="var(--agent)" opacity=".85">L1-testing-script-generator</text>
+            <text x="338" y="748" text-anchor="middle" font-weight="400" font-size="10" fill="var(--muted)">REST Assured suites</text>
+
+            <rect x="460" y="712" width="200" height="50" rx="3" fill="none" stroke="var(--agent)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".62"/>
+            <text x="560" y="730" text-anchor="middle" fill="var(--agent)" opacity=".85">L1-construction-</text>
+            <text x="560" y="744" text-anchor="middle" fill="var(--agent)" opacity=".85">api-code-generator</text>
+            <text x="560" y="757" text-anchor="middle" font-weight="400" font-size="9.5" fill="var(--muted)">server stubs</text>
+
+            <rect x="682" y="712" width="200" height="50" rx="3" fill="none" stroke="var(--agent)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".62"/>
+            <text x="782" y="730" text-anchor="middle" fill="var(--agent)" opacity=".85">L1-construction-</text>
+            <text x="782" y="744" text-anchor="middle" fill="var(--agent)" opacity=".85">ui-code-generator</text>
+            <text x="782" y="757" text-anchor="middle" font-weight="400" font-size="9.5" fill="var(--muted)">typed client</text>
+
+            <rect x="904" y="712" width="200" height="50" rx="3" fill="var(--tool-bg)" stroke="var(--tool)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".85"/>
+            <text x="1004" y="730" text-anchor="middle" fill="var(--tool)">L1-github-orchestrator</text>
+            <text x="1004" y="748" text-anchor="middle" font-weight="400" font-size="10" fill="var(--muted)">writes the artifact</text>
+          </g>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--artifact-bg);border-color:var(--artifact)"></i> Artifact</span>
+        <span><i class="swatch" style="background:var(--agent-bg);border-color:var(--agent)"></i> Agent</span>
+        <span><i class="swatch" style="background:var(--kb-bg);border-color:var(--kb)"></i> Knowledge base</span>
+        <span><i class="swatch" style="background:var(--guard-bg);border-color:var(--guard)"></i> Guardrail</span>
+        <span><i class="swatch" style="background:var(--tool-bg);border-color:var(--tool)"></i> Tool</span>
+        <span><i class="swatch" style="border-color:var(--muted);border-style:dashed;background:none"></i> Dashed = not built yet</span>
+      </div>
+      <figcaption><b>Solid means it exists in the repo today; dashed means it is declared but unbuilt.</b> Both inputs are fetched from Azure Blob Storage through <code>tool-L1-azure-blob-reader</code> — the agent's only tool, and read-only. Both knowledge bases and three of the four guardrails already exist; the OpenAPI validator and everything downstream of <code>openapi.yaml</code> are still to come.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Inputs</h2>
+    <div class="prose">
+      <p>Both documents are read from blob storage by <code>tool-L1-azure-blob-reader</code>, which takes a <code>folder_name</code> prefix and returns the decoded contents of every file under it. Either one missing is a fail-fast <code>INSUFFICIENT_CONTEXT</code>; the two are then cross-checked against each other before anything is derived.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Document</th><th>Produced by</th><th>Carries</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>requirements.md</td>
+            <td><code>L1-requirements-elicitor</code></td>
+            <td><code>functional_requirements[]</code> — <code>FR-NNN</code> id, <b>full verbatim</b> statement, and <code>traces_to</code>. Its schema guarantees exact wording survives for downstream derivation, not a gloss</td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+          <tr>
+            <td>nfr-spec.md</td>
+            <td><code>L1-requirements-nfr-classifier</code></td>
+            <td>Per-FR boundary conditions across six categories, same ids and same order, each cited to a real source or marked <code>TBD</code></td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <h3>The zero-drop check lives in this agent</h3>
+      <p><code>L1-requirements-prd-composer</code> is not part of this pipeline, so the two source documents are read directly rather than pre-composed. That costs one guarantee: the composer's own gate used to verify no requirement or boundary condition was lost between elicitation and design. This agent has to assert it instead — the <code>FR-NNN</code> set in <code>nfr-spec.md</code> must match <code>requirements.md</code> exactly, same ids and same order, before any endpoint is derived. The classifier's schema already mandates that alignment, so it is a cheap assertion rather than new analysis, but it must be an explicit step: a mismatch means an upstream agent drifted, and deriving a contract from a partial set is exactly the failure this pipeline exists to prevent.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tools</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Parameters</th><th>Used for</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>tool-L1-azure-blob-reader</td>
+            <td><code>folder_name</code> — blob prefix</td>
+            <td>Fetching <code>requirements.md</code> and <code>nfr-spec.md</code>. Returns per-file sections of decoded text; 30s timeout, two retries, credentials via SecretsSDK at <code>/secrets/{org_id}/azure-blob</code></td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p>Read access only — no writer tool is attached. This follows the Core/Utility split the other Phase 0 and Phase 1 agents use: thinking agents produce artifacts, orchestrators perform side effects. <code>openapi.yaml</code> reaches GitHub and Confluence at step 7 of the design workflow, when <code>L1-github-orchestrator</code> picks up the whole design set. Nothing this agent does is externally visible until then, which keeps a failed run cheap to discard.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Knowledge bases</h2>
+    <div class="prose">
+      <p>Two, both already built. The originally-planned <code>kb-L2-food-domain-api-patterns</code> was dropped — see below.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Source</th><th>What it gives this agent</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>kb-L1-enterprise-security</td>
+            <td>Most of the contract's security surface, already written: external users need a separate identity provider and must never use Azure AD (ES1); every action ties to a non-shared identity and no limit may be client-bypassable (ES1); what counts as Confidential (ES2); 6-year compliance retention held distinct from GDPR erasure (ES3); availability tier per endpoint group (ES4); vetting checks logged even when approved (ES7)</td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+          <tr>
+            <td>kb-L1-enterprise-architecture</td>
+            <td>Every route published through the Kong gateway, never point-to-point (EA2/EA4); no write-back to SMDS or SAP ERP (EA3); service domain ownership (EA5); EA review triggers (EA10)</td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+          <tr>
+            <td>REST conventions</td>
+            <td>Versioning strategy, casing and pluralisation, pagination, error envelope, idempotency headers. <b>Not a KB.</b> Domain-agnostic and purely structural, so S4 says embed it in <code>instructions.md</code> — the same call already made for <code>requirements.template.md</code>. It also cannot be written yet: without the organisation's own API style guide and Kong plugin configuration, any content here would be invented rather than documented</td>
+            <td><span class="pill partial">Prompt embed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <h3>Why there is no food-domain KB</h3>
+      <p>A food-domain vocabulary KB — GTIN product identity, batch and lot code formats, the EU FIC 14-allergen enum, temperature-chain units, catch-weight — was planned and then dropped, because none of it is exercised by a single HarvestLink requirement. HarvestLink is a compliance and facilitation platform: FR-006 states it never takes possession, title or custody, so there is no custody chain to model and no cold-chain telemetry to represent. FR-004 is the trap — it says "allergen," but read closely it governs the <em>declaration workflow</em> (producer attestation, sign-off), not the allergen <em>content</em>. The contract needs <code>declarationId</code>, <code>attestedBy</code>, <code>signedOffAt</code>, <code>status</code>. It never needs to know what an allergen is.</p>
+      <p>What the contract genuinely needs comes from the requirements themselves, not a KB: what a compliance-documentation completeness score is and how it is bounded; that FR-003's "immutable, append-only" forbids <code>PUT</code> and <code>DELETE</code> on traceability records; that FR-006 forbids any endpoint implying HarvestLink is a transacting party. Shipping with only the two L1 KBs matches the call <code>L1-requirements-prd-composer</code> made when it shipped with an empty KB list. If HarvestLink later grows a real product catalogue with SKUs and cold-chain tracking, the vocabulary need appears then — building for it now would be speculative.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Guardrails</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Guardrail</th><th>Catches</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>gr-L1-output-schema-validator</td>
+            <td>Emitted <code>items[]</code> do not match the declared output schema</td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+          <tr>
+            <td>gr-L3-hallucination-detector</td>
+            <td>An endpoint, schema or field with no <code>FR-NNN</code> behind it in <code>requirements.md</code>; a <code>TBD</code> boundary condition silently resolved into a plausible number</td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+          <tr>
+            <td>gr-L3-consistency-checker</td>
+            <td>An <code>FR-NNN</code> present in <code>requirements.md</code> with no endpoint and no explicit non-API note</td>
+            <td><span class="pill built">Built</span></td>
+          </tr>
+          <tr>
+            <td>gr-L1-schema-validator-openapi</td>
+            <td>Structurally invalid OpenAPI — unresolved <code>$ref</code>, missing required fields. <code>hard_fail_on: invalid_openapi_syntax</code></td>
+            <td><span class="pill gap">Not built</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Output schema</h2>
+    <pre><code>{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-design-api-spec-output-schema-v1.0",
+  "title": "DesignApiSpecItems",
+  "type": "object",
+  "required": ["endpoints", "fr_coverage", "open_questions"],
+  "properties": {
+    "endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Endpoint" }
+    },
+    "fr_coverage": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per FR-NNN in requirements.md, same ids and same order.",
+      "items": { "$ref": "#/$defs/FrCoverage" }
+    },
+    "open_questions": {
+      "type": "array",
+      "description": "Every TBD boundary condition carried through unresolved. Empty array, not omitted, if none.",
+      "items": { "$ref": "#/$defs/OpenQuestion" }
+    }
+  },
+  "$defs": {
+    "Endpoint": {
+      "type": "object",
+      "required": ["operation_id", "method", "path", "summary",
+                   "fr_trace", "nfr_trace", "confidence", "reasoning"],
+      "properties": {
+        "operation_id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" },
+        "method": {
+          "type": "string",
+          "enum": ["get", "post", "put", "patch", "delete"]
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^/[a-z0-9\\-/{}]*$",
+          "description": "Gateway-published route. Never a point-to-point legacy address."
+        },
+        "summary": { "type": "string", "minLength": 10 },
+        "fr_trace": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^FR-[0-9]{3}$" },
+          "description": "The FR-NNN(s) this endpoint realises. Never empty — an endpoint with no FR behind it is a schema violation, not a style preference."
+        },
+        "nfr_trace": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/NfrInfluence" }
+        },
+        "auth": {
+          "type": "string",
+          "description": "securitySchemes key applied, or 'none' with the reason in reasoning"
+        },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "reasoning": { "type": "string", "minLength": 20 }
+      }
+    },
+    "NfrInfluence": {
+      "type": "object",
+      "required": ["category", "boundary_condition", "shaped"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["Performance", "Security", "Scalability",
+                   "Availability", "Compliance", "Usability"]
+        },
+        "boundary_condition": {
+          "type": "string",
+          "description": "Carried verbatim from nfr-spec.md — never restated or rounded"
+        },
+        "shaped": {
+          "type": "string",
+          "enum": ["security_scheme", "rate_limit_note", "error_response",
+                   "sla_note", "pagination", "field_constraint"],
+          "description": "Which part of the contract this boundary condition determined"
+        }
+      }
+    },
+    "FrCoverage": {
+      "type": "object",
+      "required": ["id", "covered_by", "reasoning"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^FR-[0-9]{3}$" },
+        "covered_by": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "operation_id(s) realising this FR. Empty ONLY when non_api is true."
+        },
+        "non_api": {
+          "type": "boolean",
+          "description": "True when the FR is genuinely not an API concern (UI-only, process-only). Required to be explicit — a silently uncovered FR is a guardrail failure."
+        },
+        "reasoning": { "type": "string", "minLength": 20 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "non_api": { "const": true } } },
+          "then": { "properties": { "covered_by": { "maxItems": 0 } } }
+        },
+        {
+          "if": {
+            "anyOf": [
+              { "properties": { "non_api": { "const": false } } },
+              { "not": { "required": ["non_api"] } }
+            ]
+          },
+          "then": { "properties": { "covered_by": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "OpenQuestion": {
+      "type": "object",
+      "required": ["fr_id", "category", "question", "blocks"],
+      "properties": {
+        "fr_id": { "type": "string", "pattern": "^FR-[0-9]{3}$" },
+        "category": {
+          "type": "string",
+          "enum": ["Performance", "Security", "Scalability",
+                   "Availability", "Compliance", "Usability"]
+        },
+        "question": {
+          "type": "string",
+          "description": "The unresolved boundary condition, carried through as-is. Surfaces in openapi.yaml as an x-open-question extension on the affected path."
+        },
+        "blocks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "operation_id(s) whose contract stays provisional until this is answered"
+        }
+      }
+    }
+  }
+}</code></pre>
+  </section>
+
+  <section>
+    <h2>Processing order</h2>
+    <div class="flow">
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <div class="flow-title">Read both documents from blob storage</div>
+          <div class="flow-detail">Call <code>tool-L1-azure-blob-reader</code> once per <code>folder_name</code> prefix to fetch <code>requirements.md</code> and <code>nfr-spec.md</code>.</div>
+          <div class="flow-halt">HALT &#183; INSUFFICIENT_CONTEXT if either is absent or unreadable</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <div class="flow-title">Assert the two inputs agree</div>
+          <div class="flow-detail">The <code>FR-NNN</code> set in <code>nfr-spec.md</code> must match <code>requirements.md</code> exactly — same ids, same order. This replaces the zero-drop guarantee the PRD composer used to provide.</div>
+          <div class="flow-halt">HALT &#183; a mismatch means an upstream agent drifted; never derive from a partial set</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <div class="flow-title">Derive the resource model</div>
+          <div class="flow-detail">For each <code>FR-NNN</code>, read its verbatim statement and identify the resource and actions it implies. One FR may yield several endpoints; each endpoint records the FR that motivated it in <code>fr_trace</code>.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <div class="flow-title">Apply the NFR boundary conditions</div>
+          <div class="flow-detail">Attach each FR's boundary conditions to the part of the contract they govern — security scheme, documented rate limit, error response shape, pagination. Each attachment is recorded in <code>nfr_trace</code> with what it shaped.</div>
+          <div class="flow-halt">A TBD is carried through as an open question, never resolved into a plausible number</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-body">
+          <div class="flow-title">Apply the enterprise constraints</div>
+          <div class="flow-detail">Every route is gateway-published and independently deployable — no point-to-point call into a legacy system, no write-back to SMDS or SAP ERP. External-facing operations carry the external identity provider's scheme, never Azure AD, and every limit is enforced server-side.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-body">
+          <div class="flow-title">Self-check both directions</div>
+          <div class="flow-detail">Every <code>FR-NNN</code> maps to at least one endpoint or is explicitly marked <code>non_api</code> with a reason; every endpoint traces back to a real <code>FR-NNN</code>. No orphans either way.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">7</div>
+        <div class="flow-body">
+          <div class="flow-title">Emit</div>
+          <div class="flow-detail"><code>openapi.yaml</code> as valid OpenAPI 3.x, plus the structured <code>items[]</code> mirror above. Unresolved boundary conditions appear as <code>x-open-question</code> extensions on the paths they affect.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>

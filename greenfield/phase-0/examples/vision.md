@@ -1,6 +1,6 @@
 <!--
 EXAMPLE OUTPUT — illustrative content generated to demonstrate Phase 0's document
-chain end-to-end. Not a real product commitment. See idea-brief.md,
+chain end-to-end. Not a real product commitment. See idea-brief.json,
 market-analysis.md, and regulatory-feasibility.md for the inputs this document
 reconciles.
 -->
@@ -10,10 +10,10 @@ reconciles.
 | Field | Value |
 |---|---|
 | Vision ID | vision-2026-08-02-002 |
-| Status | Approved (see Approval below) |
+| Status | Approved by a human at the HITL gate (see Approval below) — not auto-published |
 | Generated | 2026-08-02 |
-| Viability Score | 7.4/10 — PASS (`qg-L1-viability-score`) |
-| Inputs | `idea-brief.md`, `market-analysis.md`, `regulatory-feasibility.md` |
+| Viability Score | 6.0/10 — FAIL (`qg-L1-viability-score`), capped by CON-01; routed to human review |
+| Inputs | `idea-brief.json`, `market-analysis.md`, `regulatory-feasibility.md` |
 
 ## ✅ Executive Summary
 HarvestLink is a compliance-and-discovery platform connecting independent UK
@@ -106,11 +106,17 @@ priority, not just a nice-to-have.
 
 ## Approval
 - [x] Product Lead sign-off — **required before Phase 1 (Requirements) may start**
+- **Route:** the viability score of 6.0 is below the `qg-L1-viability-score`
+  threshold of 7, so the workflow escalated to this gate instead of
+  auto-publishing. A human approving a below-threshold vision is a valid
+  outcome — the gate exists to make sure a person sees it, not to veto it.
 - **Approved by:** Priya Ahluwalia, Product Lead
 - **Date:** 2026-08-04
 - **Comment:** "Approved. The facilitation-only structuring is the right
   first roadmap milestone — please make sure Requirements calls it out as a
-  hard blocker for everything else, not just a risk."
+  hard blocker for everything else, not just a risk. The score being capped
+  at 6.0 by that same constraint is exactly right; it should lift once
+  counsel confirms the boundary."
 - This comment is consumed directly by `L1-requirements-elicitor` as a
   required input — see `requirements.md`.
 

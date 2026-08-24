@@ -1,12 +1,12 @@
 {
   "agent_id": "L1-vision-regulatory-feasibility-checker",
-  "agent_version": "1.0.0",
+  "agent_version": "2.0.0",
   "execution_id": "exec-f08c4b3a",
   "workflow_execution_id": "wf-a17c5e92",
   "status": "success",
   "content": {
     "type": "regulatory_feasibility",
-    "schema_version": "1.0",
+    "schema_version": "2.0",
     "items": {
       "constraints": [
         {
@@ -58,6 +58,45 @@
         "status": "Amber",
         "rationale_summary": "CON-01 (FBO status) is Red but has a precedented facilitation-only mitigation, so status is discounted to Amber."
       },
+      "categories_not_applicable": [
+        { "category": "Financial crime (AML/KYC) and payments authorisation", "reason": "Contract value settles directly between producer and buyer; the platform never holds or moves funds." },
+        { "category": "International data transfer and residency", "reason": "UK-only producers, buyers and hosting; no transfer arises at this scope." },
+        { "category": "Automated decision-making and AI obligations", "reason": "Matching surfaces candidates for human selection; no decision is made about an individual." },
+        { "category": "Consumer protection and unfair trading", "reason": "Both sides are businesses; no consumer contracts are formed on the platform." },
+        { "category": "Sector-specific safety regimes beyond food", "reason": "No workplace, medicines, telecoms, energy or nuclear activity is carried on." },
+        { "category": "Employment and worker classification", "reason": "The platform coordinates contracts between businesses, not people's work." },
+        { "category": "Accessibility", "reason": "Assessed; standard WCAG-aligned design discharges the duty for a B2B interface, no separate constraint." },
+        { "category": "Sanctions and export control", "reason": "Domestic UK trade only at this scope; flagged for reassessment if export is added." },
+        { "category": "Age-restricted or conditional supply", "reason": "No age-restricted category is in scope; would need reassessment if alcohol were added." }
+      ],
+      "viability": {
+        "viability_score": 6.0,
+        "recommendation": "human_review_required",
+        "score_derivation": { "weighted_score": 7.2, "final_score": 6.0, "capped": true, "threshold": 7 },
+        "components": [
+          {
+            "id": "VC-01",
+            "name": "regulatory_posture",
+            "weight": 0.60,
+            "score": 6.0,
+            "confidence": 0.8,
+            "traced_to": "CON-01, CON-02, CON-03, CON-04",
+            "reasoning": "Top of the 4-6 band: CON-01 is Red but carries a precedented, non-legal-review mitigation, and both Ambers have concrete design mitigations. Nothing requires legal review."
+          },
+          {
+            "id": "VC-02",
+            "name": "idea_clarity",
+            "weight": 0.40,
+            "score": 9.0,
+            "confidence": 0.9,
+            "traced_to": "idea-brief.json: problem_statement, target_geography, product_category",
+            "reasoning": "Names who suffers the problem (independent and regional producers), how it is felt today (locked out of contracts for want of compliance infrastructure), and a reachable, well-bounded segment."
+          }
+        ],
+        "caps_applied": [
+          { "rule": "red_constraint", "cap_value": 6.0, "triggered_by": ["CON-01"], "reason": "CON-01 is Red; a mitigation exists but the blocker is unresolved until the facilitation-only boundary is confirmed." }
+        ]
+      },
       "open_items": []
     },
     "artifacts": [
@@ -66,11 +105,11 @@
         "type": "document",
         "name": "regulatory-feasibility.md",
         "format": "markdown",
-        "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-f08c4b3a/regulatory-feasibility.md" },
+        "storage": { "provider": "blob storage", "location": "sid-temp/wf-a17c5e92/regulatory-feasibility.md" },
         "description": "Regulatory feasibility assessment for HarvestLink",
         "produced_by": "L1-vision-regulatory-feasibility-checker"
       }
     ],
-    "execution_summary": "• Produced 4 constraints (1 Green, 2 Amber, 1 Red), overall_status: Amber, 0 open items.\n• Key decision: discounted overall_status from Red to Amber because every Red/Amber constraint (CON-01, CON-02, CON-03) has a concrete, precedented, non-legal-review mitigation — the discount rule's condition is fully met, and the rationale says so explicitly rather than asserting it.\n• Reflection: verified CON-01 (the Red item) was not silently dropped or downgraded to avoid writing a mitigation — it is present, correctly classified Red, with its mitigation stated.\n• Knowledge bases consulted: kb-L1-regulatory-frameworks-index (CON-04 category lookup); kb-L2-domain-regulatory (Registration & Licensing, Hygiene & Safety, Allergen Labelling, and Distribution & Cold Chain sections all used).\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass), gr-L1-hallucination-check (pass), gr-L1-citation-verifier (pass — 4/4 constraints cited).\n• Tools invoked: none — both KBs together covered all four constraints; tool-L1-regulatory-db-lookup was not needed this run.\n• Gaps flagged: none currently — recommend qualified legal counsel still confirm the facilitation-only boundary (CON-01's mitigation) before authorization applications begin, even though it isn't logged as a formal open_item since a concrete mitigation already exists."
+    "execution_summary": "• Produced 4 constraints (1 Green, 2 Amber, 1 Red), overall_status: Amber, 0 open items.\n• viability_score 6.0 — does NOT clear qg-L1-viability-score (>=7). Weighted 7.2; red_constraint cap 6.0 (CON-01) bound.\n• Components: regulatory_posture 6.0 (CON-01..04); idea_clarity 9.0 (problem_statement, geography, category).\n• Key decision: discounted overall_status from Red to Amber because every Red/Amber constraint has a concrete, precedented, non-legal-review mitigation. The discount does NOT remove the cap — a mitigated Red still cannot clear the gate.\n• Reflection: verified CON-01 was not silently dropped or downgraded to avoid writing a mitigation, and that the discounted overall_status was not used to suppress the red_constraint cap.\n• Categories swept and not applicable: 9, including AML/KYC, consumer protection, and sanctions — all recorded with reasons.\n• Knowledge bases consulted: kb-L1-regulatory-frameworks-index (category sweep, CON-04); kb-L2-domain-regulatory (Registration & Licensing, Hygiene & Safety, Allergen Labelling, Distribution & Cold Chain).\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-pii-detection (pass), gr-L1-hallucination-check (pass), gr-L1-citation-verifier (pass — 4/4 cited).\n• Tools invoked: blob reader (idea-brief.json, parsed as JSON); blob writer (regulatory-feasibility.md saved). tool-L1-regulatory-db-lookup not needed — both KBs covered all four constraints.\n• Gaps flagged: none logged as open_items — qualified counsel should still confirm the facilitation-only boundary before launch, which is what the cap holds the score open for.\n• Edge cases encountered: none fired."
   }
 }

@@ -2,7 +2,7 @@
 TEMPLATE: market-analysis.md
 Produced by: L1-vision-market-analyzer (Core)
 Evaluated by: L1-vision-market-analyzer-evaluator
-Consumes: idea-brief.md (problem statement + target users)
+Consumes: idea-brief.json (problem statement + target users)
 Consumed by: L1-vision-statement-generator
 
 Required sections marked ✅. Every competitor claim MUST carry a citation
@@ -15,7 +15,7 @@ competitors — write "insufficient market data" under Data Sufficiency instead.
 
 | Field | Value |
 |---|---|
-| Source idea brief | `idea-brief.md` ({{idea_brief_artifact_id}}) |
+| Source idea brief | `idea-brief.json` ({{idea_brief_artifact_id}}) |
 | Generated | {{yyyy-mm-dd}} |
 
 ## ✅ Competitor Matrix

@@ -1,0 +1,55 @@
+spec_version: "1.0"
+artifact_type: knowledge_base
+metadata:
+  name: kb-L2-domain-regulatory-uk
+  version: "1.0.0"
+  layer: L2
+  jurisdiction: GB   # United Kingdom
+  owner: food-domain-champion
+  content_hash: "sha256:pending"
+  last_reviewed: "2026-08-24"
+  review_cadence: quarterly
+
+purpose:
+  description: >
+    A domain-KB slot: L1-vision-regulatory-feasibility-checker's prompt and
+    spec reference this id generically, so a different vertical deployment
+    can populate the same slot with its own regulatory facts without
+    changing the agent. This deployment's slot holds food production &
+    distribution domain facts for the UNITED KINGDOM, needed to ground a
+    Green/Amber/Red regulatory feasibility assessment: FBO registration and
+    approval, hygiene (HACCP, FHRS), allergen and pre-packed labelling,
+    cold-chain and traceability rules, and the devolved/local-authority
+    split mechanisms.
+    Deliberately excludes production-line/technical detail a later
+    design-phase agent would need; per the token-optimisation "condense
+    domain KB" rule (S3), vision-stage agents get PM/feasibility
+    implications only, not field-level technical schemas.
+
+    JURISDICTION IS PART OF THE SLOT. This KB holds one geography's facts.
+    The India counterpart is kb-L2-domain-regulatory-ind. A deployment
+    targeting two geographies loads two KBs, selected by the idea brief's
+    target_geography — never one file with mixed rows, which would let the
+    agent cite a UK rule for an Indian idea and still look consistent.
+
+content:
+  format: markdown
+  documents:
+    - path: content/food-regulatory-facts.md
+      sections: [jurisdiction, registration-licensing, hygiene-safety, allergen-labelling, distribution-cold-chain, cross-cutting]
+  total_tokens_estimate: 950
+  chunking: by-section
+  embedding_model: text-embedding-3-small
+
+grounding_rules:
+  accessed_by: [L1-vision-regulatory-feasibility-checker, L1-vision-regulatory-feasibility-checker-evaluator]
+  visibility: "L2 — visible to L2 and below within this deployment's domain projects/squads (L3/L4); not visible to other L2 domain deployments using the same slot id"
+
+freshness:
+  trigger_for_update: "FSA/FSS guidance change, amendment to retained EU food law, a devolved divergence between England, Scotland, Wales or Northern Ireland, or a change in the deployment's target geography"
+  note: >
+    Food regulation changes more frequently than most domains, and
+    post-EU-exit divergence means a retained EU instrument may no longer
+    apply in the form cited. This KB is a starting point for a feasibility
+    assessment, not a substitute for current FSA/FSS guidance or legal
+    review before registration or approval.

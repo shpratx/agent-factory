@@ -6,13 +6,13 @@
   },
   "generator_output": {
     "agent_id": "L1-vision-regulatory-feasibility-checker",
-    "agent_version": "1.0.0",
+    "agent_version": "2.0.0",
     "execution_id": "exec-f08c4b3a",
     "workflow_execution_id": "wf-a17c5e92",
     "status": "success",
     "content": {
       "type": "regulatory_feasibility",
-      "schema_version": "1.0",
+      "schema_version": "2.0",
       "items": {
         "constraints": [
           {
@@ -75,6 +75,23 @@
         "overall_status": {
           "status": "Red",
           "rationale_summary": "CON-01 is Red with no mitigation."
+        },
+        "categories_not_applicable": [
+          { "category": "Financial crime (AML/KYC) and payments authorisation", "reason": "Contract value settles directly between producer and buyer; the platform never holds funds." },
+          { "category": "Consumer protection and unfair trading", "reason": "Both sides are businesses; no consumer contracts are formed on the platform." },
+          { "category": "Sanctions and export control", "reason": "Domestic UK trade only at this scope." }
+        ],
+        "viability": {
+          "viability_score": 6.9,
+          "recommendation": "human_review_required",
+          "score_derivation": { "weighted_score": 6.9, "final_score": 6.9, "capped": true, "threshold": 7 },
+          "components": [
+            { "id": "VC-01", "name": "regulatory_posture", "weight": 0.60, "score": 5.0, "confidence": 0.7, "traced_to": "CON-01, CON-02", "reasoning": "Scored in the 4-6 band despite CON-01 carrying no mitigation at all — the defect the evaluator is expected to catch and re-derive downward." },
+            { "id": "VC-02", "name": "idea_clarity", "weight": 0.40, "score": 9.0, "confidence": 0.9, "traced_to": "idea-brief.json: problem_statement, target_geography, product_category", "reasoning": "Names who suffers the problem, how it is felt today, and a reachable, well-bounded segment." }
+          ],
+          "caps_applied": [
+            { "rule": "red_constraint", "cap_value": 6.0, "triggered_by": ["CON-01"], "reason": "CON-01 is Red with no mitigation." }
+          ]
         },
         "open_items": []
       },
