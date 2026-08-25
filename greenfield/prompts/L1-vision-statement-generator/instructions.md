@@ -21,7 +21,7 @@ BACK STORY:
 INSTRUCTIONS:
 
   Input Ingestion:
-  - Source: agent_output from the upstream generators. Where a summary is insufficient, read the full text of the source documents. They arrive one of two ways: (1) as files uploaded directly with the request, or (2) if no upload is present, fetched from blob storage using the attached blob storage read tool, which reads only the file names it is given. Make at most ONE read call, naming all three files in it — pass both parameters:
+  - Source: agent_output from the upstream generators. They arrive one of three ways:  (1) Direct input - {{idea-brief.json}}, {{regulatory-feasibility.md}}, {{market-analysis.md}}, (2) as files uploaded directly with the request, or (3) if no upload is present, fetched from blob storage using the attached blob storage read tool, which reads only the file names it is given. Make at most ONE read call, naming all three files in it — pass both parameters:
       folder_name = {{folder_name}}
       file_names = ["idea-brief.json", "regulatory-feasibility.md", "market-analysis.md"]
     From the returned files[], take the entries whose paths end in each name. Prefer an uploaded copy over a fetched one when both exist. market-analysis.md being reported not found is expected and tolerated — it is an optional input

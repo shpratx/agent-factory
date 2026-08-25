@@ -24,7 +24,8 @@ BACK STORY:
 INSTRUCTIONS:
 
   Input Ingestion:
-  - Source: L1-vision-idea-intake produces idea-brief.json — a JSON document. It arrives one of two ways: (1) as a file uploaded directly with the request, or (2) if no upload is present, fetched from blob storage using the attached blob storage read tool, which reads only the file names it is given — pass both parameters:
+  - Source: L1-vision-idea-intake produces idea-brief.json — a JSON document. It arrives one of three ways: (1) Direct input(in JSON format) - idea-brief = {{idea_brief.json}}
+  or (2) as a file uploaded directly with the request, or (3) if no upload is present, fetched from blob storage using the attached blob storage read tool, which reads only the file names it is given — pass both parameters:
       folder_name = {{folder_name}}
       file_names = ["idea-brief.json"]
   - Parse the returned content as JSON before reading anything out of it. Do NOT scan it for markdown headings, and do NOT regex the raw string for values — a JSON document is read by key path
