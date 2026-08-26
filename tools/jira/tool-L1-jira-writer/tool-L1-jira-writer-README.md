@@ -76,25 +76,21 @@ The return value is a newline-joined string of all per-issue results.
 from tool_L1_jira_writer_secrets_manager import JiraIssueCreator
 
 tool = JiraIssueCreator()
-result = tool._run({
-    "projectKey": "MYPROJ",
-    "issueType": "Task",
-    "issues": [
-        {
-            "summary": "Set up CI pipeline",
-            "description": "Configure GitHub Actions for automated testing.",
-            "label": ["E1"]
-        },
-        {
-            "summary": "Write unit tests",
-            "description": {
-                "goal": "Achieve 80% coverage",
-                "steps": ["Add pytest", "Mock external calls", "Run coverage report"]
-            },
-            "label": ["E2"]
-        }
-    ]
-})
+result = tool._run(
+{
+  "projectKey": "GGMDEMOS",
+  "issueType": "Task",
+  "issues": [
+    {
+      "summary": "Tool connectivity test",
+      "description": "If this issue appears in Jira, the tool works.",
+      "label": []
+    }
+  ]
+}
+
+
+)
 ```
 
 ## Calling tool in agent
