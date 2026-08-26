@@ -73,7 +73,9 @@ JIRA_API_TOKEN = secrets.get("api_token")
 ```python
 from tool_L1_jira_epics_uploader_secrets_manager import JiraIssueCreator, create_issues
 
-payload = {
+payload = 
+
+{
     "projectKey": "MYPROJ",
     "issueType": "Epic",
     "issues": [
@@ -81,7 +83,7 @@ payload = {
             "summary": "EP-01: Platform Foundation",
             "issueType": "Epic",
             "label": ["EP-01", "S1"],
-            "parentKey": None,
+            "parentKey": null,
             "description": {
                 "description": "Technical foundation for the Credit Coach agent.",
                 "scope_in": ["Envoy agent registration", "Consent capture flow"],
@@ -92,7 +94,7 @@ payload = {
             "summary": "F-01.1: Envoy Agent Registration",
             "issueType": "Story",
             "label": ["F-01.1"],
-            "parentKey": "EP-01",   # resolved to real key after EP-01 is created
+            "parentKey": "EP-01",   
             "description": "Register Credit Coach as a specialist agent. Relates to EP-01."
         }
     ]

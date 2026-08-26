@@ -1,28 +1,3 @@
-# ============================================================================
-# HOW TO RUN
-
-#
-# As a CrewAI tool, inputJSON may be any of:
-#   {"key": "GGMDEMOS-101"}
-#   {"keys": ["GGMDEMOS-101", "GGMDEMOS-110"]}
-
-#
-# OUTPUT: clean JSON. Every issue — and every child, using the SAME scheme — has:
-#   {
-#     "issue_id":            "GGMDEMOS-101",
-#     "title":               "...",
-#     "status":              "To Do",
-#     "description":         "...plain text...",
-#     "labels":              ["EP-01", "S1"],
-#     "assignee":            "Jane Doe"  | null,
-#     "due_date":            "2026-02-01" | null,
-#     "reporter":            "John Smith" | null,
-#     "child_work_item_ids": ["GGMDEMOS-102", "GGMDEMOS-103"],
-#     "children":            [ { ...same scheme... }, ... ]
-#   }
-# A single input key returns one object; a list of keys returns a JSON array.
-# ============================================================================
-
 import os
 import json
 import requests
