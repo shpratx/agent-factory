@@ -1,21 +1,4 @@
-'''
-SAMPLE JSON FOR TESTING:
-
-{
-  "projectKey": "GGMDEMOS",
-  "issueType": "Task",
-  "issues": [
-    {
-      "summary": "Tool connectivity test",
-      "description": "If this issue appears in Jira, the tool works.",
-      "label": []
-    }
-  ]
-}
-
-'''
-
-import os          # FIX #1: was missing (used by os.environ.get below)
+import os         
 import re
 import requests
 from typing import Any, Type, Dict
@@ -79,7 +62,7 @@ JIRA_BASE_URL      = secrets.get("base_url")                     # from AWS Secr
 JIRA_PROJECT_KEY   = "GGMDEMOS"                                  # SETUP-REQUIRED: default Jira project key
 JIRA_USER_EMAIL    = secrets.get("user_email")                   #from AWS Secrets Manager
 JIRA_API_TOKEN     = secrets.get("api_token")                    #from AWS Secrets Manager
-DEFAULT_ISSUE_TYPE = "Epic"                                     # FIX #2: was missing
+DEFAULT_ISSUE_TYPE = "Epic"                                     
 # ============================================================================
 
 
@@ -93,7 +76,7 @@ class JiraIssueCreator(BaseTool):
     description: str = "Creates Jira issues with formatted descriptions and Jira links"
     args_schema: Type[BaseModel] = JiraIssueCreatorSchema
 
-    base_url: str = JIRA_BASE_URL   # FIX #3: declare attribute so self.base_url exists
+    base_url: str = JIRA_BASE_URL   
     post_url: str = ""
 
     def _format_heading(self, key: str) -> str:
