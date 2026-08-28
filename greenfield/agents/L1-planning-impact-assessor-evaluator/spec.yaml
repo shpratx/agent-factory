@@ -2,60 +2,63 @@
 spec_version: "1.0"
 artifact_type: agent
 metadata:
-  name: L1-planning-impact-assessor-evaluator
+  name: L1-planning-impact-assessment-evaluator
   version: "1.0.0"
   layer: L1
   phase: planning
   owner: agentic-ai-coe
-  created: "2026-08-08"
+  created: 2026-08-24
 
 purpose:
-  description: "Independently re-runs L1-planning-impact-assessor's capability check and technical-touch check against the same enterprise-data exports and kb-L1-enterprise-architecture, catching any mismatch the generator's own pass missed."
-  input: "L1-planning-impact-assessor's original input (prd_output, service_catalog, cmdb_export) plus its draft output."
-  output: "Scores, findings, any fixes applied, and a final decision."
-  business_value: "Letting a generator grade its own capability/technical-touch checks against the estate it just checked defeats the point of a quality gate. This agent independently re-derives both checks from the SAME source data and KB narrative — a wrongly-dismissed service-catalog match, or a CI the CMDB and KB disagree about, is exactly the kind of error a generator re-checking its own work would not catch."
+  description: "Independently re-verifies the impact assessment (capability check, technical-touch findings) AND the dependency graph (cycle_check, critical_path, MMD rendering) produced by L1-planning-impact-dependency-mapper, in a single evaluation pass."
+  input: "generator_output from L1-planning-impact-dependency-mapper (capability_check, existing_system_impact[], components[], external_dependencies[], nodes[], edges[], cycle_check, critical_path) plus original_input (prd_output)"
+  output: "evaluation_result with re-derived findings, mechanical fixes applied to impact-assessment.md / dependency-graph.json / dependency-graph.mmd where recoverable, and a final_decision"
+  business_value: "Replaces two separate evaluator agents with one gate over the generator's full output, removing a redundant hand-off while keeping every original independence guarantee — no capability match, CI touch status, cycle result, critical path, or MMD rendering is trusted from the generator's own self-check."
 
 prompt:
-  ref: "prompts/L1-planning-impact-assessor-evaluator/instructions.md"
+  ref: "prompts/L1-planning-impact-assessment-evaluator/instructions.md"
   version: "1.0.0"
-  description: "Scores against L1-planning-impact-assessor/evaluation.md; independently re-derives the capability and technical-touch checks from service_catalog/cmdb_export/kb-L1-enterprise-architecture rather than trusting the generator's own findings."
+  description: "Independently re-fetches service_catalog/cmdb_export, re-derives capability and technical-touch findings, re-runs DFS cycle detection and longest-path critical-path derivation, verifies dependency-graph.mmd as a 1:1 rendering of dependency-graph.json, applies mechanical fixes, and escalates genuine disagreements to HITL."
 
 contract:
   input_schema: "$ref: schemas/agent-input-contract-schema.json"
   output_schema: "$ref: schemas/agent-output-schema.json"
 
   input:
-    accepts_from_agents: [L1-planning-impact-assessor]
+    accepts_from_agents: [L1-planning-impact-dependency-mapper]
     accepts_direct_input: false
     accepts_file_upload:
       enabled: false
+      formats: []
     required_parameters:
-      original_input: { type: object, description: "The prd_output, service_catalog, and cmdb_export L1-planning-impact-assessor received" }
-      generator_output: { type: object, description: "L1-planning-impact-assessor's draft items output" }
+      workflow_execution_id: {type: string, description: "Inherited from generator_output.workflow_execution_id"}
+      generator_output: {type: object, description: "Full agent_output from L1-planning-impact-dependency-mapper, including content.items and content.artifacts"}
+    optional_parameters:
+      original_input: {type: object, default: null, description: "The generator's own original_input, used only for prd_output grounding checks — never trusted for service_catalog/cmdb_export passthrough"}
 
   output:
     $ref: "output_schema.json"
 
 context:
   knowledge_bases:
-    - ref: "../L1-planning-impact-assessor/evaluation.md"   # source of truth for scoring — not duplicated in this agent's prompt
-    - kb-L1-enterprise-architecture   # re-checked independently against the SAME service_catalog/cmdb_export, not trusted from the generator's own pass
+    - ref: "../L1-planning-impact-dependency-mapper/evaluation.md"   # source of truth for scoring thresholds and gates — never duplicated into this agent's own prompt
+    - kb-L1-enterprise-architecture
   guardrails:
     - gr-L1-output-schema-validator
     - gr-L1-pii-detection
-    - gr-L2-food-domain-compliance   # BLOCKER the generator owns — re-checked independently, not by trusting the generator's own pass/fail claim
-    - gr-L1-impact-assessment-quality-gate   # fires when THIS evaluator concludes; validates L1-planning-impact-assessor's RESULTANT output against its own schema + evaluation.md rubric (guardrails/gr-L1-impact-assessment-quality-gate)
-  tools: []
+    - gr-L3-hallucination-detector
+    - gr-L3-citation-validator
+    - gr-L3-consistency-checker
+    - gr-L1-impact-assessment-quality-gate   # fired once, only on the final successful iteration — see prompt Processing Rule 14
+  tools:
+    - tool-L1-blob-storage-fetch-file   # independent re-fetch of service_catalog, cmdb_export, impact-assessment.md, dependency-graph.json, dependency-graph.mmd
+    - tool-L1-blob-storage-overwrite-file   # writes mechanical fixes back to the SAME locations; never a new artifact id
 
 quality:
-  evaluation_ref: "evaluation.md"   # this file covers THIS evaluator's own meta-quality, not the generator's rubric
-  min_score: 8.0   # evaluators are held to a higher bar than generators — a wrong finding is worse than a wrong component
+  evaluation_ref: "evaluation.md"
+  min_score: 8.0   # evaluators are held to a higher bar than generators — a wrong finding is worse than a wrong story
   hallucination_check: true
   consistency_check: true
-
-performance:
-  target_latency_seconds: 18
-  max_token_budget: 6000
 
 versioning:
   input_version: "1.0"

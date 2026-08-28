@@ -1,83 +1,82 @@
-# L1-planning-impact-assessor-evaluator
+# L1-planning-impact-assessment-evaluator
 
 ## Purpose
 
-`L1-planning-impact-assessor` checks a PRD's requirements against
-`service_catalog`, `cmdb_export`, and `kb-L1-enterprise-architecture` — but
-a generator re-checking its own capability/technical-touch findings against
-the estate it just checked is exactly the failure mode a quality gate
-exists to catch (a wrongly-dismissed service-catalog match, a CI the CMDB
-and KB actually disagree about that the generator's pass missed). This
-agent independently re-derives both checks from the same source data.
+L1-planning-impact-dependency-mapper produces two things from the same
+PRD: an impact assessment (capability check + technical-touch findings
+against existing systems) and a dependency graph (nodes, edges,
+cycle_check, critical_path, rendered as both JSON and Mermaid). This
+agent is the single, independent evaluator over that entire output. It
+replaces what would otherwise be two separate evaluators
+(`L1-planning-impact-assessor-evaluator` and
+`L1-planning-dependency-mapper-evaluator`) with one gate, since both
+target the same generator and the same downstream consumer
+(`L1-planning-backlog-prioritizer`). Nothing from either original
+evaluator's independence guarantees is dropped in the merge — this agent
+never accepts a generator-declared value as evidence of its own
+correctness, on either the impact-assessment side or the graph side.
 
 ## What does it do?
 
-Scores the impact assessor's draft output against
-`L1-planning-impact-assessor/evaluation.md`, sourced from
-`kb-L1-enterprise-architecture` for the narrative cross-check. Fixes what's
-mechanically recoverable (a touched/not-touched finding that contradicts
-both the CMDB and the KB); escalates what needs new judgment (a genuine
-KB/data disagreement with no clear resolution).
+- Re-fetches `service_catalog` and `cmdb_export` independently and
+  re-derives the capability check and every relevant CI's
+  touched/not-touched status from them plus
+  `kb-L1-enterprise-architecture`
+- Checks export freshness and HarvestLink contamination against the
+  generator's stated freshness finding
+- Re-runs DFS cycle detection and, if acyclic, an independent
+  longest-path walk to re-derive `critical_path` (including honest tie
+  detection)
+- Spot-checks edge direction against `impact-assessment.md`'s stated
+  prerequisite language
+- Verifies `dependency-graph.mmd` is a 1:1 structural rendering of
+  `dependency-graph.json` — node/edge counts, directions, shapes, styles,
+  and cycle/critical-path annotations
+- Fixes mechanically-recoverable gaps (a touched/not-touched row, a
+  reversed edge with a clear source citation, a missed tie, a dropped FR,
+  a wrong MMD shape/style) and writes the correction back to every
+  artifact it appears in, at the SAME blob storage location
+- Escalates genuine disagreements (an ambiguous cycle direction, a
+  stale/contaminated export) to HITL rather than guessing
 
 ## How does it work?
 
-1. Loads `L1-planning-impact-assessor/evaluation.md` as source of truth
-2. Retrieves `impact-assessment.md` from s3 via
-   `generator_output.content.artifacts[0].storage.location` — items already
-   carry full facts (not meta-points), but the retrieved document is still
-   the artifact of record any document-touching fix must be pushed back to
-3. Re-derives the capability check independently: compares
-   `original_input.service_catalog.services[]` against the PRD's proposed
-   capabilities itself, rather than accepting `matched_service_id`/
-   `is_duplicate` because they "look reasonable"
-4. Re-derives the technical-touch check independently: for every relevant
-   CI in `original_input.cmdb_export`, checks touched/not-touched against
-   BOTH the CMDB relationships and `kb-L1-enterprise-architecture`'s
-   narrative — a CI where the two sources disagree, or where the
-   generator's row contradicts either source, is a finding
-5. Checks every FR has a component with a blast-radius rationale, and that
-   external_dependencies includes anything newly surfaced by step 4
-6. Fixes mechanically-recoverable gaps; escalates genuine judgment calls
-7. If a fix changes content also present in `impact-assessment.md` (a
-   touched/not-touched finding, a blast-radius rationale), corrects the
-   document too and overwrites it at the SAME s3 location — a fix recorded
-   only in items and left uncorrected in the document is incomplete
-8. `final_decision` per the standard rule
+1. Ingest `generator_output` and independently re-fetch `service_catalog`, `cmdb_export`, `impact-assessment.md`, `dependency-graph.json`, `dependency-graph.mmd`
+2. Re-derive the capability check and technical-touch findings; check freshness/contamination
+3. Re-run DFS cycle detection; if acyclic, re-run longest-path and compare against `critical_path`
+4. Spot-check edge directions and node/FR grounding
+5. Parse the `.mmd` and structurally verify it against the `.json`
+6. Apply mechanical fixes across every affected artifact, or escalate genuine disagreements
+7. Emit `final_decision` and fire `gr-L1-impact-assessment-quality-gate` once, only on the final successful iteration
 
 ## Input
 
-- **Source:** agent_output (`L1-planning-impact-assessor`'s original input
-  + draft output)
+- **Source:** agent_output from `L1-planning-impact-dependency-mapper`
+- **Required:** `generator_output` — the generator's full output including `content.items` and `content.artifacts`
+- **Optional:** `original_input` — used only for `prd_output` grounding, never trusted for `service_catalog`/`cmdb_export` passthrough
 
 ## Output
 
 - **Type:** `evaluation_result`
-- **Items:** `scores`, `overall_score`, `pass`, `findings[]`,
-  `fixes_applied[]`, `final_decision` — shared shape across all Phase 0/1
-  evaluators, see `output_schema.json`
-- **Summary:** overall_score, pass/fail, findings breakdown, what was
-  fixed (including any document correction), knowledge bases consulted,
-  gaps flagged
+- **Items:** `scores`, `overall_score`, `pass`, `findings[]` (tagged by `gate`: capability-check, technical-touch, freshness-contamination, fr-component-coverage, cycle-check, critical-path, edge-direction, grounding, mmd-structural), `fixes_applied[]`, `final_decision`
+- **Metadata:** every finding cites a specific `ci_id`, `service_id`, `FR-id`, node id, or edge (from/to); every fix states its reasoning and which artifact(s) it was written back to
+- **Summary:** plain-text bullets covering re-derivation results for both halves of the output, any mismatch found and whether fixed or escalated, MMD verification detail, artifacts verified, KBs/tools/guardrails used, gaps flagged
 
 ## Composition
 
 ```
-agents/L1-planning-impact-assessor-evaluator/
+agents/L1-planning-impact-assessment-evaluator/
 ├── spec.yaml
 ├── evaluation.md
 ├── output_schema.json
 ├── README.md
 ├── examples/
-│   ├── input-01-minor-fix.json
-│   ├── output-01-minor-fix.json
-│   ├── input-02-legitimate-failure.json
-│   └── output-02-legitimate-failure.json
+│   ├── input-01-typical.json
+│   ├── output-01-typical.json
+│   ├── input-02-edge-case.json
+│   └── output-02-edge-case.json
 └── golden/v1.0.0/
-    ├── input-golden-01-thornbury.json
-    ├── golden-01-thornbury.json
-    ├── input-golden-02-mismatch.json
-    └── golden-02-mismatch.json
 
-prompts/L1-planning-impact-assessor-evaluator/
+prompts/L1-planning-impact-assessment-evaluator/
 └── instructions.md
 ```

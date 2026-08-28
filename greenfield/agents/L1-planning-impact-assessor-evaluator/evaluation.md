@@ -1,38 +1,38 @@
-# Evaluation — L1-planning-impact-assessor-evaluator
-
-This covers THIS evaluator's own meta-quality — not L1-planning-impact-
-assessor's rubric (that lives in
-`../L1-planning-impact-assessor/evaluation.md` and `kb-L1-enterprise-
-architecture`, loaded at runtime, not duplicated here).
+# Evaluation — L1-planning-impact-assessment-evaluator
 
 ## Quality Gates
-- [ ] The capability check was independently re-derived against
-      service_catalog directly, not accepted because the generator's
-      matched_service_id/is_duplicate "looks reasonable"
-- [ ] The technical-touch check was independently re-derived against
-      cmdb_export AND kb-L1-enterprise-architecture for every relevant CI —
-      a CI the generator marked touched/not-touched is re-checked against
-      both sources, not trusted from the generator's own row
-- [ ] Every finding cites a specific ci_id, service_id, or FR-id, not a
-      vague impression
-- [ ] No fix invents a service, CI, or dependency not actually present in
-      service_catalog/cmdb_export/kb-L1-enterprise-architecture
-- [ ] A legitimate INSUFFICIENT_CONTEXT (status: failed) generator output
-      is approved as-is, never "fixed" into a fabricated assessment
+- [ ] service_catalog and cmdb_export were independently re-fetched, not read from original_input passthrough
+- [ ] capability_check re-derived from the fresh service_catalog, not accepted from matched_service_id/is_duplicate alone
+- [ ] every relevant CI's touched/not-touched status independently re-derived from cmdb_export.relationships + KB narrative
+- [ ] export_metadata.exported_at freshness and HarvestLink contamination checked on the fresh export, not the generator's copy
+- [ ] cycle_check independently re-derived via this evaluator's own DFS, not read from the generator's field
+- [ ] critical_path independently re-derived via this evaluator's own longest-path walk (depends-on/blocks only), ties checked
+- [ ] a sample of edge directions (every "blocks" edge + every critical-path edge) spot-checked against impact-assessment.md's prerequisite language
+- [ ] dependency-graph.mmd node count, edge count, edge directions, shapes, and edge styles verified against dependency-graph.json
+- [ ] if cycle_check is FAIL: cycle nodes carry classDef cycleNode + %% CYCLE: comment in the .mmd
+- [ ] if cycle_check is PASS: a %% CRITICAL PATH: comment exists for every tied chain
+- [ ] every FR in the PRD maps to a component with a blast-radius rationale and appears in some node's source_requirement[]
+- [ ] no fix invents a service, CI, dependency, node, or edge absent from the real data
+- [ ] any fix touching impact-assessment.md, dependency-graph.json, or dependency-graph.mmd is written back to that SAME blob location before final_decision
+- [ ] gr-L1-impact-assessment-quality-gate fired exactly once, on the final successful iteration only
 
 ## Scores (≥ threshold to pass)
 | Evaluator | ≥ | Checks |
 |-----------|---|--------|
-| Faithfulness | 0.95 | Findings accurately describe the actual generator output and source data |
-| Hallucination | ≤ 0.05 | No fix introduces a service/CI/dependency not grounded in the actual exports or KB |
-| Consistency | 0.90 | overall_score and pass boolean agree with the individual dimension scores |
-| Reasoning quality | 0.85 | Every finding's detail names the specific ci_id/service_id/FR-id and which check it concerns |
+| Faithfulness | 0.90 | Every finding traces to a re-fetched/re-derived source, not the generator's claim |
+| Hallucination | ≤ 0.05 | No invented service, CI, node, edge, or dependency |
+| Consistency | 0.95 | items and all three artifacts (md, json, mmd) never diverge post-fix |
+| Relevance | 0.85 | Findings are actionable and cite a specific id |
+| Reasoning quality | 0.85 | Every fix and every escalation states its source-grounded reasoning |
+| Citation completeness | 0.95 | Every finding cites a ci_id, service_id, FR-id, node id, or edge (from/to) |
 
 ## Reflection Checklist
-- [ ] No finding is a rubber stamp ("looks fine") without a specific re-derived check
-- [ ] escalate_to_hitl used only when genuinely unfixable (e.g. the KB itself is ambiguous), not overused as a shortcut
-- [ ] fixes_applied preserves everything that was already correct
-- [ ] Any fix touching a fact also stated in impact-assessment.md was pushed back to the SAME s3 location — never left to diverge
+- [ ] Did I actually re-fetch service_catalog/cmdb_export, or reuse the generator's copy?
+- [ ] Did I actually run DFS and longest-path myself, or just compare fields?
+- [ ] Did I count nodes/edges in the .mmd text, or assume it matches the JSON?
+- [ ] Is every mechanical fix grounded in impact-assessment.md or kb-L1-enterprise-architecture, with no invented entity?
+- [ ] Does every fixed_and_approved decision correspond to artifacts actually overwritten at their original locations?
+- [ ] Was the quality-gate guardrail fired only once, on the final iteration?
 
 ## Reflection Process
-1. Generate → 2. Check all items above → 3. Fix silently → 4. Deliver final only
+1. Re-fetch and re-derive independently → 2. Compare against generator's declared values → 3. Fix mechanically-recoverable gaps or escalate genuine disagreements → 4. Sync every touched artifact → 5. Deliver final result only, no interim output.

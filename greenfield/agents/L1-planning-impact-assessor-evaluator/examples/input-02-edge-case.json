@@ -1,0 +1,44 @@
+{
+  "workflow_execution_id": "wf-c19d0022-77af-4e15-8b90-2fe1a9c33d10",
+  "generator_output": {
+    "agent_id": "L1-planning-impact-dependency-mapper",
+    "status": "success",
+    "workflow_execution_id": "wf-c19d0022-77af-4e15-8b90-2fe1a9c33d10",
+    "content": {
+      "type": "impact_dependency_result",
+      "items": {
+        "capability_check": {
+          "matched_service_id": "SVC-5510",
+          "is_duplicate": false,
+          "rationale": "No overlapping capability found in catalog"
+        },
+        "existing_system_impact": [
+          { "ci_id": "CI-9021", "touched": true, "rationale": "Directly modified" }
+        ],
+        "components": [
+          { "id": "COMP-11", "name": "Order Router", "blast_radius": "Checkout flow" },
+          { "id": "COMP-12", "name": "Inventory Sync", "blast_radius": "Warehouse feed" }
+        ],
+        "external_dependencies": ["SVC-5510"],
+        "nodes": [
+          { "id": "N-11", "type": "component", "label": "Order Router", "source_requirement": ["FR-201"] },
+          { "id": "N-12", "type": "component", "label": "Inventory Sync", "source_requirement": ["FR-202"] }
+        ],
+        "edges": [
+          { "from": "N-11", "to": "N-12", "type": "blocks" },
+          { "from": "N-12", "to": "N-11", "type": "depends-on" }
+        ],
+        "cycle_check": { "status": "FAIL", "cycles_found": [["N-11", "N-12"]] },
+        "critical_path": { "nodes": [], "length": 0 }
+      },
+      "artifacts": [
+        { "id": "artifact-7781", "type": "document", "name": "L1-impact-assessment.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://enterprise-data/wf-c19d0022/impact-assessment.md" }, "produced_by": "L1-planning-impact-dependency-mapper" },
+        { "id": "artifact-7782", "type": "document", "name": "L1-dependancy-graph.json", "format": "json", "storage": { "provider": "s3", "location": "s3://enterprise-data/wf-c19d0022/dependency-graph.json" }, "produced_by": "L1-planning-impact-dependency-mapper" },
+        { "id": "artifact-7783", "type": "document", "name": "L1-dependency-graph.mmd", "format": "mermaid", "storage": { "provider": "s3", "location": "s3://enterprise-data/wf-c19d0022/dependency-graph.mmd" }, "produced_by": "L1-planning-impact-dependency-mapper" }
+      ]
+    }
+  },
+  "original_input": {
+    "prd_output": { "requirements": ["FR-201", "FR-202"] }
+  }
+}
