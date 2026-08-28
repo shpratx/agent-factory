@@ -1,0 +1,54 @@
+models:
+
+  - type: main
+    engine: openai
+    model: gpt-5.4
+
+
+rails:
+  output:
+    flows:
+      - self check output
+
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response (resultant L1-nfr-classifier output, with L1-requirements-nfr-classifier-evaluator's fixes resolved in) passes every Quality Gate checklist item and every rubric score threshold below.
+
+      Bot response: "{{ bot_response }}"
+
+      First, check status. If status is "failed" with an explicit named reason such as "INSUFFICIENT_CONTEXT" (e.g. the upstream requirements output was missing, not successful, or carried an empty functional_requirements set), this is a legitimate refusal — treat it as safe and skip the checks below.
+
+      Otherwise, flag ONLY if the response fails any of these Quality Gates:
+      1. nfr_classifications[] is empty, or any entry is missing "id" or "title", or an id is not a well-formed "FR-NNN", or ids are duplicated, or entries are not in ascending id order.
+      2. Any "category" value is outside the allowed set: Performance, Security, Scalability, Availability, Compliance, Usability.
+      3. The same category appears more than once in a single FR's boundary_conditions[].
+      4. Any "boundary_condition" is neither a concrete number/rule nor the exact literal string "TBD — needs stakeholder input" — for example a vague hedge such as "fast", "reasonable", "as needed", "industry standard", "best effort", "highly available", "minimal latency".
+      5. Any non-TBD boundary_condition has "source" of "—", a missing source, or a source outside the allowed forms: "requirements.md § FR-NNN", "vision.md § X", "regulatory-feasibility.md § X", "kb-L1-enterprise-security § ESN". A concrete number with no checkable citation is the blocker fabrication this gate exists to prevent.
+      6. Any non-TBD boundary_condition is missing "rationale", or the rationale merely restates the number instead of explaining why that boundary follows from the FR statement or the cited source.
+      7. Any TBD boundary_condition carries a source other than "—", or carries a rationale (rationale must be omitted when TBD).
+      8. All six categories are attached to every FR regardless of relevance (padding), or a category is attached whose taxonomy question is plainly unrelated to that FR's own title/statement.
+      9. An FR has an empty boundary_conditions[] but its "reasoning" does not explicitly state "No NFR categories apply".
+      10. Any boundary_condition is a multi-sentence narrative rather than a short, atomic phrase.
+      11. Any entry is missing "confidence" or "reasoning".
+      12. The coverage counts stated in reasoning or execution_summary (requirements covered, boundary conditions defined, boundary conditions marked TBD) do not match the actual counts in nfr_classifications[].
+      13. A Compliance boundary condition is marked TBD while the same output elsewhere cites regulatory-feasibility.md for that same rule or FR, or while the execution_summary states that regulatory-feasibility.md was available and consulted for it — inconsistent grounding within one output.
+      14. The output writes to blob storage — an artifacts[] entry, a blob_storage location, or an execution_summary claim that an nfr-spec document was saved or uploaded. This agent must emit JSON only.
+      15. execution_summary is missing, is JSON rather than plain-text bullets, or omits the required bullets (what was produced, key decisions, self-check outcome, knowledge bases consulted, guardrails evaluated, gaps flagged).
+      16. content.type is not "nfr_classification", or schema_version, execution_id, or a "wf-" workflow_execution_id is missing.
+      17. Faithfulness below 0.90 — a boundary condition asserts a value its own rationale or cited source form does not support.
+      18. Hallucination above 0.05 — an invented FR id, an invented section reference, or a numeric target presented as sourced when nothing grounds it.
+      19. Internal consistency below 0.90 — rationale, category, boundary_condition, and source contradict one another within a single entry, or comparable FRs are treated inconsistently without explanation.
+      20. Relevance below 0.85 — a boundary condition does not constrain the capability its parent FR actually describes.
+      21. Reasoning quality below 0.80 — reasoning fields are generic boilerplate repeated across FRs rather than classification-specific.
+
+      Do NOT flag:
+      - status "failed" with an explicit named reason such as "INSUFFICIENT_CONTEXT" — a correctly labelled refusal is a legitimate outcome, not a defect.
+      - an FR with an empty boundary_conditions[] where reasoning explicitly states "No NFR categories apply" — this is the required form, not an omission.
+      - fewer than six categories on an FR — only genuinely applicable categories belong, so a short list is correct behaviour.
+      - Compliance boundary conditions marked TBD across the board where the output states the regulatory-feasibility input was missing or failed.
+      - a TBD boundary condition whose reasoning or execution_summary confirms regulatory-feasibility.md and kb-L1-enterprise-security were checked first and held nothing.
+      - a confidence value below 1.0 where the reasoning explains the uncertainty.
+
+      Answer only "yes" if the response passes every Quality Gate and every rubric threshold above.
+      Answer "no" if the response fails any Quality Gate or falls below any rubric threshold.

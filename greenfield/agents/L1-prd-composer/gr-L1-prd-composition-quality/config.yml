@@ -1,0 +1,57 @@
+models:
+
+  - type: main
+    engine: openai
+    model: gpt-5.4
+
+
+rails:
+  output:
+    flows:
+      - self check output
+
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response (resultant L1-requirements-prd-composer output, with L1-requirements-prd-composer-evaluator's fixes resolved in) passes every Quality Gate checklist item and every rubric score threshold below.
+
+      Bot response: "{{ bot_response }}"
+
+      First, check status. If status is "failed" with an explicit named reason such as "INSUFFICIENT_CONTEXT" (e.g. either the evaluated requirements output or the evaluated NFR set was missing or not successful — both are hard preconditions), this is a legitimate refusal — treat it as safe and skip the checks below.
+
+      Otherwise, flag ONLY if the response fails any of these Quality Gates:
+      1. requirements[] is empty, or contains duplicate FR ids, or ids are not well-formed "FR-NNN", or entries are not in ascending id order.
+      2. Any requirement is missing "statement" or "citation", or the statement is a condensed gloss rather than full text — truncated, ellipsised, or a fragment rather than a complete requirement sentence.
+      3. Any requirement is missing the "nfrs" key entirely, or has an empty nfrs[] with no explicit "No NFR categories apply" marker stated for it.
+      4. Any requirement lacks an explicit MVP tag of exactly "Yes" or "No", or carries an MVP tag with no stated traceable basis (a vision.md Roadmap phase, the Problem/Value Proposition, or the evaluated requirements' Priority field).
+      5. Any NFR boundary condition lacks its own MVP tag, or is overridden to MVP "No" without an explicit stated basis framing that specific boundary as later-phase hardening or scale.
+      6. Any assumption, constraint, or risk lacks its own id in the required format — ASSUM-NNN, CON-NNN, RISK-NNN respectively.
+      7. Any assumption, constraint, or risk has an empty or missing "underlies_or_affects", or names an FR id absent from requirements[], or is neither an FR reference nor "program-level".
+      8. Any assumption, constraint, or risk whose reasoning traces to neither vision.md nor a specific FR — an invented product-level claim.
+      9. Any success metric, KPI, north-star target, or numeric business goal is introduced anywhere in items as a PRD-owned metric rather than being referenced through an FR's own citation.
+      10. executive_summary.summary, or any assumption/constraint/risk "summary", exceeds 150 characters, or a "short_title" or "summary" field silently contains full narrative prose.
+      11. Any boundary condition in requirements[].nfrs whose text is a TBD ("TBD — needs stakeholder input") has no matching open_questions entry with type "tbd" carrying that same fr_id and category.
+      12. Any open_questions entry of type "tbd" whose fr_id or category does not correspond to an actual TBD boundary condition present in requirements[].
+      13. Any compound_splits[] entry naming a split_into id absent from requirements[], or with fewer than 2 ids.
+      14. artifacts[] is missing an entry for prd.md, or its storage.location is empty, null, or an unresolved placeholder such as "<blob_storage_url>", "TBD", or "string".
+      15. Any claim in executive_summary that is not supported by content present elsewhere in items — the summary must introduce nothing new.
+      16. Any requirement, assumption, constraint, or risk missing "confidence" or "reasoning", or a reasoning that merely restates the item instead of justifying it.
+      17. execution_summary is missing, is JSON rather than plain-text bullets, or its stated counts (FR count, assumption/constraint/risk counts, open question count) do not match the actual array lengths.
+      18. content.type is not "prd", or schema_version, execution_id, or a "wf-" workflow_execution_id is missing.
+      19. Faithfulness below 0.90 — an item asserts something its own citation or reasoning does not support.
+      20. Hallucination above 0.05 — an invented FR id, an invented vision.md section, an invented NFR category, or a boundary condition with no parent FR.
+      21. Internal consistency below 0.90 — MVP tags, NFR categories, open questions, and compound splits contradict each other across sections of the same output.
+      22. Relevance below 0.85 — an assumption, constraint, or risk that does not bear on any requirement or on the programme.
+      23. Reasoning quality below 0.80 — reasoning fields are generic boilerplate repeated across items rather than composition-specific.
+
+      Do NOT flag:
+      - status "failed" with an explicit named reason such as "INSUFFICIENT_CONTEXT" — a correctly labelled refusal is a legitimate outcome, not a defect.
+      - a requirement with an explicit "No NFR categories apply" marker and an empty nfrs[] — this is the required form, not a dropped table.
+      - an empty open_questions[] when requirements[] contains no TBD boundary conditions and no coverage gap was identified.
+      - the absence of coverage_gap entries — a gap is only recorded when one can be pointed at specifically.
+      - a long requirement "statement" — statements must be carried full and verbatim, so length alone is never a defect.
+      - assumptions, constraints, or risks that all trace to vision.md with none newly added — adding one is conditional, not required.
+      - a risk whose underlies_or_affects is "program-level" rather than an FR id.
+
+      Answer only "yes" if the response passes every Quality Gate and every rubric threshold above.
+      Answer "no" if the response fails any Quality Gate or falls below any rubric threshold.
