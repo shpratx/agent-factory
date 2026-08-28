@@ -1,0 +1,12 @@
+# gr-L1-nfr-classification-quality — Prompt-Only Mode
+# Layer: L1
+# Triggers on: output (post_execution — fires when L1-requirements-nfr-classifier-evaluator concludes)
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant NFR classification failed one or more L1 quality gates (ungrounded boundary condition, fabricated citation, category padding, malformed TBD, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"nfr-classification-quality\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant NFR classification failed one or more L1 quality gates (ungrounded boundary condition, fabricated citation, category padding, malformed TBD, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"nfr-classification-quality\", \"rail\": \"output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant NFR classification failed one or more L1 quality gates (ungrounded boundary condition, fabricated citation, category padding, malformed TBD, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"nfr-classification-quality\", \"rail\": \"output\"}"

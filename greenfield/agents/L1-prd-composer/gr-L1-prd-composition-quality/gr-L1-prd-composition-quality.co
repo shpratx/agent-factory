@@ -1,0 +1,12 @@
+# gr-L1-prd-composition-quality — Prompt-Only Mode
+# Layer: L1
+# Triggers on: output (post_execution — fires when L1-requirements-prd-composer-evaluator concludes)
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant PRD composition failed one or more L1 quality gates (missing MVP basis, untraceable assumption/constraint/risk, unrolled TBD, injected success metric, condensed statement, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"prd-composition-quality\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant PRD composition failed one or more L1 quality gates (missing MVP basis, untraceable assumption/constraint/risk, unrolled TBD, injected success metric, condensed statement, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"prd-composition-quality\", \"rail\": \"output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant PRD composition failed one or more L1 quality gates (missing MVP basis, untraceable assumption/constraint/risk, unrolled TBD, injected success metric, condensed statement, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"prd-composition-quality\", \"rail\": \"output\"}"
