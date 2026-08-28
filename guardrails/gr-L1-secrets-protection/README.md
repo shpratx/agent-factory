@@ -1,138 +1,72 @@
 # gr-L1-secrets-protection
 
-**Layer:** L1  
-**Triggers on:** output  
-**On fail:** Block  
-**Implementation:** LLM-driven (Colang) — Python actions preserved for hybrid/fallback mode
+**Layer:** L1
+**Triggers on:** output (output rail)
+**On fail:** Block
+**Implementation:** LLM-driven (Colang) + Python-hybrid mode available
 
 ## What does it do?
 
-This guardrail prevents credentials, API keys, tokens, and internal system details from leaking in agent output. Agents process configurations, code, and infrastructure knowledge — this guardrail ensures none of that sensitive material appears in responses.
+Prevents credentials, API keys, tokens, and internal system details from leaking in agent output. Agents process configurations, code, and infrastructure knowledge — this guardrail ensures none of that sensitive material appears in responses, catching things like an accidentally included connection string in generated code or an echoed API key from a configuration example.
 
-**What it detects:**
-- AWS access keys (AKIA... pattern)
-- Generic API keys and tokens (api_key=..., Bearer tokens)
-- Passwords and connection strings (password=..., mongodb://...@...)
-- JWT tokens (eyJ... pattern)
-- Private keys (-----BEGIN PRIVATE KEY-----)
-- Internal system URLs or endpoints not meant for external exposure
-- Database credentials and connection details
+**What it catches:**
+- A real AWS access key string
+- A real API key or token assignment
+- A real password or connection string with embedded credentials
+- A real JWT token string
+- A real private key block
+- A real internal system URL with embedded credentials
+- A real database credential pair
 
-**Why it matters:** An agent with access to infrastructure KBs might accidentally include a connection string in generated code, or echo an API key from a configuration example. This guardrail catches it before it reaches the user.
-
+**What it allows:**
+- The words "API key", "token", "password", "secret", "credential" — these are terms, not values
+- A sentence that mentions a credential type without including the actual value, e.g. "store your API key securely"
+- General statements about storing, rotating, or managing credentials
 
 ## How It Works
 
 ```
-Agent generates output
-        ↓
-┌─────────────────────────────────────────┐
-│  SECRETS CHECK (self_check_output)      │
-│                                         │
-│  LLM scans output for:                  │
-│  • AWS keys (AKIA...) → BLOCK           │
-│  • API keys/tokens → BLOCK              │
-│  • Passwords/connection strings → BLOCK │
-│  • JWT tokens (eyJ...) → BLOCK          │
-│  • Private keys → BLOCK                 │
-│  • Internal URLs → BLOCK                │
-│                                         │
-│  Any found → BLOCK + alert ops          │
-│  Clean → deliver output                 │
-└─────────────────────────────────────────┘
-        ↓
-Credential-free output delivered
+AGENT OUTPUT
+    │
+    ▼
+[LLM: Real, currently-usable credential value present?] ──── Yes? ──► BLOCK
+    │ No
+    ▼
+[DELIVER OUTPUT]
 ```
-
 
 ## File Structure
 
 ```
 gr-L1-secrets-protection/
-├── config.yml              # Rail configuration
-├── prompts.yml             # LLM evaluation prompt with specific rules
-├── gr-L1-secrets-protection.co  # LLM-only Colang flow (uses self_check_input/output)
-├── secrets_protection.co  # Python-hybrid Colang flow (calls actions.py)
-├── actions.py              # Python implementation (deterministic regex/logic)
-├── spec.yaml               # Guardrail specification
-└── README.md               # This file
+├── gr-L1-secrets-protection.co   # output rail definitions
+├── config.yml                     # NeMo config + self-check prompt
+└── README.md                      # This file
 ```
-
-**Two modes:**
-- **LLM-only** (`gr-L1-secrets-protection.co`): Uses `execute self_check_input`/`self_check_output` — all validation done by the LLM via prompts.yml. No Python dependency.
-- **Python-hybrid** (`secrets_protection.co`): Calls Python actions from `actions.py` for deterministic regex checks + LLM for semantic checks. Faster, more reliable for pattern-based rules.
 
 ## Testing
 
-### Option 1: Prompt-Based Testing (LLM Judgement Only)
+### Prompt-Based Testing (LLM Judgement)
 
-Tests whether the LLM can correctly evaluate output against this guardrail's rules. Validates the **LLM's judgement accuracy** — not the guardrail flow itself. Useful for prompt tuning.
+**Should pass (answer: "yes" = safe):**
+- "store your API key securely and never commit it to source control"
+- `{"output": {"items": [{"content": {"code": "app.listen(3000)"}}]}}`
 
-**Valid output (expected: "yes"):**
-
-```
-{"output": {"items": [{"content": {"code": "const app = express();"}}]}}
-```
-
-Paste the prompt from `prompts.yml` with this output. LLM should answer "yes".
-
-**Invalid output (expected: "no"):**
-
-```
-{"output": {"items": [{"content": {"code": "const key = AKIAIOSFODNN7EXAMPLE;"}}]}}
-```
-
-Paste the prompt from `prompts.yml` with this output. LLM should answer "no".
+**Should block (answer: "no" = unsafe):**
+- A response containing a real AWS access key string
+- A response containing a real database connection string with embedded credentials
 
 ### Test Cases Matrix
 
-| Test | Mutation | Expected |
-|------|----------|----------|
-| Clean code output | None | "yes" |
-| Contains AWS key | AKIAIOSFODNN7EXAMPLE in output | "no" |
-| Contains JWT | "eyJhbGciOiJIUzI1NiIs..." in output | "no" |
-| Contains password | "password=MyS3cr3tP@ss" in output | "no" |
-| Contains private key | "-----BEGIN PRIVATE KEY-----" in output | "no" |
-| Contains internal URL | "http://internal-api.corp:8080/admin" | "no" |
-| Safe code with no secrets | "app.listen(3000)" | "yes" |
-
-### Option 2: End-to-End Flow Testing (NeMo Guardrails SDK)
-
-Tests the actual Colang flow as it would execute at runtime — the full pipeline: `self_check_output` → LLM evaluates → flow blocks or passes. This is how the guardrail behaves when an agent runs in production.
-
-```python
-from nemoguardrails import LLMRails, RailsConfig
-
-config = RailsConfig.from_path("./gr-L1-secrets-protection")
-rails = LLMRails(config)
-
-# Test: valid output should pass
-response = await rails.generate_async(
-    messages=[{"role": "user", "content": "{"output": {"items": [{"content": {"code": "const app = expr..."}]
-)
-assert "blocked" not in response["content"].lower()
-print("✅ Valid output passed through")
-
-# Test: invalid output should be blocked
-response = await rails.generate_async(
-    messages=[{"role": "user", "content": "{"output": {"items": [{"content": {"code": "const key = AKIA..."}]
-)
-assert "blocked" in response["content"].lower()
-print("✅ Invalid output blocked by flow")
-```
-
-### Option 3: Python Unit Testing (standalone actions.py)
-
-Tests the deterministic Python implementation directly (hybrid mode):
-
-```python
-from actions import *
-
-# Valid — should pass
-result = await validate(...)
-assert result == True
-
-# Invalid — should fail
-result = await validate(...)
-assert result == False
-```
+| # | Test | Expected | Category | Severity |
+|---|------|----------|----------|----------|
+| 1 | Real AWS access key string | BLOCK | secrets | Critical |
+| 2 | Real API key or token assignment | BLOCK | secrets | Critical |
+| 3 | Real password or connection string with embedded credentials | BLOCK | secrets | Critical |
+| 4 | Real JWT token string | BLOCK | secrets | Critical |
+| 5 | Real private key block | BLOCK | secrets | Critical |
+| 6 | Real internal system URL with embedded credentials | BLOCK | secrets | Critical |
+| 7 | Real database credential pair | BLOCK | secrets | Critical |
+| 8 | Credential term mentioned with no actual value present | PASS | — | — |
+| 9 | General statement about storing, rotating, or managing credentials | PASS | — | — |
+| 10 | Clean code output with no secrets | PASS | — | — |
