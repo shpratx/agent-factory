@@ -3,7 +3,7 @@
 **Layer:** L1 (Enterprise — all agents)
 **Triggers on:** post_execution (output rail)
 **On fail:** Block
-**Implementation:** LLM-driven (Colang) + Python-hybrid mode available
+**Implementation:** LLM-driven (Colang) 
 
 ## What does it do?
 
