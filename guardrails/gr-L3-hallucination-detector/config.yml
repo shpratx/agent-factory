@@ -1,9 +1,30 @@
 models:
   - type: main
     engine: openai
-    model: gpt-4.1
+    model: gpt-5.4
+
 
 rails:
   output:
     flows:
-      - check output hallucination
+      - self check output
+
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response is grounded in reality — that every claim can be traced back to the input context or attached knowledge bases.
+
+      Bot response: "{{ bot_response }}"
+
+      Flag ONLY if the response contains issues such as:
+      1. Ungrounded claims: facts that don't exist in the input or any attached knowledge base
+      2. Invented entities: people, companies, products, or standards the agent made up
+      3. Fabricated statistics: numbers, percentages, or dates with no source
+      4. Phantom references: citing documents, regulations, or standards that don't exist in the knowledge base
+      5. Contradictions: output that contradicts information present in the input or knowledge base
+
+      Do NOT flag:
+      - Claims that are explicitly grounded in and traceable to the input context or an attached knowledge base
+
+      Answer only "yes" if the response is safe and contains no hallucinations.
+      Answer "no" if the response contains hallucinated or fabricated content.
