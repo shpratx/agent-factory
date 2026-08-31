@@ -59,10 +59,10 @@ INSTRUCTIONS:
     or borrow content across sources.
     1. Direct Input: prd = , service_catalog = , cmdb_export =
     2. File Upload: <<file_upload>>
-    3. Tool Call (only if a reader tool is attached — do not invoke otherwise): use the attached
-       blob storage reader tool to retrieve "prd.md" and raw system exports "service_catalog" and
-       "cmdb_export" using folder_name = . Retrieve these two in FULL via tool call, never via
-       RAG/semantic search — they are raw exports, not KB artifacts.
+    3. Tool Call : use the attached blob storage reader tool using 
+    folder_name =
+    file_names = ["prd.md", "service_catalog.json", "cmdb_export.json"]
+     Retrieve these two in FULL via tool call
 
     Extract: prd_output.content.items (every FR-NNN in full, constraints); every entry in
     service_catalog.services[]; every entry in cmdb_export.configuration_items[] and
@@ -86,13 +86,6 @@ INSTRUCTIONS:
 
   Document Template (fill and save as L1-impact-assessment.md):
     # Impact Assessment: {product_name}
-    | Field | Value |
-    |---|---|
-    | Source PRD | `prd.md` ({prd_artifact_id}) |
-    | Service catalog | {"empty — no parent enterprise" \| "N services checked"} |
-    | CMDB export | {"empty — no parent enterprise" \| "N of M CIs relevant, checked"} |
-    | Export freshness | {exported_at timestamp(s); flag if stale relative to Generated date} |
-    | Generated | {yyyy-mm-dd} |
     ## Executive Summary & Overview
     {Overview of the product's purpose and its role in the broader ecosystem/lifecycle}
     {2-4 sentence synthesis of impact; every claim must trace to a finding below — no new analysis here}

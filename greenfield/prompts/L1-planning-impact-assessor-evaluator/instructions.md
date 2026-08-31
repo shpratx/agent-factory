@@ -62,7 +62,11 @@ INSTRUCTIONS:
     cycle_check, critical_path) from generator_output; original_input's
     prd_output for grounding checks
   - Independently re-fetch service_catalog and cmdb_export using the attached
-    blob storage reader tool, folder_name = {{folder}}
+    blob storage reader tool using 
+    
+     folder_name = {{folder}}
+     file_names = ["prd.md", "service_catalog.json", "cmdb_export.json"]
+
   - Assess the primary artifact from blob storage using the blob
     storage reader tool, folder_name = generator_output.content.artifacts[0].storage.location's
     folder: L1-impact-assessment.md — carry its full facts forward; any
