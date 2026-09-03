@@ -1,0 +1,12 @@
+# gr-L1-epic-creator-evaluator-quality-gate — Prompt-Only Mode
+# Layer: L1
+# Triggers on: input+output
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Epic content failed its quality gate — a coverage or cardinality claim asserted without shown rederivation, a source not grounded in L1-prd.md, a silently dropped requirement, an out-of-filter risk included without justification, or an ungroundable requirement not escalated\", \"severity\": \"critical\", \"category\": \"epic-creator-quality-gate\", \"rail\": \"input+output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Epic content failed its quality gate — a coverage or cardinality claim asserted without shown rederivation, a source not grounded in L1-prd.md, a silently dropped requirement, an out-of-filter risk included without justification, or an ungroundable requirement not escalated\", \"severity\": \"critical\", \"category\": \"epic-creator-quality-gate\", \"rail\": \"input+output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Epic content failed its quality gate — a coverage or cardinality claim asserted without shown rederivation, a source not grounded in L1-prd.md, a silently dropped requirement, an out-of-filter risk included without justification, or an ungroundable requirement not escalated\", \"severity\": \"critical\", \"category\": \"epic-creator-quality-gate\", \"rail\": \"input+output\"}"

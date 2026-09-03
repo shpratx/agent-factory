@@ -1,0 +1,12 @@
+# gr-L1-feature-decomposer-evaluator-quality-gate — Prompt-Only Mode
+# Layer: L1
+# Triggers on: output
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Feature evaluation content failed its quality gate — a coverage claim asserted without shown aggregation, a source not grounded in the parent Epic or PRD, an ungroundable epic_traceability break not escalated, or a fix not confirmed written back to blob storage in the execution_summary\", \"severity\": \"critical\", \"category\": \"eval_integrity\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Feature evaluation content failed its quality gate — a coverage claim asserted without shown aggregation, a source not grounded in the parent Epic or PRD, an ungroundable epic_traceability break not escalated, or a fix not confirmed written back to blob storage in the execution_summary\", \"severity\": \"critical\", \"category\": \"eval_integrity\", \"rail\": \"output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Feature evaluation content failed its quality gate — a coverage claim asserted without shown aggregation, a source not grounded in the parent Epic or PRD, an ungroundable epic_traceability break not escalated, or a fix not confirmed written back to blob storage in the execution_summary\", \"severity\": \"critical\", \"category\": \"eval_integrity\", \"rail\": \"output\"}"

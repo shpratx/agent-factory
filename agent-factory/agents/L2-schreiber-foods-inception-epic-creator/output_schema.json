@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L2-schreiber-foods-inception-epic-creator-output-v1.0",
+  "title": "Schreiber Foods Epic Creator Output",
+  "description": "Jira-ready strategic Epic output with traceability metadata.",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "output"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L2-schreiber-foods-inception-epic-creator"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "input_summary": {"$ref": "#/$defs/InputSummary"},
+    "output": {"$ref": "#/$defs/AgentOutput"}
+  },
+  "$defs": {
+    "InputSummary": {"type": "object", "required": ["source", "parameters"], "properties": {"source": {"type": "string", "enum": ["agent_output", "direct_input", "file_upload"]}, "source_agent_id": {"type": ["string", "null"]}, "parameters": {"type": "object"}}},
+    "Citation": {"type": "object", "required": ["source_section", "source_phrase"], "properties": {"source_section": {"type": "string", "enum": ["Executive Summary", "Requirements", "Out of Scope", "Constraints", "Risks"]}, "source_phrase": {"type": "string", "minLength": 1}}},
+    "ItemMetadata": {"type": "object", "required": ["confidence", "reasoning", "citation", "trajectory"], "properties": {"confidence": {"type": "number", "minimum": 0, "maximum": 1}, "reasoning": {"type": "string", "minLength": 1}, "citation": {"type": "array", "items": {"$ref": "#/$defs/Citation"}, "minItems": 1}, "trajectory": {"type": "string", "enum": ["direct", "synthesized"]}}},
+    "EpicItem": {"type": "object", "required": ["file_name_suggestion", "jira_epic_name", "epic_markdown_body", "metadata"], "properties": {"file_name_suggestion": {"type": "string", "pattern": "^epic-creator-[a-z0-9]+(?:-[a-z0-9]+)*\\.md$"}, "jira_epic_name": {"type": "string", "pattern": "^[A-Za-z0-9 /&]+ - [A-Za-z0-9 /&]+$"}, "epic_markdown_body": {"type": "string", "minLength": 1}, "metadata": {"$ref": "#/$defs/ItemMetadata"}}},
+    "Gap": {"type": "object", "required": ["gap_id", "description", "question", "metadata"], "properties": {"gap_id": {"type": "string", "pattern": "^GAP-\\d{2}$"}, "description": {"type": "string"}, "question": {"type": "string"}, "metadata": {"$ref": "#/$defs/ItemMetadata"}}},
+    "AgentOutput": {"type": "object", "required": ["type", "schema_version", "items", "gaps", "execution_summary"], "properties": {"type": {"type": "string", "const": "jira_epic"}, "schema_version": {"type": "string", "const": "1.0"}, "items": {"type": "array", "items": {"$ref": "#/$defs/EpicItem"}}, "gaps": {"type": "array", "items": {"$ref": "#/$defs/Gap"}}, "execution_summary": {"type": "string", "minLength": 1}}}
+  }
+}

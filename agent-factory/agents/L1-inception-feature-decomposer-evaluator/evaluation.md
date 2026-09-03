@@ -1,84 +1,101 @@
-# Epic Creation Self-Check — L1-inception-epic-creator
+# Evaluation Criteria — L1-inception-feature-decomposer-evaluator
 
-## Grounding Rules (must follow while drafting)
+This evaluator inherits **all** quality gates and reflection checklist items from `L1-inception-feature-decomposer`'s own `evaluation.md` (reproduced in Section A below), since it must be able to independently re-derive what correct Features look like. Section B adds the **8 mandatory named gates** required to score a candidate Features output, plus the correction and decision process unique to this evaluator agent, using the AgentOutput v2 envelope (`agent_id`, `status`, `content.evaluation`).
 
-| Rule | Requirement | Check |
-|------|-------------|-------|
-| Cite every field | Every field written into an epic (title, description, business_value, priority, requirements_used) must trace to a PRD requirement ID, an impact-assessment finding ID, a dependency-graph node ID, or a kb-L1-sdlc-templates convention | Self-check: can I name the exact source for this field? |
-| No background-knowledge fill | Never complete a gap using general knowledge not present in prd.md/impact-assessment.md/dependency-graph.json | Self-check: is this claim traceable, or am I inferring it? |
-| Unmappable requirement | If a PRD requirement cannot be grounded in an epic, do not force it into one — record it in open_questions with an explanation | Self-check: did I write an epic just to avoid an open question? |
+---
 
-## Epic Definition Rules
+## SECTION A — Inherited Core Feature Decomposer Criteria (from L1-inception-feature-decomposer/evaluation.md)
 
-| Rule | Requirement | Check |
-|------|-------------|-------|
-| Business capability, not technical layer | "Split-tender payments at checkout" is an epic; "Payments backend" is not | Self-check: could this title describe a service/component instead of a capability? |
-| Title format | <=10 words, verb-first, domain language from the PRD — not generic tech jargon | Self-check: word count and phrasing |
-| One delivery phase | Each epic should fit within one delivery phase implied by dependency-graph/PRD | Self-check: does this epic's scope cross a phase boundary? |
-| Too large → split candidate | If scope spans more than one delivery phase, or dependency graph implies it can't land in one phase, flag as a split candidate — never silently split or merge | Self-check: is this epic actually two epics wearing one title? |
-| Too small → consider merge | If an epic is too small to stand alone, consider merging with a related epic rather than leaving it thin | Self-check: does this epic have enough distinct scope to justify its own entry? |
+### A.1 Quality Gates (must pass)
 
-## Coverage Rules
+| Criterion | Threshold | Method |
+|-----------|-----------|--------|
+| Every Feature has a non-null `prd_reference` (inherited from parent Epic) | 100% | Automated: schema `required` check |
+| Every Feature has `parent_epic_id` and `source_pillar` populated | 100% | Automated: schema `required` check |
+| Features per pillar | 1-4 | Automated: grouping check by `source_pillar` |
+| `feature_id` format | `F-\d{2}\.\d+` matching parent epic number | Automated: regex + cross-check |
+| Feature title length | 4-8 words | Automated: word-count regex |
+| `acceptance_criteria` count | 3-6 | Automated: array length check |
+| No Story-level detail (test scripts, UI wireframes, API/schema design, sprint/story points) | 0 occurrences | LLM-judge |
+| Every Feature has `mvp_classification` and a specific `mvp_rationale` | 100% | Automated + LLM-judge |
+| No Foundational Feature depends on an Incremental Feature | 0 occurrences | Automated: cross-check |
+| `content.artifacts[].storage.location` present and non-fabricated | 100% | Automated + LLM-judge |
+| Output validates against L1-inception-feature-decomposer's Feature schema | 100% | Automated: JSON Schema validation |
 
-| Rule | Requirement | Check |
-|------|-------------|-------|
-| Full PRD coverage | Every FR-NNN/NFR in prd.md MUST appear in at least one epic's requirements_used | Self-check: set comparison — did I walk the full requirement list? |
-| No orphan requirement | Any requirement not mapped goes to open_questions with an explanation — never left silently unassigned | Self-check: did every requirement get either an epic or an open question? |
-| Dependency-graph node coverage | Every relevant node in dependency-graph.json should resolve to an epic, or be explicitly noted in open_questions if it doesn't map cleanly | Self-check: did I account for every node in scope? |
+### A.2 Reflection Checklist (applied to the candidate output being evaluated)
 
-## Sequencing Rules
+- [ ] Every Feature has `parent_epic_id`, `source_pillar`, and a `prd_reference` identical to its parent Epic's `prd_reference`
+- [ ] Each pillar decomposed into 1-4 Features
+- [ ] `feature_id`s are sequential per epic and match `F-{epic-number}.{sequence}` with the correct epic number
+- [ ] No test scripts, UI wireframes, API/schema design, or sprint/story-point detail appears anywhere
+- [ ] `out_of_scope`/`constraints` per Feature are inherited only where directly relevant
+- [ ] `acceptance_criteria` are outcome-level, 3-6 bullets, and each traces to specific Epic content
+- [ ] Every Feature has `mvp_classification` determined via the Foundational Classification Test, with a specific, non-generic `mvp_rationale`
+- [ ] No Foundational Feature lists a `dependencies` entry pointing to an Incremental Feature
+- [ ] Features are not uniformly all-Foundational or all-Incremental without genuine justification
+- [ ] Every item has a complete `metadata` block
+- [ ] blob-storage-writer was called correctly, including on INSUFFICIENT_CONTEXT
 
-| Rule | Requirement | Check |
-|------|-------------|-------|
-| Dependency-ordered | Epics are ordered using dependency-graph.json edges — foundational (upstream) capabilities first, then dependent (downstream) capabilities | Self-check: does my ordering match a traversal of the graph, or did I order by instinct? |
-| No invented ordering | Never sequence epics on assumed priority alone if the dependency graph implies a different order | Self-check: does sequencing conflict with any edge in dependency-graph.json? |
+---
 
-## Priority Rules
+## SECTION B — Evaluator-Specific Gates (mandatory, 8 dimensions)
 
-| Rule | Requirement | Check |
-|------|-------------|-------|
-| Trace priority to PRD | Priority is assigned from the PRD's own requirement ordering/priority markers | Self-check: can I point to the exact PRD marker this priority came from? |
-| No invented priority | Never assign a priority not traceable to PRD input | Self-check: is this priority a guess or a citation? |
+Every evaluation MUST score all 8 of the following named gates, each 0.0-1.0, in `content.evaluation.scores`. Every gate scoring below 1.0 MUST have at least one corresponding `fail` finding in `content.evaluation.findings[]` (`gate`, `status`, `detail`).
 
-## Quality and Safety Rules
+| # | Gate name | What Is Assessed | Fail Condition |
+|---|-----------|-------------------|-----------------|
+| 1 | `faithfulness` | Every Feature field traces to an actual phrase/field in the parent Epic | Any field cannot be traced to the parent Epic |
+| 2 | `completeness` | Every `macro_feature_pillars` entry in the parent Epic(s) decomposed into at least 1 Feature | A pillar present in the Epic has zero corresponding Features |
+| 3 | `schema_compliance` | Candidate validates against `L1-inception-feature-decomposer`'s Feature schema exactly | Any schema validation failure |
+| 4 | `regulatory_accuracy` | Inherited `out_of_scope`/`constraints` text matches the parent Epic verbatim and is directly relevant to the Feature's slice | Constraint/out-of-scope text misquoted, or blanket-copied without relevance |
+| 5 | `epic_traceability` | `feature_id` epic-number matches `parent_epic_id`; every `prd_reference` matches the parent Epic's `prd_reference` exactly | Any `feature_id`/`parent_epic_id` mismatch or `prd_reference` drift |
+| 6 | `delivery_sequencing` | `dependencies[]` reference real sibling `feature_id`s and are evidence-grounded; `mvp_classification` correctly applies the Foundational Classification Test; no Foundational-depends-on-Incremental violations | A `dependencies` entry points to a non-existent Feature, is unsupported by Epic evidence, or an `mvp_classification` contradicts the Feature's actual role |
+| 7 | `user_story_quality` | Feature titles/descriptions stay at capability altitude, 4-8 words, no Story/technical-task leakage | Content present that belongs at the Story/technical-design layer |
+| 8 | `acceptance_criteria_quality` | 3-6 outcome-level, testable, source-grounded acceptance criteria per Feature | Acceptance criteria read like test scripts, are generic, or are fabricated |
 
-| Rule | Requirement | Check |
-|------|-------------|-------|
-| Unique, non-overlapping epics | No duplicate or overlapping epics internally | Self-check: title/description similarity scan across my own draft set |
-| Sequential, unique IDs | epic_id values follow EPIC-01, EPIC-02... with no duplicates | Self-check: pattern and uniqueness scan |
-| No fabricated requirements_used | Every requirements_used entry resolves to real prd.md/impact-assessment.md/dependency-graph.json content | Self-check: does each cited ID actually exist in the input? |
-| business_value specificity | Cites a specific PRD requirement or carried-forward vision theme — not a generic statement like "improves the business" | Self-check: would this sentence still make sense if I deleted the requirement it's citing? |
-| No PII/sensitive content | Zero PII, credentials, or customer-identifying content in title/description/business_value | Self-check: pattern scan before finalizing |
-| Payment-flow classification | Any epic touching payment flows is classified for downstream gr-L2-payments-compliance review | Self-check: does this epic's scope touch payment handling? |
-| Impact-assessment folded in | Impact-assessment findings that materially change scope/risk (e.g. high blast-radius flags) are folded into the affected epic's business_value/description, citing the finding ID | Self-check: did I check every relevant finding for material impact? |
+### B.1 Correction Process (mandatory)
 
-## Self-Check Checklist
+For every `fail` finding:
+1. Assign a sequential `id` (FND-01, FND-02, ...) in `findings[]`, with `gate`, `status: "fail"`, and `detail` explaining the issue.
+2. Determine whether it CAN be safely corrected using only the parent Epic or already-present Feature content (e.g., correcting a mis-copied `prd_reference`, re-wording an over-long title, removing an unsupported dependency, reclassifying `mvp_classification` using evident Epic content, splitting an overloaded Feature).
+3. If fixable: apply the correction directly into the corrected `content.items`, and record it in `fixes_applied[]` with a sequential `id` (FIX-01, ...), the `finding_id` it resolves, `description`, `before`, `after`, `reasoning`.
+4. If NOT safely fixable (would require inventing information not present in the parent Epic): do NOT guess. Leave the finding unresolved (no matching `fixes_applied` entry) — this drives `final_decision` toward `"escalate_to_hitl"`.
+5. `content.items` always reflects every safe fix applied, even if some other findings remain unresolved.
 
-The agent must self-verify before delivering:
+### B.2 Final Decision Logic
 
-- [ ] Every FR-NNN/NFR from prd.md appears in at least one epic's requirements_used
-- [ ] Every epic maps to at least one PRD requirement (no orphan epics)
-- [ ] No duplicate or overlapping epics internally
-- [ ] Epic sequencing is consistent with dependency-graph.json edges (foundational before dependent)
-- [ ] No epic spans more than one delivery phase without an explicit split flag
-- [ ] business_value cites a specific PRD requirement or carried-forward vision theme, not a generic statement
-- [ ] No PII, credentials, or customer-identifying content in any field
-- [ ] Priorities trace to PRD ordering/markers, not invented
-- [ ] Every epic touching payment flows is classified for gr-L2-payments-compliance review
-- [ ] Every relevant dependency-graph node resolves to an epic or is noted in open_questions
-- [ ] Execution summary includes coverage count, sequencing rationale, and open questions
+| `final_decision` | Condition |
+|----------|-----------|
+| `"approved"` | All 8 gates score 1.0 and zero findings failed. `content.items` is identical to the candidate. |
+| `"fixed_and_approved"` | One or more findings failed, and ALL were fixed. `content.items` differs from the candidate and now passes all gates. |
+| `"escalate_to_hitl"` | One or more failed findings could not be safely fixed (required source information is unavailable, e.g. the parent Epic itself is missing/unreadable). `content.items` still contains all safe fixes applied, but at least one finding remains unresolved. |
 
-## Reflection Process (mandatory)
+> **Rule:** `"escalate_to_hitl"` is never used simply because minor, cosmetic issues exist — only when a genuinely blocking, unfixable gap remains.
 
-The agent MUST perform reflection before delivering output:
+`overall_score` = average of the 8 gate scores * 10, rounded to 2 decimals. `pass` = true unless `final_decision == "escalate_to_hitl"`.
 
-1. **Generate** initial epic set following processing rules
-2. **Log** `[REFLECTING] Checking output against self-check criteria`
-3. **Check** every item in the Self-Check Checklist above
-4. **Identify** gaps, ungrounded fields, ordering errors, or missed requirements
+### B.3 Evaluator Reflection Checklist
+
+- [ ] All 8 gates are present in `scores`, each with a corresponding entry logic in `findings[]` if below 1.0
+- [ ] Every failed finding has a unique sequential `id`, correct `gate` back-reference, and accurate `detail`
+- [ ] Every fixed finding has a corresponding entry in `fixes_applied[]` with accurate `before`/`after`/`reasoning`
+- [ ] Every unresolved finding correctly drives `final_decision` toward `escalate_to_hitl` — never silently dropped
+- [ ] `content.items` validates against `L1-inception-feature-decomposer`'s Feature schema
+- [ ] `final_decision` matches the logic in B.2 exactly
+- [ ] No new hallucinated content was introduced while fixing
+- [ ] Every Feature's `feature_id` epic-number matches its `parent_epic_id`
+- [ ] `content.artifacts[]` references `L1-features.json` (the same filename the core agent wrote, overwritten in place) with a non-fabricated `storage.location`
+- [ ] `execution_summary` is plain text bullets, not JSON
+
+### B.4 Evaluator Reflection Process (mandatory)
+
+1. **Evaluate** candidate output against all 8 gates and Section A's checklist
+2. **Log** `[REFLECTING] Checking evaluation against evaluation.md Section B criteria`
+3. **Check** every item in B.3's checklist
+4. **Identify** any missed findings, incorrect fixable/unfixable calls, or decision-logic errors
 5. **Log** each finding: `[REFLECTING] Found: <description>`
-6. **Fix** each issue — amend the output silently
+6. **Fix** the evaluation itself — amend scores, findings, fixes, or decision as needed
 7. **Log** each resolution: `[REFLECTING] Resolved: <what was fixed>`
-8. **Deliver** only the final corrected output
+8. **Deliver** only the final, corrected evaluation output
 
-The reflection findings and resolutions should appear in the execution_summary (what reflection found and changed) but the interim output must never be shown.
+Reflection findings appear in `execution_summary` but interim output is never shown.

@@ -1,128 +1,178 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "L1-inception-epic-creator-output-v1.0",
-  "title": "Epic Creator Output",
-  "description": "Output schema for the epic creator agent. Converts an approved roadmap and vision into a grounded, deduplicated set of epics with full traceability.",
+  "$id": "agents/L1-inception-feature-decomposer-evaluator/output_schema.json",
+  "title": "L1-inception-feature-decomposer-evaluator Output — L1-features.json (overwritten in place)",
+  "description": "Defines agent_id/agent_version/status/content for this agent, nested within the standard AgentOutput v2 envelope (schemas/agent-output-schema.json). content.items is the corrected/final Features set (same shape as L1-inception-feature-decomposer's own content.items). content.evaluation carries the rubric-wise audit trail. This evaluator overwrites the SAME blob file (L1-features.json) that the core Feature Decomposer wrote.",
   "type": "object",
-  "required": ["agent_id", "agent_version", "execution_id", "input_summary", "content"],
+  "required": ["agent_id", "agent_version", "execution_id", "workflow_execution_id", "status", "content"],
   "properties": {
-    "agent_id": {"type": "string", "const": "L1-inception-epic-creator-agent"},
-    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
-    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
-    "input_summary": {
-      "type": "object",
-      "required": ["source", "parameters"],
-      "properties": {
-        "source": {"type": "string", "enum": ["agent_output", "direct_input", "file_upload"]},
-        "source_agent_id": {"type": ["string", "null"]},
-        "parameters": {"type": "object"}
-      }
+    "agent_id": { "const": "L1-inception-feature-decomposer-evaluator" },
+    "agent_version": { "type": "string" },
+    "execution_id": {
+      "type": "string",
+      "pattern": "^exec-[0-9a-fA-F-]{36}$",
+      "description": "Newly generated (format exec-<uuid>) for this specific execution."
+    },
+    "workflow_execution_id": {
+      "type": "string",
+      "pattern": "^wf-[0-9a-fA-F-]{36}$",
+      "description": "Inherited verbatim from the upstream AgentOutput's workflow_execution_id (originated by L1-inception-epics-creator). This agent never generates its own."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "failed"],
+      "description": "'failed' only when the candidate L1-features.json or its parent L1-epics.json could not be read/parsed at all, or the candidate has zero features with no recoverable content."
     },
     "content": {
       "type": "object",
-      "required": ["type", "schema_version", "items", "execution_summary"],
+      "required": ["type", "schema_version", "items", "evaluation", "artifacts", "execution_summary"],
       "properties": {
-        "type": {"type": "string", "const": "epics"},
-        "schema_version": {"type": "string", "const": "1.0"},
-        "items": {"$ref": "#/$defs/Items"},
-        "execution_summary": {
-          "type": "string",
-          "minLength": 50,
-          "description": "Plain-text summary: epic count, roadmap coverage, dedupe results, grouping decisions, reflection findings"
-        }
+        "type": { "const": "features" },
+        "schema_version": { "const": "1.0" },
+        "items": {
+          "type": "object",
+          "description": "The corrected/final Features set — identical shape to L1-inception-feature-decomposer's own content.items.",
+          "required": ["features"],
+          "properties": {
+            "features": { "type": "array", "items": { "$ref": "#/$defs/Feature" } },
+            "gaps": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "evaluation": {
+          "type": "object",
+          "required": ["scores", "overall_score", "pass", "findings", "fixes_applied", "final_decision"],
+          "properties": {
+            "scores": {
+              "type": "object",
+              "description": "8 domain-specific rubric scores, each 0.0-1.0.",
+              "required": ["faithfulness", "completeness", "schema_compliance", "regulatory_accuracy", "epic_traceability", "delivery_sequencing", "user_story_quality", "acceptance_criteria_quality"],
+              "properties": {
+                "faithfulness": { "type": "number", "minimum": 0, "maximum": 1 },
+                "completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+                "schema_compliance": { "type": "number", "minimum": 0, "maximum": 1 },
+                "regulatory_accuracy": { "type": "number", "minimum": 0, "maximum": 1, "description": "Correct inheritance of Epic constraints/out-of-scope relevant to regulatory posture." },
+                "epic_traceability": { "type": "number", "minimum": 0, "maximum": 1, "description": "Every Feature's parent_epic_id/source_pillar/prd_reference matches the parent Epic exactly." },
+                "delivery_sequencing": { "type": "number", "minimum": 0, "maximum": 1, "description": "dependencies[] are evidence-grounded; mvp_classification correctly applies the Foundational Classification Test; no Foundational-depends-on-Incremental violations." },
+                "user_story_quality": { "type": "number", "minimum": 0, "maximum": 1, "description": "Feature titles/descriptions stay at capability altitude, 4-8 words, no Story/technical-task leakage." },
+                "acceptance_criteria_quality": { "type": "number", "minimum": 0, "maximum": 1, "description": "3-6 outcome-level, testable, source-grounded acceptance criteria per Feature." }
+              }
+            },
+            "overall_score": { "type": "number", "minimum": 0, "maximum": 10, "description": "Average of the 8 scores * 10, rounded to 2 decimals." },
+            "pass": { "type": "boolean", "description": "true unless final_decision == 'escalate_to_hitl'." },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "gate", "status", "detail"],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^FND-[0-9]{2}$" },
+                  "gate": { "type": "string", "description": "One of the 8 score names above." },
+                  "status": { "type": "string", "enum": ["pass", "fail"] },
+                  "detail": { "type": "string" }
+                }
+              }
+            },
+            "fixes_applied": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "finding_id", "description", "before", "after", "reasoning"],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^FIX-[0-9]{2}$" },
+                  "finding_id": { "type": "string", "pattern": "^FND-[0-9]{2}$" },
+                  "description": { "type": "string" },
+                  "before": { "type": "string" },
+                  "after": { "type": "string" },
+                  "reasoning": { "type": "string" }
+                }
+              }
+            },
+            "final_decision": {
+              "type": "string",
+              "enum": ["approved", "fixed_and_approved", "escalate_to_hitl"],
+              "description": "approved = every finding passed. fixed_and_approved = one or more findings failed but all were fixed. escalate_to_hitl = one or more failed findings could not be safely fixed and require human review."
+            }
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Always includes the L1-features.json blob artifact this execution overwrote in place.",
+          "items": { "$ref": "#/$defs/Artifact" }
+        },
+        "execution_summary": { "type": "string", "description": "Plain-text bullet points. Never JSON." }
       }
     }
   },
   "$defs": {
-    "Items": {
+    "Artifact": {
       "type": "object",
-      "required": ["epics", "open_questions", "delivery_summary"],
+      "required": ["id", "type", "name", "format", "storage", "produced_by"],
       "properties": {
-        "epics": {
-          "type": "array",
-          "minItems": 1,
-          "items": {"$ref": "#/$defs/Epic"},
-          "description": "Business capability epics, grounded and deduplicated, ordered by dependency"
+        "id": { "type": "string", "pattern": "^artifact-.+$" },
+        "type": { "const": "document" },
+        "name": { "const": "L1-features.json" },
+        "format": { "const": "json" },
+        "storage": {
+          "type": "object",
+          "required": ["provider", "location"],
+          "properties": {
+            "provider": { "const": "blob_storage" },
+            "location": { "type": "string", "description": "The literal blob_storage_url returned by the blob-storage-writer tool. Never fabricated." }
+          }
         },
-        "open_questions": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Plain-language unresolved items — unmappable roadmap items, ambiguous grounding, unresolved dedupe matches"
-        },
-        "delivery_summary": {
-          "type": "string",
-          "minLength": 50,
-          "description": "Plain-text summary of the epic set and phase allocation"
-        }
+        "description": { "type": "string", "description": "e.g. 'Overwritten in place with the corrected Features output.'" },
+        "produced_by": { "const": "L1-inception-feature-decomposer-evaluator" }
       }
     },
-    "Epic": {
+    "PrdReference": {
       "type": "object",
-      "required": ["epic_id", "title", "description", "business_value", "priority", "target_phase", "source_refs", "dedupe_check", "metadata"],
-      "description": "A business capability epic. Must represent a business capability, NOT a technical layer.",
+      "required": ["file", "file_path"],
       "properties": {
-        "epic_id": {"type": "string", "pattern": "^EPIC-\\d{2}$"},
-        "title": {
-          "type": "string",
-          "maxLength": 80,
-          "description": "Business capability title, <=10 words, verb-first — not a technical layer"
-        },
-        "description": {
-          "type": "string",
-          "minLength": 30,
-          "description": "What this epic delivers and why, grounded in roadmap/vision content"
-        },
-        "business_value": {
-          "type": "string",
-          "minLength": 20,
-          "description": "Must cite a specific vision value theme, not a generic statement"
-        },
-        "priority": {
-          "type": "string",
-          "enum": ["Must", "Should", "Could", "Won't"],
-          "description": "MoSCoW priority, derived from roadmap ordering"
-        },
-        "target_phase": {
-          "type": "string",
-          "description": "Roadmap phase/quarter this epic belongs to"
-        },
-        "source_refs": {
-          "type": "array",
-          "items": {"type": "string"},
-          "minItems": 1,
-          "description": "Grounding citations, e.g. ['roadmap:R-04','vision:V-02']"
-        },
-        "dedupe_check": {"$ref": "#/$defs/DedupeCheck"},
-        "metadata": {"$ref": "#/$defs/EpicMetadata"}
+        "file": { "type": "string" },
+        "file_path": { "type": "string" },
+        "sections": { "type": "array", "items": { "type": "string" } }
       }
     },
-    "DedupeCheck": {
+    "Citation": {
       "type": "object",
-      "required": ["checked", "matches"],
+      "required": ["source_section", "quoted_phrase"],
       "properties": {
-        "checked": {"type": "boolean", "description": "Must be true on every execution, regardless of suspected overlap"},
-        "matches": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Existing tracker epic IDs found to be potential duplicates/overlaps"
-        }
+        "source_section": { "type": "string" },
+        "quoted_phrase": { "type": "string" }
       }
     },
-    "EpicMetadata": {
+    "ItemMetadata": {
       "type": "object",
-      "required": ["confidence", "reasoning"],
+      "required": ["confidence", "reasoning", "citation", "trajectory"],
       "properties": {
-        "confidence": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "description": "0.9+ for epics directly grounded in explicit roadmap/vision content. 0.7-0.9 for inferred groupings."
-        },
-        "reasoning": {
-          "type": "string",
-          "minLength": 20,
-          "description": "Why this epic exists, why this scope, why this priority"
-        }
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reasoning": { "type": "string" },
+        "citation": { "$ref": "#/$defs/Citation" },
+        "trajectory": { "type": "string" }
+      }
+    },
+    "Feature": {
+      "type": "object",
+      "required": [
+        "feature_id", "title", "description", "acceptance_criteria",
+        "mvp_classification", "mvp_rationale",
+        "parent_epic_id", "source_pillar", "prd_reference", "metadata"
+      ],
+      "properties": {
+        "feature_id": { "type": "string", "pattern": "^F-[0-9]{2}\\.[0-9]+$" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "acceptance_criteria": { "type": "array", "minItems": 3, "maxItems": 6, "items": { "type": "string" } },
+        "out_of_scope": { "type": "array", "items": { "type": "string" } },
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "dependencies": { "type": "array", "items": { "type": "string", "pattern": "^F-[0-9]{2}\\.[0-9]+$" } },
+        "mvp_classification": { "type": "string", "enum": ["Foundational", "Incremental"] },
+        "mvp_rationale": { "type": "string" },
+        "parent_epic_id": { "type": "string", "pattern": "^EP-[0-9]{2}$" },
+        "source_pillar": { "type": "string" },
+        "prd_reference": { "$ref": "#/$defs/PrdReference" },
+        "metadata": { "$ref": "#/$defs/ItemMetadata" }
       }
     }
   }

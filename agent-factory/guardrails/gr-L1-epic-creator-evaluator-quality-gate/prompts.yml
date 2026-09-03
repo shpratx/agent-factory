@@ -1,0 +1,28 @@
+prompts:
+  - task: self_check_output
+    max_length: 32000
+    content: |
+      Your task is to check if the bot response contains a fabricated or unverified epic-creation or epic-evaluation claim.
+
+      Bot response: "{{ bot_response }}"
+
+      This response may be either L1-inception-epics-creator's own output (items.epics + items.gaps + artifacts + execution_summary, no evaluation block) or L1-inception-epics-creator-evaluator's output (which additionally has a content.evaluation block with findings/fixes_applied/final_decision). Apply the checks that are relevant to whichever kind of output this is.
+
+      Flag ONLY if the response contains eval-integrity violations such as:
+      1. A requirement-coverage or cardinality claim (e.g. "all N requirements covered", "single Epic is appropriate") stated as a bare conclusion in metadata.reasoning or execution_summary, with no shown FR-by-FR or requirement-by-requirement enumeration behind it — the response must demonstrate the rederivation, not just assert its result
+      2. A fabricated epic, requirement-to-pillar mapping, citation.quoted_phrase, or risk statement not grounded in the actual fetched L1-prd.md content
+      3. (Evaluator output only) final_decision set to "fixed_and_approved" or "approved" while L1-epics.json at blob storage still holds the pre-fix content, or with no execution_summary line confirming the write and stating the literal blob_storage_url
+      4. (Evaluator output only) A confirmed ungroundable requirement or risk marked resolved via fixes_applied instead of driving "escalate_to_hitl"
+      5. (Creator output only) A Requirement present in the PRD that is neither rolled into a macro_feature_pillar nor logged in items.gaps — a silent drop
+      6. (Creator output only) A regulatory_food_safety_risk included that does not meet the Critical Compliance Threshold filter (not FDA/FSMA, SQF, HACCP/allergen/recall-traceability, USDA/state dairy-food, or production-halting), with no reasoning explaining why it was still included
+      7. Text duplicated verbatim from kb-epics-best-practices or the evaluator's own instructions instead of an actual result specific to this PRD/candidate
+
+      Do NOT flag:
+      - A legitimate "escalate_to_hitl" decision for a genuine, confirmed coverage gap
+      - Correctly sourced citations/requirement mappings that resolve to real L1-prd.md content
+      - Fixes correctly applied and reflected in both the JSON output and the overwritten blob storage file
+      - A coverage or cardinality claim that IS backed by a shown enumeration (e.g. execution_summary listing which FRs rolled into which pillar, or which FRs were excluded and why)
+      - Gaps correctly logged for genuinely undetermined items (e.g. TBD NFRs, unspecified interfaces) rather than guessed at
+
+      Answer "yes" if the response contains an eval-integrity violation (should be blocked).
+      Answer "no" if the response is safe (no eval-integrity violation found).

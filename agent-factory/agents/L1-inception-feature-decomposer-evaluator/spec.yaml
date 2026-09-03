@@ -2,67 +2,81 @@
 spec_version: "1.0"
 artifact_type: agent
 metadata:
-  name: L1-inception-epic-creator-agent
+  name: L1-inception-feature-decomposer-evaluator
   version: "1.0.0"
   layer: L1
   phase: inception
   owner: agentic-ai-coe
-  created: 2026-07-30
+  created: "2026-08-28"
 
 purpose:
-  description: "Converts an approved roadmap and vision into a complete, non-overlapping set of epics"
-  input: "roadmap.md (Product-Lead approved) and vision.md (viability score >= 7) from upstream planning/vision agents"
-  output: "Epics with full traceability to roadmap/vision, deduplicated against existing tracker issues"
-  business_value: "Transforms an approved roadmap into a plannable epic backlog that downstream feature/story/task agents can decompose"
+  description: "Evaluates a candidate L1-features.json (produced by L1-inception-feature-decomposer) against its parent L1-epics.json and the original L1-prd.md, and against the Schreiber Foods Feature Decomposition Best Practices & SOP, scoring it on 8 mandatory rubrics, auto-correcting every fixable issue, and emitting a corrected, schema-compliant Features output plus a final decision."
+  input: "folder_name identifying the blob storage location, plus L1-features.json, L1-epics.json, and L1-prd.md, retrieved exclusively via the attached blob-storage-reader tool (no direct_input or file_upload accepted for this agent)."
+  output: "L1-features.json (the SAME filename the core Feature Decomposer wrote — overwritten in place) written to blob storage via the attached blob-storage-writer tool. AgentOutput v2 envelope: agent_id, agent_version, execution_id, workflow_execution_id (inherited), status, and content = { type: 'features', schema_version, items (corrected Features, same shape as L1-inception-feature-decomposer's own content.items), evaluation (scores, overall_score, pass, findings, fixes_applied, final_decision: approved | fixed_and_approved | escalate_to_hitl), artifacts, execution_summary }."
+  business_value: "Adds an automated quality gate between Feature decomposition and Story writing, catching SOP violations, hallucinated acceptance criteria, and broken Epic/PRD traceability before Features seed Story generation — while auto-fixing everything safely correctable and transparently flagging anything that requires human input."
 
 prompt:
-  ref: "prompts/L1-inception-epic-creator-agent/instructions.md"
+  ref: "prompts/L1-inception-feature-decomposer-evaluator/instructions.md"
   version: "1.0.0"
-  description: "Generates epics from roadmap + vision with grounding, dedupe, and reflection"
+  description: "Contains the full L1-inception-feature-decomposer instruction set (so it can independently re-derive what correct Features should look like) plus an evaluator layer that scores 8 rubrics, corrects fixable issues, and issues a final decision."
 
 contract:
   input_schema: "$ref: schemas/agent-input-contract-schema.json"
-  output_schema: "$ref: schemas/agent-output-schema.json"
+  output_schema: "$ref: output_schema.json"
 
   input:
-    accepts_from_agents: [L1-planning-sprint-planner-agent, L1-vision-statement-generator-agent]
-    accepts_direct_input: true
+    accepts_from_agents: [L1-inception-feature-decomposer]
+    accepts_direct_input: false   # Blob-reader REQUIRED — this evaluator never accepts direct_input.
     accepts_file_upload:
+      enabled: false   # Blob-reader REQUIRED — this evaluator never accepts file_upload.
+      formats: []
+    accepts_blob_storage:
       enabled: true
-      formats: [".md", ".json"]
+      required: true
+      description: "ONLY accepted ingestion path. Agent calls the attached blob-storage-reader tool once with folder_name + file_names=[\"L1-features.json\", \"L1-epics.json\", \"L1-prd.md\"] to fetch all three artifacts before evaluating."
+    required_documents:
+      - L1-features.json
+      - L1-epics.json
+      - L1-prd.md
     required_parameters:
-      roadmap: {type: object, description: "roadmap.md content with approval metadata (approval.status must be 'approved')"}
-      vision: {type: object, description: "vision.md content with phase_1_gate.viability_score >= 7"}
-    optional_parameters:
-      max_epics: {type: integer, default: 12, description: "Maximum number of epics to generate"}
-      dedupe_scope: {type: string, default: "project", description: "Scope for tracker dedupe check: project | program | portfolio"}
+      folder_name:
+        type: string
+        description: "Blob storage folder/container path supplied by the user. Used to read the candidate Features file plus its parent Epic set and the original PRD, and as the destination folder when writing the evaluated output back to blob storage."
 
   output:
     $ref: "output_schema.json"
 
+execution_ids:
+  workflow_execution_id:
+    origin: "inherited"   # inherit from L1-inception-epics-creator.workflow_execution_id
+    format: "wf-<uuid>"
+    description: "Inherited verbatim from input.inherited_ids.workflow_execution_id (the value L1-inception-epics-creator generated for this pipeline run). This agent never generates its own."
+  execution_id:
+    origin: "generated"
+    format: "exec-<uuid>"
+    description: "Newly generated on every execution of this agent."
+
 context:
   knowledge_bases:
-    - kb-L1-sdlc-templates          # Standard epic structure/format conventions
-    - kb-L1-enterprise-security     # PII/sensitive-content definitions for reflection + guardrail checks
+    - kb-features-best-practices   # v1.1. Attached at runtime — same authoritative SOP the core Feature Decomposer uses, including §2.5 Foundational/Incremental MVP classification; the evaluator applies every rule when scoring and correcting.
+    - kb-epics-best-practices       # v1.1. Attached at runtime to confirm Features do not reintroduce Epic-forbidden content.
   tools:
-    - tool-L1-jira-fetch-issue      # Live fetch of existing epics for dedupe, called every run
+    - blob-storage-reader   # Attached at runtime. Called with (folder_name, file_names=["L1-features.json", "L1-epics.json", "L1-prd.md"]) to fetch all three artifacts in one call.
+    - blob-storage-writer   # Attached at runtime. Called with (folder_name, file_name="L1-features.json", content=<final evaluator output, verbatim>) after evaluation/correction — OVERWRITES the same file the core Feature Decomposer wrote. Returns blob_storage_url.
   guardrails:
-    - gr-L1-schema-validator
+    - gr-L1-output-schema-validator
     - gr-L1-pii-detection
-    - gr-L1-hallucination-check
-    - gr-L2-payments-compliance
+    - gr-L3-hallucination-detector
+    - gr-L3-citation-validator
+    - gr-L3-consistency-checker
+    - gr-L2-tool-permissions
+    - gr-L3-agent-rate-limit
 
 quality:
   evaluation_ref: "evaluation.md"
   min_score: 7.0
   hallucination_check: true
   consistency_check: true
-
-human_gate:
-  required: true
-  reviewer: "Product Lead"
-  reviews: ["open_questions", "gate_failure_history"]
-  blocks: "L1-inception-feature-decomposer-agent (A2) until this gate + human review pass"
 
 versioning:
   input_version: "1.0"

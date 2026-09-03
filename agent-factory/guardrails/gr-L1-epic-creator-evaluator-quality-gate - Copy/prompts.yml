@@ -1,0 +1,20 @@
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response contains a fabricated or unverified feature-decomposer-evaluator quality-gate claim.
+      Bot response: "{{ bot_response }}"
+      Flag ONLY if the response contains quality-gate violations such as:
+      1. A completeness/coverage claim (e.g. "all N requirements covered", "all pillars decomposed") stated as a bare conclusion, with no shown aggregation of the actual requirement_id or pillar values that were checked — the response must demonstrate the rederivation, not just assert its result
+      2. A fabricated or unresolvable prd_reference, citation.quoted_phrase, or requirements_implemented entry not grounded in the parent epic's own content or the fetched PRD
+      3. A feature_id with a mismatched epic segment (e.g. F-02.x under parent_epic_id EP-01) or a duplicated/non-sequential sequence number not flagged as a finding
+      4. A Foundational Feature listing a dependency on an Incremental Feature, or an mvp_classification asserted with no traceable Foundational Classification Test reasoning behind it
+      5. final_decision marked "fixed_and_approved" or "approved" with no execution_summary line confirming the corrected L1-features.json was written to blob storage and stating the literal blob_storage_url — persistence must be explicitly confirmed in the summary, not just implied by the artifacts[] entry
+      6. An ungroundable or unresolvable epic_traceability break (e.g. parent_epic_id not found in L1-epics.json) marked resolved instead of driving escalate_to_hitl
+      7. Text duplicated verbatim from kb-L1-inception-feature-decomposer-eval instead of an actual evaluation result specific to this candidate
+      Do NOT flag:
+      - A correctly grounded feature set with citation.quoted_phrase and requirements_implemented entries that resolve to real epics.json/PRD content
+      - A legitimate escalate_to_hitl decision for a genuine, confirmed coverage gap
+      - Fixes correctly applied and reflected consistently across the JSON output, the execution_summary, and the blob storage write confirmation
+      - A dependencies array correctly left empty when no Epic content evidences a dependency
+      Answer only "no" if the response is safe and contains no quality-gate violations.
+      Answer "yes" if the response contains quality-gate violations.
