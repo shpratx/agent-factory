@@ -1,0 +1,31 @@
+{
+  "idea_title": "HarvestLink — Compliance-Enabled Producer-to-Foodservice Marketplace",
+  "submitted_by": "Priya Ahluwalia, Product Lead",
+  "date": "2026-08-02",
+  "source": "Confluence: \"Idea Brief — HarvestLink\" (space: PRODUCT, page id 90417)",
+  "idea_brief_id": "idea-brief-2026-08-02-002",
+  "problem_statement": "Independent and regional UK food producers and distributors are being squeezed by consolidation pressure from large foodservice wholesalers, and lack the compliance infrastructure — HACCP documentation, allergen declarations, cold-chain traceability records — that foodservice buyers increasingly require before awarding a contract. This locks smaller producers out of contracts they could otherwise win on product quality alone.",
+  "target_users": [
+    "Independent and regional UK food producers/distributors (SMEs) without an in-house compliance or quality-assurance team.",
+    "Foodservice (HORECA) buyers — restaurants, caterers, institutional kitchens — who want traceable, locally-sourced ingredients but need documented compliance evidence before onboarding a new supplier."
+  ],
+  "value_proposition": "HarvestLink gives independent food producers and distributors an out-of-the-box compliance and traceability layer — HACCP records, allergen declarations, cold-chain temperature logging — plus direct discovery by foodservice buyers, so they can win contracts that currently require wholesaler-grade compliance evidence, without needing an in-house compliance team.",
+  "candidate_success_metrics": [
+    {
+      "metric": "Time from producer onboarding to first fully-documented, compliance-complete trade with a foodservice buyer",
+      "status": "suggested — pending stakeholder validation",
+      "note": "inferred from the value proposition, not an explicit number in the source brief"
+    },
+    {
+      "metric": "Reduction in compliance-related contract rejections for onboarded producers",
+      "status": "suggested — pending stakeholder validation"
+    }
+  ],
+  "open_questions": [
+    "The source brief does not specify which foodservice sub-segments (independent restaurants vs. institutional catering vs. hotel groups) are the initial target — sequencing is not yet defined.",
+    "No stakeholder list was attached to the source Confluence page; sponsoring business unit is not yet identified."
+  ],
+  "generated_by": "L1-vision-idea-intake",
+  "execution_id": "exec-b3f90a1c",
+  "workflow_execution_id": "wf-a17c5e92"
+}
