@@ -30,22 +30,22 @@ The following guardrails **must** be implemented as part of this project. Each i
 - **Scope:** Enforces expected input formats, schema constraints, length limits, and rejects malformed or malicious input payloads.
 
 ### 2.2 `gr-L1-pii-detection`
-- **Layer:** L1 (Input)
+- **Layer:** L1 (Input + output)
 - **Purpose:** Detects and flags/redacts Personally Identifiable Information (PII) present in user input.
 - **Scope:** Covers common PII types (names, addresses, phone numbers, email addresses, government IDs, financial information, etc.) to prevent unintended exposure or processing of sensitive personal data.
 
 ### 2.3 `gr-L1-secrets-protection`
-- **Layer:** L1 (Input)
+- **Layer:** L1 (Input + output)
 - **Purpose:** Detects and blocks secrets (API keys, credentials, tokens, passwords, connection strings, etc.) from being passed into or leaked out of the system.
 - **Scope:** Applies to both inbound user input and any generated output that may inadvertently expose secrets.
 
-### 2.4 `gr-L2-policy-enforcement`
+### 2.4 `gr-L2-policy-enforcement` (optional)
 - **Layer:** L2 (Policy)
 - **Purpose:** Enforces business/use-case-specific policies and rules.
 - **Scope:** **Must be created individually for each agent / specific task / use case** — this is not a one-size-fits-all guardrail. Each agent or workflow requires its own tailored policy definition covering permitted actions, response boundaries, and domain-specific compliance rules.
 - **Action Required:** Define and implement a dedicated policy enforcement guardrail per agent/task/use case prior to deployment.
 
-### 2.5 `gr-L3-hallucination-detector`
+### 2.5 `gr-L3-hallucination-detector` (recomended, evaluator doees it anyway)
 - **Layer:** L3 (Output)
 - **Purpose:** Detects potential hallucinations or factually unsupported claims in model-generated output.
 - **Scope:** Validates output against source data/context (where applicable) and flags or blocks responses that are not grounded in verified information.

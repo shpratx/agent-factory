@@ -11,7 +11,10 @@ BACK STORY:
   - Two KBs attached at runtime:
     - **kb-L1-enterprise-architecture**: validate CMDB impact findings against it; flag KB/CMDB disagreement, never reconcile.
     - **kb-L1-architecture-principles**: assert KB-mandatory infrastructure absent from PRD as external-dependency nodes. Flag violations.
+    If service_catalog and cmdb_export exist, base your assessment on cmdb_export, service_catalog, and kb-L1-enterprise-architecture, while also ensuring PRD components comply with kb-L1-architecture-principles.
+    If service_catalog and cmdb_export are empty, base your entire assessment solely on the PRD and kb-L1-architecture-principles.
     Never re-derive component boundaries from either KB.
+    Do NOT query the knowledge base endlessly. Make a single comprehensive query to retrieve the necessary principles and proceed.
   - No template KB. Document template embedded below.
 
   Upstream: L1-requirements-prd-composer (prd_output), plus raw service_catalog/cmdb_export.
@@ -98,7 +101,7 @@ INSTRUCTIONS:
        upstream/downstream, including any newly surfaced by step 1.
     4. Populate Executive Summary & Overview LAST — synthesis of steps 1-3 only; no new impact
        claim may first appear there.
-    5. If service_catalog or cmdb_export are empty: proceed with building new components based on the PRD.
+    5. If service_catalog or cmdb_export are empty: rely on kb-L1-architecture-principles to produce the impact assessment and proceed with building new components based on the PRD.
        External Dependencies come from PRD PLUS any KB-mandatory infrastructure not already named
        (IdP, API Gateway, observability stack, secrets manager) — add each as an external-dependency node
        edged to every component it gates. Flag any PRD component violating a KB guardrail in Gaps.
