@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-design-api-spec-output-schema-v1.0",
+  "title": "ApiSpecItems",
+  "description": "Shape of content.items for L1-design-api-spec. The artifact (openapi.yaml) is the authoritative, machine-readable contract; items restates the same facts in queryable structured form so downstream agents (L1-design-hld, L1-design-lld, L1-testing-script-generator, both construction code generators) can read traceability without parsing YAML. Three arrays, each enforcing one half of a bidirectional no-orphans rule: endpoints[] proves no endpoint exists without an FR behind it (fr_trace is minItems 1), fr_coverage[] proves no FR was silently dropped from the surface (one entry per FR, same ids and same order as requirements.md), and open_questions[] proves every TBD NFR boundary condition survived as a documented gap rather than being resolved into a plausible number. A TBD that appears as a concrete value anywhere in the contract is a schema-level failure of this agent's core discipline, not a style preference — mirroring the zero-tolerance rule L1-requirements-nfr-classifier's own schema sets for fabricated boundary values.",
+  "type": "object",
+  "required": ["endpoints", "fr_coverage", "open_questions"],
+  "properties": {
+    "endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per operation (method + path pair) in openapi.yaml. Every entry must trace to at least one FR — an endpoint with no FR behind it is an invented endpoint.",
+      "items": { "$ref": "#/$defs/Endpoint" }
+    },
+    "fr_coverage": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per functional requirement in requirements.md, same FR ids and same order — never grouped, never reordered, never omitted. An FR that genuinely produces no endpoint (a UI-only or reporting-only requirement) is recorded with coverage 'non_api' and a rationale, never dropped.",
+      "items": { "$ref": "#/$defs/FrCoverage" }
+    },
+    "open_questions": {
+      "type": "array",
+      "description": "Every TBD carried into the contract as an x-open-question extension, plus any HLD/OpenAPI reconciliation disagreement. May be empty only if nfr-spec.md contained no TBD boundary condition at all — which, given the classifier marks genuinely-ungrounded conditions TBD by design, is rare and should be visible in reasoning.",
+      "items": { "$ref": "#/$defs/OpenQuestion" }
+    },
+    "hld_reconciliation": {
+      "type": "array",
+      "description": "Present ONLY when hld_output was supplied. One entry per HLD API-NN and per openapi.yaml path, showing which side each appears on. Absent entirely when the agent ran without an HLD, which is the normal case today — no HLD producer exists in the greenfield pipeline.",
+      "items": { "$ref": "#/$defs/HldReconciliationEntry" }
+    }
+  },
+  "$defs": {
+    "NfrTrace": {
+      "type": "object",
+      "required": ["category", "boundary_condition", "applied_as", "source"],
+      "description": "One nfr-spec.md boundary condition and the specific place in the contract it shaped. A boundary condition that changed nothing in the contract does not belong here; a contract detail with no boundary condition or KB rule behind it does not belong in the contract.",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["Performance", "Security", "Scalability", "Availability", "Compliance", "Usability"],
+          "description": "The nfr-spec.md category this condition was classified under — carried through unchanged, never re-classified here"
+        },
+        "boundary_condition": {
+          "type": "string",
+          "minLength": 5,
+          "description": "The boundary condition verbatim from nfr-spec.md, including the literal 'TBD — needs stakeholder input' phrasing when it is still open. Never reworded, never resolved into a number."
+        },
+        "applied_as": {
+          "type": "string",
+          "enum": ["security_scheme", "rate_limit_note", "error_response", "sla_note", "schema_constraint", "retention_note", "method_restriction", "open_question"],
+          "description": "Where in the contract this condition landed. 'open_question' is the ONLY valid value when boundary_condition is TBD — a TBD may never become a security_scheme value, a rate_limit_note number, or any other concrete contract detail."
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^(nfr-spec\\.md § FR-[0-9]{3}|kb-L1-enterprise-security § ES[0-9]+|kb-L1-enterprise-architecture § EA[0-9]+)$",
+          "description": "'nfr-spec.md § FR-NNN' when the condition came from the classifier's output for that FR; 'kb-L1-enterprise-security § ES<n>' or 'kb-L1-enterprise-architecture § EA<n>' when an enterprise rule shaped the contract directly (e.g. ES1's external-IdP rule, EA2's Gateway-first rule) rather than arriving through a per-FR condition."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "boundary_condition": { "pattern": "TBD — needs stakeholder input$" } } },
+          "then": { "properties": { "applied_as": { "const": "open_question" } } }
+        }
+      ]
+    },
+    "Endpoint": {
+      "type": "object",
+      "required": ["operation_id", "method", "path", "summary", "fr_trace", "nfr_trace", "auth", "confidence", "reasoning"],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "camelCase, matching the operationId in openapi.yaml exactly — the join key downstream agents use"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["get", "post", "put", "patch", "delete"],
+          "description": "Lowercase, matching OpenAPI's own path-item key casing"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^/v1/[a-z0-9\\-/{}]*$",
+          "description": "Versioned, plural, kebab-case resource path per the REST conventions embedded in instructions.md — e.g. /v1/producers/{producerId}/traceability-records"
+        },
+        "summary": { "type": "string", "minLength": 10, "description": "One line, matching the operation's summary in openapi.yaml" },
+        "fr_trace": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Every FR-NNN that motivated this endpoint. minItems 1 is the schema-level enforcement of 'no endpoint without an FR behind it' — an endpoint the agent thinks is obviously needed but cannot trace is an invented endpoint and must not be emitted.",
+          "items": { "type": "string", "pattern": "^FR-[0-9]{3}$" }
+        },
+        "nfr_trace": {
+          "type": "array",
+          "description": "Boundary conditions that shaped this endpoint's auth, rate limit, error shape, retention, method restrictions or schema constraints. May be empty if the FR's classification carried no condition touching this endpoint — never padded with conditions that changed nothing.",
+          "items": { "$ref": "#/$defs/NfrTrace" }
+        },
+        "auth": {
+          "type": "string",
+          "minLength": 3,
+          "description": "The securityScheme name applied to this operation in openapi.yaml, or the literal 'none (public)' for a genuinely unauthenticated operation. Per kb-L1-enterprise-security ES1 an external-facing scheme is never Azure AD, and any compliance-relevant write is tied to a non-shared authenticated identity — a 'none (public)' on such an operation is a defect, not a choice."
+        },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "reasoning": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Why this resource/method shape follows from the cited FR's verbatim statement, and why each NFR condition landed where it did — not a restatement of the FR itself"
+        }
+      }
+    },
+    "FrCoverage": {
+      "type": "object",
+      "required": ["id", "coverage", "operation_ids", "rationale"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^FR-[0-9]{3}$", "description": "The requirements.md FR id — never a new id, this agent derives a contract, it does not create requirements" },
+        "coverage": {
+          "type": "string",
+          "enum": ["covered", "non_api"],
+          "description": "'covered' when >=1 endpoint implements this FR; 'non_api' when the FR genuinely has no API surface (a UI-only interaction, or a constraint on the whole surface rather than an operation on it). There is deliberately no 'uncovered' value — an FR with no endpoint and no rationale for why is a dropped requirement, which this agent must not be able to express."
+        },
+        "operation_ids": {
+          "type": "array",
+          "description": "operation_ids from endpoints[] implementing this FR. Non-empty if and only if coverage is 'covered'.",
+          "items": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 20,
+          "description": "For 'covered', why these operations fully implement the FR. For 'non_api', why the FR has no API surface at all — a specific argument from the FR's own statement, never a generic 'not applicable'."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "coverage": { "const": "non_api" } } },
+          "then": { "properties": { "operation_ids": { "maxItems": 0 } } }
+        },
+        {
+          "if": { "properties": { "coverage": { "const": "covered" } } },
+          "then": { "properties": { "operation_ids": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "OpenQuestion": {
+      "type": "object",
+      "required": ["id", "question", "origin", "source_fr", "spec_location"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^OQ-[0-9]{2}$", "description": "Sequential, OQ-01 upward" },
+        "question": { "type": "string", "minLength": 15, "description": "The decision a stakeholder has to make, phrased so it can be answered — not a restatement of 'this is TBD'" },
+        "origin": {
+          "type": "string",
+          "enum": ["nfr_tbd", "hld_reconciliation", "requirements_gap"],
+          "description": "'nfr_tbd' — a TBD boundary condition carried through from nfr-spec.md. 'hld_reconciliation' — an API-NN/path disagreement between the HLD and openapi.yaml, raised rather than silently resolved in either direction (only possible when hld_output was supplied). 'requirements_gap' — the FR statement itself leaves a contract detail undefined (e.g. the bounds of a score it references)."
+        },
+        "source_fr": {
+          "type": "string",
+          "pattern": "^(FR-[0-9]{3}|—)$",
+          "description": "The FR whose derivation surfaced this question. '—' is valid ONLY for an origin of 'hld_reconciliation' where the HLD element in question has no FR behind it at all — which is itself the finding: an HLD API-NN that traces to no requirement is exactly the disagreement that must be raised rather than resolved by silently emitting the endpoint. For 'nfr_tbd' and 'requirements_gap' a real FR id is always available, since both originate in the FR walk."
+        },
+        "spec_location": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Where the x-open-question extension sits in openapi.yaml — a JSON-pointer-ish path such as '/paths/~1v1~1producers/get/x-open-question' or '/components/schemas/CompletenessScore/x-open-question'. Every open question MUST be visible in the artifact itself, not only in items; a question recorded here but absent from the YAML is invisible to the five downstream consumers that read the YAML rather than these items. A question about something deliberately NOT in the contract (an HLD API-NN with no FR behind it) still needs somewhere to live — use '/info/x-open-question', the document-level list."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "origin": { "enum": ["nfr_tbd", "requirements_gap"] } } },
+          "then": { "properties": { "source_fr": { "not": { "const": "—" } } } }
+        }
+      ]
+    },
+    "HldReconciliationEntry": {
+      "type": "object",
+      "required": ["hld_api_id", "path", "present_in_hld", "present_in_openapi"],
+      "properties": {
+        "hld_api_id": { "type": "string", "description": "The HLD's API-NN id, or '—' for a path that exists only in openapi.yaml" },
+        "path": { "type": "string", "description": "The openapi.yaml path, or the HLD's stated path for an API-NN with no openapi.yaml counterpart" },
+        "present_in_hld": { "type": "boolean" },
+        "present_in_openapi": { "type": "boolean" },
+        "open_question_id": {
+          "type": "string",
+          "pattern": "^OQ-[0-9]{2}$",
+          "description": "Required whenever present_in_hld and present_in_openapi disagree — the disagreement becomes an open question, never a silent resolution in either direction"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              { "properties": { "present_in_hld": { "const": false } } },
+              { "properties": { "present_in_openapi": { "const": false } } }
+            ]
+          },
+          "then": { "required": ["open_question_id"] }
+        }
+      ]
+    }
+  }
+}

@@ -34,8 +34,11 @@ contract:
     required_parameters:
       problem_statement: { type: string, description: "From L1-vision-idea-intake's idea-brief.json" }
       target_geography: { type: string, description: "Target geography for the idea — a country, or a country plus sub-national regions. Resolved at runtime against the jurisdiction the attached KBs declare; a country they do not cover fails with JURISDICTION_MISMATCH rather than being translated" }
-      generated_date: { type: string, description: "The date this run executes, supplied inside idea-brief.json (any common format, e.g. dd-mm-yyyy — normalized to yyyy-mm-dd for the artifact). The agent has no independent clock and cannot rely on orchestrator injection, so this must be present in the brief; never inferred from an example or a golden fixture." }
     optional_parameters:
+      # No date parameter is required. The run date comes from tool-L1-system-current-date,
+      # because the agent has no clock and an unaided model fills a date slot with a
+      # confident guess. generated_date below is only the fallback for a tool failure.
+      generated_date: { type: string, default: null, description: "Fallback date, read from idea-brief.json (any common format, e.g. dd-mm-yyyy — normalized to yyyy-mm-dd). Used only when tool-L1-system-current-date is unavailable or fails. Records when the brief was authored, which may pre-date this run. With neither available the agent writes \"not available\" in the header and completes the assessment — a missing date never halts the run, and is never filled from an example, a fixture, or training data." }
       product_category: { type: string, default: null, description: "Product/activity category, if known, to narrow the regulator lookup" }
       target_users: { type: string, default: null, description: "Target user segment from idea-brief.json — feeds both the segment-specific constraint sweep and the idea_clarity viability component" }
       value_proposition: { type: string, default: null, description: "Value proposition from idea-brief.json — feeds claim-substantiation constraints and the idea_clarity viability component" }
@@ -64,6 +67,7 @@ context:
     - gr-L1-citation-verifier   # BLOCKER — every constraint must cite a specific regulation/section
   tools:
     - tool-L1-regulatory-db-lookup   # read-only; invoked directly, per the Core/Utility split
+    - tool-L1-system-current-date    # reads the host clock — the only way this agent can date the artifact without guessing
     - tool-L1-azure-blob-reader      # reads idea-brief.json from blob storage
     - tool-L1-azure-blob-writer      # writes regulatory-feasibility.md to blob storage
 

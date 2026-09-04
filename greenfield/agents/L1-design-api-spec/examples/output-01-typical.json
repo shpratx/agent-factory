@@ -1,0 +1,70 @@
+{
+  "agent_id": "L1-design-api-spec",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-55aa66bb",
+  "workflow_execution_id": "wf-77cc88dd",
+  "status": "success",
+  "content": {
+    "type": "api_spec",
+    "schema_version": "1.0",
+    "items": {
+      "endpoints": [
+        {
+          "operation_id": "createAttestation",
+          "method": "post",
+          "path": "/v1/attestations",
+          "summary": "Record a producer's or distributor's FBO-status attestation at onboarding",
+          "fr_trace": ["FR-001"],
+          "nfr_trace": [
+            { "category": "Security", "boundary_condition": "Attestation must be tied to an authenticated producer/distributor identity", "applied_as": "security_scheme", "source": "nfr-spec.md § FR-001" },
+            { "category": "Compliance", "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy", "applied_as": "retention_note", "source": "nfr-spec.md § FR-001" },
+            { "category": "Security", "boundary_condition": "External parties must use a separate, group-approved external identity provider — internal AD has no external-party tier", "applied_as": "security_scheme", "source": "kb-L1-enterprise-security § ES1" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.92,
+          "reasoning": "FR-001 makes attestation a discrete act by an identified party, so it is a POST creating an Attestation resource rather than a boolean on a producer profile. Retention is documented as x-retention per ES3's per-record-TYPE rule; auth is the external IdP scheme, never Azure AD, per ES1."
+        },
+        {
+          "operation_id": "getAttestation",
+          "method": "get",
+          "path": "/v1/attestations/{attestationId}",
+          "summary": "Retrieve a recorded FBO-status attestation",
+          "fr_trace": ["FR-001"],
+          "nfr_trace": [
+            { "category": "Compliance", "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy", "applied_as": "retention_note", "source": "nfr-spec.md § FR-001" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.85,
+          "reasoning": "A record retained 6 years for compliance is unverifiable without a read path, so the GET follows from the retention condition rather than from a reflexive CRUD pairing. No list operation is derived — FR-001 grants no discovery capability over attestations."
+        },
+        {
+          "operation_id": "listProducers",
+          "method": "get",
+          "path": "/v1/producers",
+          "summary": "Discover onboarded producers and distributors by category, location, and completeness score",
+          "fr_trace": ["FR-002"],
+          "nfr_trace": [
+            { "category": "Usability", "boundary_condition": "Search results must show compliance-documentation completeness score alongside each producer", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-002" },
+            { "category": "Performance", "boundary_condition": "Buyer search/discovery response time — TBD — needs stakeholder input", "applied_as": "open_question", "source": "nfr-spec.md § FR-002" },
+            { "category": "Security", "boundary_condition": "Producer compliance documents, allergen declarations and individual completeness scores are Confidential", "applied_as": "security_scheme", "source": "kb-L1-enterprise-security § ES2" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.9,
+          "reasoning": "FR-002's three named facets become query parameters on one collection GET with cursor pagination. Authenticated rather than public: ES2 classifies an individual completeness score as Confidential and the Usability condition puts that score in every result, so an anonymous variant would leak Confidential data by construction. The TBD latency stays as x-open-question (OQ-01)."
+        }
+      ],
+      "fr_coverage": [
+        { "id": "FR-001", "coverage": "covered", "operation_ids": ["createAttestation", "getAttestation"], "rationale": "The attestation act is createAttestation; getAttestation exists because the ES3 6-year retention obligation is unverifiable without a read path." },
+        { "id": "FR-002", "coverage": "covered", "operation_ids": ["listProducers"], "rationale": "One collection GET carries all three discovery facets FR-002 names — category, location and completeness score — as query parameters." }
+      ],
+      "open_questions": [
+        { "id": "OQ-01", "question": "What response-time target should buyer producer-discovery search meet, and at which percentile?", "origin": "nfr_tbd", "source_fr": "FR-002", "spec_location": "/paths/~1v1~1producers/get/x-open-question" },
+        { "id": "OQ-02", "question": "How is the compliance-documentation completeness score defined and bounded — is it a 0-100 percentage, and what inputs determine it?", "origin": "requirements_gap", "source_fr": "FR-002", "spec_location": "/components/schemas/CompletenessScore/x-open-question" }
+      ]
+    },
+    "artifacts": [
+      { "id": "artifact-55aa66bb", "type": "api_spec", "name": "openapi.yaml", "format": "yaml", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-55aa66bb/openapi.yaml" }, "description": "OpenAPI 3.1 contract — 3 operations across 2 resources, every operation traced to a requirements.md FR", "produced_by": "L1-design-api-spec" }
+    ],
+    "execution_summary": "• Produced 3 operations across 2 resources (attestations, producers) and 4 component schemas plus a shared Problem schema.\n• FR coverage: 2 of 2 covered, none non_api.\n• Open questions: 2 — OQ-01 is the TBD buyer-search latency carried through from nfr-spec.md; OQ-02 is a requirements gap this derivation surfaced, since FR-002 filters on a completeness score that no requirement defines or bounds, leaving the minCompletenessScore parameter's type undecided.\n• Key decisions: listProducers is authenticated despite reading like public discovery (ES2 Confidential + the Usability condition requiring the score in every result); no listAttestations was derived, as FR-001 grants no discovery capability.\n• Self-check: FR sets in requirements.md and nfr-spec.md compared first — 2 ids, same order, matched. Every operation carries >=1 fr_trace; every FR has exactly one fr_coverage entry. No TBD appears anywhere as a concrete value.\n• Knowledge bases consulted: kb-L1-enterprise-security (ES1 external-IdP scheme, ES2 Confidential classification, ES3 6-year retention); kb-L1-enterprise-architecture (EA2/EA4 both resources Gateway-published; EA3 checked — no legacy write-back in this surface).\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-hallucination-check (pass), gr-L1-consistency-check (pass), gr-L1-schema-validator-openapi (not run — not yet built).\n• Artifact saved to s3://adlc-artifacts/exec-55aa66bb/openapi.yaml.\n• Gaps flagged: OQ-02 blocks a concrete type for the minCompletenessScore query parameter and should be resolved before code generation."
+  }
+}

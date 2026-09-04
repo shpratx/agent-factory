@@ -1,0 +1,100 @@
+{
+  "_comment": "Same two FRs as input-01-typical, plus the optional hld_output. Exercises the enriched path (Processing Rules 3a and 6a): the endpoint surface is seeded from the HLD's apis[] rather than derived from scratch, and the two surfaces are then reconciled. Deliberately constructed so reconciliation is NOT clean in either direction — API-03 exists in the HLD with no FR behind it, and getAttestation is derived from FR-001's retention condition with no HLD counterpart. No HLD producer exists in the greenfield pipeline today, so this is a forward-looking example, not a runnable one.",
+  "requirements_output": {
+    "agent_id": "L1-requirements-elicitor",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-11aa22bb",
+    "workflow_execution_id": "wf-77cc88dd",
+    "status": "success",
+    "content": {
+      "type": "requirements",
+      "schema_version": "1.0",
+      "items": {
+        "functional_requirements": [
+          { "id": "FR-001", "title": "Facilitation-only role attestation at onboarding", "statement": "The system shall require every onboarding producer or distributor to explicitly attest that they, not HarvestLink, hold Food Business Operator status for any trade facilitated on the platform.", "traces_to": "vision.md § Regulatory Posture (FBO-status mitigation)", "confidence": 0.95, "reasoning": "Directly restates CON-01's mitigation_summary as a testable onboarding step." },
+          { "id": "FR-002", "title": "Foodservice buyer discovery and matching", "statement": "The system shall allow foodservice buyers to discover onboarded producers and distributors by product category, location, and compliance-documentation completeness score.", "traces_to": "vision.md § Value Proposition", "confidence": 0.9, "reasoning": "The value proposition names 'direct buyer discovery' explicitly." }
+        ],
+        "compound_splits": []
+      },
+      "artifacts": [
+        { "id": "artifact-11aa22bb", "type": "document", "name": "requirements.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-11aa22bb/requirements.md" }, "description": "Structured functional requirements for HarvestLink", "produced_by": "L1-requirements-elicitor" }
+      ],
+      "execution_summary": "• Produced 2 functional requirements (FR-001–FR-002)."
+    }
+  },
+  "nfr_spec_output": {
+    "agent_id": "L1-requirements-nfr-classifier",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-33ee44ff",
+    "workflow_execution_id": "wf-77cc88dd",
+    "status": "success",
+    "content": {
+      "type": "nfr_classification",
+      "schema_version": "1.0",
+      "items": {
+        "nfr_classifications": [
+          {
+            "id": "FR-001",
+            "title": "Facilitation-only role attestation at onboarding",
+            "boundary_conditions": [
+              { "category": "Security", "boundary_condition": "Attestation must be tied to an authenticated producer/distributor identity", "source": "requirements.md § FR-001" },
+              { "category": "Compliance", "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy", "source": "kb-L1-enterprise-security § ES3" }
+            ],
+            "confidence": 0.9,
+            "reasoning": "Security follows from FR-001's own authenticated-identity requirement; Compliance is grounded in ES3."
+          },
+          {
+            "id": "FR-002",
+            "title": "Foodservice buyer discovery and matching",
+            "boundary_conditions": [
+              { "category": "Usability", "boundary_condition": "Search results must show compliance-documentation completeness score alongside each producer", "source": "requirements.md § FR-002" },
+              { "category": "Performance", "boundary_condition": "Buyer search/discovery response time — TBD — needs stakeholder input", "source": "—" }
+            ],
+            "confidence": 0.85,
+            "reasoning": "Usability follows from FR-002's own completeness-score display capability; no response-time figure is stated anywhere, so Performance is TBD."
+          }
+        ]
+      },
+      "artifacts": [
+        { "id": "artifact-33ee44ff", "type": "document", "name": "nfr-spec.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-33ee44ff/nfr-spec.md" }, "description": "NFR specification for HarvestLink", "produced_by": "L1-requirements-nfr-classifier" }
+      ],
+      "execution_summary": "• Classified 2 functional requirements; 1 genuinely-ungrounded TBD remains."
+    }
+  },
+  "hld_output": {
+    "agent_id": "L1-design-hld-generator",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-99bb00cc",
+    "workflow_execution_id": "wf-77cc88dd",
+    "status": "success",
+    "content": {
+      "type": "hld",
+      "schema_version": "1.0",
+      "items": {
+        "apis": [
+          { "api_id": "API-01", "service": "onboarding-service", "method": "POST", "path": "/attestations", "description": "Record an FBO-status attestation", "request_schema": "AttestationRequest", "response_schema": "Attestation", "auth": "external-idp", "implements_features": ["F-01.1"] },
+          { "api_id": "API-02", "service": "discovery-service", "method": "GET", "path": "/producers", "description": "Search onboarded producers", "request_schema": "ProducerSearchQuery", "response_schema": "ProducerPage", "auth": "external-idp", "implements_features": ["F-02.1"] },
+          { "api_id": "API-03", "service": "discovery-service", "method": "GET", "path": "/producers/{producerId}/rating", "description": "Retrieve a producer's buyer-satisfaction rating", "request_schema": null, "response_schema": "ProducerRating", "auth": "external-idp", "implements_features": ["F-02.3"] }
+        ],
+        "components": [
+          { "component_id": "C-01", "name": "onboarding-service", "responsibility": "Producer/distributor onboarding and attestation capture" },
+          { "component_id": "C-02", "name": "discovery-service", "responsibility": "Producer search and matching for foodservice buyers" }
+        ],
+        "data_model": {
+          "entities": [
+            { "name": "Attestation", "fields": [ { "name": "attestationId", "type": "string" }, { "name": "partyId", "type": "string" }, { "name": "attestedFboStatus", "type": "boolean" }, { "name": "attestedAt", "type": "string" } ], "relationships": [ { "to": "Producer", "cardinality": "many-to-one" } ] },
+            { "name": "Producer", "fields": [ { "name": "producerId", "type": "string" }, { "name": "name", "type": "string" }, { "name": "category", "type": "string" }, { "name": "location", "type": "string" }, { "name": "completenessScore", "type": "number" } ], "relationships": [] }
+          ]
+        },
+        "integrations": [
+          { "system": "SMDS", "direction": "read-only", "purpose": "Duplicate producer identity check at onboarding" }
+        ],
+        "cross_cutting": { "gateway": "Kong", "identity": "external IdP (not Azure AD)" }
+      },
+      "artifacts": [
+        { "id": "artifact-99bb00cc", "type": "document", "name": "hld.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-99bb00cc/hld.md" }, "description": "High-level design for HarvestLink", "produced_by": "L1-design-hld-generator" }
+      ],
+      "execution_summary": "• Produced 2 components, 3 APIs, 2 entities, 1 integration."
+    }
+  }
+}

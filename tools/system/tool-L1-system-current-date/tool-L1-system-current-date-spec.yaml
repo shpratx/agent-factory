@@ -1,0 +1,75 @@
+spec_version: "1.0"
+artifact_type: tool
+metadata:
+  name: tool-L1-system-current-date
+  version: "1.0.0"
+  layer: L1
+  owner: agentic-ai-coe
+
+purpose:
+  description: "Returns the current date from the host clock as JSON (current_date in yyyy-mm-dd), optionally read in a given IANA timezone, so an agent can stamp a document with the date it was produced instead of guessing one."
+  platform: system
+  operation: current-date
+
+interface:
+  parameters:
+    timezone:
+      type: string
+      required: false
+      default: "UTC"
+      description: "IANA timezone name to read the date in (e.g. 'Asia/Kolkata', 'Europe/London', 'UTC'). An unrecognised or unavailable name falls back to UTC and is reported in the returned 'warning' field — never silently substituted."
+
+  returns:
+    type: string
+    description: >
+      JSON object, always parseable. On success: {success: true, current_date: "yyyy-mm-dd",
+      timezone: "<resolved IANA name>", requested_timezone: "<as passed>",
+      iso_timestamp: "<ISO-8601 with offset>", day_of_week: "<name>",
+      warning: "<string|null>", error: null}.
+      On failure: same shape with success false, current_date null, and a generic
+      error string (details in system_tool_operations.log).
+
+credentials:
+  source: none
+  reason: "Local computation against the host clock — no external service, no API call, no secret to scope. The credentials block is retained and answered explicitly rather than omitted, so a reviewer can tell 'no credentials needed' from 'credentials forgotten'."
+
+identity:
+  tool_id: "tool-L1-system-current-date-001"
+  role: tool-executor
+
+  invocable_by:
+    roles: [content-generator, orchestrator, evaluator]
+    agents: [any-agent-that-timestamps-an-artifact]
+
+  permissions:
+    operation: read
+    platform: system
+    scope: "org-level"
+
+  credential_scoping:
+    method: not-applicable
+    vault_path_template: null
+
+resilience:
+  timeout_seconds: 1        # local call; the 30s HTTP default does not apply
+  retry: {max: 0, backoff: none, retry_on: []}   # no transient failure mode to retry — a clock read either works or the host is broken
+  circuit_breaker: {enabled: false}              # no downstream dependency to protect
+  failure_behaviour: "Returns success false with current_date null. Callers must treat a missing date as a metadata gap and continue, never as a reason to halt the run."
+
+security:
+  input_validation: "timezone trimmed and defaulted to UTC when empty; resolved against the IANA database; unrecognised names fall back to UTC with an explicit warning rather than an exception"
+  output_sanitization: "Exceptions caught and logged; a generic error string is returned to the caller — no stack traces, host paths, or locale internals exposed"
+  logging: "Each call logged to system_tool_operations.log at INFO (date served, resolved timezone) or WARNING/ERROR; no user data passes through this tool"
+
+notes:
+  why_this_exists: >
+    An LLM has no clock. Asked to fill a "Generated: {date}" slot with no date in
+    context, it produces a plausible-looking date sampled from its training
+    distribution or anchored on dates elsewhere in the prompt — and a wrong date
+    that is correctly formatted is undetectable to whoever reads the document.
+    This tool exists so that agents can read a date rather than invent one.
+  dependencies: >
+    Standard library only (json, logging, datetime, zoneinfo) plus crewai and
+    pydantic for the tool wrapper. On Windows hosts, non-UTC timezones require
+    the 'tzdata' package; without it the tool degrades to UTC and says so in the
+    warning field.

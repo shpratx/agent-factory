@@ -1,0 +1,214 @@
+{
+  "agent_id": "L1-design-api-spec",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-2e7b91af",
+  "workflow_execution_id": "wf-6d3f8b04",
+  "status": "success",
+  "content": {
+    "type": "api_spec",
+    "schema_version": "1.0",
+    "items": {
+      "endpoints": [
+        {
+          "operation_id": "createAttestation",
+          "method": "post",
+          "path": "/v1/attestations",
+          "summary": "Record a producer's or distributor's FBO-status attestation at onboarding",
+          "fr_trace": ["FR-001"],
+          "nfr_trace": [
+            { "category": "Security", "boundary_condition": "Attestation must be tied to an authenticated producer/distributor identity", "applied_as": "security_scheme", "source": "nfr-spec.md § FR-001" },
+            { "category": "Usability", "boundary_condition": "Attestation must be a clear, explicit step, not a buried checkbox", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-001" },
+            { "category": "Compliance", "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy", "applied_as": "retention_note", "source": "nfr-spec.md § FR-001" },
+            { "category": "Security", "boundary_condition": "External parties must use a separate, group-approved external identity provider — internal AD has no external-party tier", "applied_as": "security_scheme", "source": "kb-L1-enterprise-security § ES1" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.92,
+          "reasoning": "FR-001's statement makes attestation a discrete act performed by an identified party at onboarding, so it is a POST creating a first-class Attestation resource rather than a boolean field on a producer record — the Usability condition (explicit step, not a buried checkbox) is what rules out the flag-on-profile shape, and it lands as a required attestedFboStatus enum plus attestationText echo rather than an optional boolean. The 6-year retention condition is documented as x-retention on the resource per ES3's per-record-TYPE rule. Auth is the external IdP scheme, never Azure AD, per ES1."
+        },
+        {
+          "operation_id": "getAttestation",
+          "method": "get",
+          "path": "/v1/attestations/{attestationId}",
+          "summary": "Retrieve a recorded FBO-status attestation",
+          "fr_trace": ["FR-001"],
+          "nfr_trace": [
+            { "category": "Compliance", "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy", "applied_as": "retention_note", "source": "nfr-spec.md § FR-001" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.85,
+          "reasoning": "A record retained 6 years for compliance purposes has to be readable for that period or the retention obligation is unverifiable — the read follows from the retention condition, not from an assumption that every POST needs a matching GET. No list operation is derived: FR-001 gives no discovery capability over attestations, and inventing one would be an orphan endpoint."
+        },
+        {
+          "operation_id": "listProducers",
+          "method": "get",
+          "path": "/v1/producers",
+          "summary": "Discover onboarded producers and distributors by category, location, and completeness score",
+          "fr_trace": ["FR-002"],
+          "nfr_trace": [
+            { "category": "Usability", "boundary_condition": "Search results must show compliance-documentation completeness score alongside each producer", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-002" },
+            { "category": "Performance", "boundary_condition": "Buyer search/discovery response time — TBD — needs stakeholder input", "applied_as": "open_question", "source": "nfr-spec.md § FR-002" },
+            { "category": "Security", "boundary_condition": "Producer compliance documents, allergen declarations and individual completeness scores are Confidential", "applied_as": "security_scheme", "source": "kb-L1-enterprise-security § ES2" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.9,
+          "reasoning": "FR-002's three named facets become query parameters (category, location, minCompletenessScore) on a collection GET, with cursor pagination per the embedded REST conventions. This endpoint is authenticated rather than public despite reading like public discovery: ES2 classifies an individual completeness score as Confidential, and the Usability condition requires that score to appear in every result — so an anonymous variant would leak Confidential data by construction. The TBD response time is carried as x-open-question (OQ-01), not resolved into a latency figure."
+        },
+        {
+          "operation_id": "createTraceabilityRecord",
+          "method": "post",
+          "path": "/v1/traceability-records",
+          "summary": "Open a traceability record in pending state, awaiting dual sign-off",
+          "fr_trace": ["FR-003"],
+          "nfr_trace": [
+            { "category": "Compliance", "boundary_condition": "Must satisfy Reg. (EC) 178/2002 Art. 18 \"one step back, one step forward\"", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-003" },
+            { "category": "Availability", "boundary_condition": "99.9% uptime — traceability records may be required for active regulatory defence", "applied_as": "sla_note", "source": "nfr-spec.md § FR-003" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.91,
+          "reasoning": "Art. 18's one-step-back/one-step-forward requirement is what forces sourcedFrom and suppliedTo to be required fields rather than optional metadata — the record is not satisfiable without both links. The 99.9% tier is stated explicitly as x-availability-tier on this endpoint group per ES4's rule that a new system's tier is never silently inherited. Idempotency-Key is required per the REST conventions, this being a compliance-relevant creating POST."
+        },
+        {
+          "operation_id": "signTraceabilityRecord",
+          "method": "post",
+          "path": "/v1/traceability-records/{recordId}/signatures",
+          "summary": "Add a producer or distributor sign-off to a pending traceability record",
+          "fr_trace": ["FR-003"],
+          "nfr_trace": [
+            { "category": "Security", "boundary_condition": "Traceability record must be immutable (append-only) once dual-signed", "applied_as": "method_restriction", "source": "nfr-spec.md § FR-003" },
+            { "category": "Availability", "boundary_condition": "99.9% uptime — traceability records may be required for active regulatory defence", "applied_as": "sla_note", "source": "nfr-spec.md § FR-003" },
+            { "category": "Security", "boundary_condition": "Every external-facing action must be tied to an authenticated, non-shared identity — no anonymous or shared-credential access to compliance-relevant workflows", "applied_as": "security_scheme", "source": "kb-L1-enterprise-security § ES1" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.93,
+          "reasoning": "Sign-off is modelled as an append to a signatures sub-collection rather than a PATCH of a status field, because FR-003's immutability requirement forbids mutating the record — the append-only shape is read straight off the FR, not a stylistic preference. Finalisation is a server-side consequence of the second signature arriving, not a separate client-callable transition, so no finaliseTraceabilityRecord endpoint exists. A duplicate sign-off from the same party returns 409. ES1's non-shared-identity rule is what makes signedBy derive from the token subject rather than being a request-body field a client could set."
+        },
+        {
+          "operation_id": "getTraceabilityRecord",
+          "method": "get",
+          "path": "/v1/traceability-records/{recordId}",
+          "summary": "Retrieve a traceability record and its sign-off state",
+          "fr_trace": ["FR-003"],
+          "nfr_trace": [
+            { "category": "Security", "boundary_condition": "Traceability record must be immutable (append-only) once dual-signed", "applied_as": "method_restriction", "source": "nfr-spec.md § FR-003" },
+            { "category": "Availability", "boundary_condition": "99.9% uptime — traceability records may be required for active regulatory defence", "applied_as": "sla_note", "source": "nfr-spec.md § FR-003" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.89,
+          "reasoning": "The immutability condition is recorded here as a method restriction rather than an operation feature: the /v1/traceability-records/{recordId} path item deliberately declares only get, with no put and no delete, and x-method-restriction on the path item states why. A reader of the YAML who wonders whether the omission was an oversight gets an answer in the document itself."
+        },
+        {
+          "operation_id": "createDeclaration",
+          "method": "post",
+          "path": "/v1/declarations",
+          "summary": "Open an allergen declaration in pending state, awaiting producer attestation",
+          "fr_trace": ["FR-004"],
+          "nfr_trace": [
+            { "category": "Compliance", "boundary_condition": "Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-004" },
+            { "category": "Usability", "boundary_condition": "Producer must see a clear pending/finalised state distinction for each declaration", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-004" },
+            { "category": "Scalability", "boundary_condition": "Expected declaration volume — TBD — needs stakeholder input", "applied_as": "open_question", "source": "nfr-spec.md § FR-004" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.88,
+          "reasoning": "The Declaration schema carries declarationId, attestedBy, signedOffAt and an explicit status enum (pending, finalised) — the Usability condition requires the state distinction be visible, so status is a required response field rather than something a client infers from signedOffAt being null. The declaration's allergen content itself is an opaque producer-supplied payload: FR-004 governs the attestation workflow, not allergen semantics, so the contract deliberately does not model a 14-allergen enum it has no requirement for. Volume is TBD (OQ-02), so no rate limit or page-size ceiling beyond the conventions' default is asserted."
+        },
+        {
+          "operation_id": "attestDeclaration",
+          "method": "post",
+          "path": "/v1/declarations/{declarationId}/attestations",
+          "summary": "Record the producer's attestation and sign-off, finalising an allergen declaration",
+          "fr_trace": ["FR-004"],
+          "nfr_trace": [
+            { "category": "Compliance", "boundary_condition": "Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-004" },
+            { "category": "Security", "boundary_condition": "Every external-facing action must be tied to an authenticated, non-shared identity — no anonymous or shared-credential access to compliance-relevant workflows", "applied_as": "security_scheme", "source": "kb-L1-enterprise-security § ES1" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.9,
+          "reasoning": "FR-004 requires attestation and sign-off before finalisation, so finalisation cannot be a client-set status value — it is the server-side effect of this operation. attestedBy derives from the authenticated token subject per ES1, which is also what keeps the platform out of the legal-declarant role the regulatory mitigation depends on: no path exists by which HarvestLink itself could originate or edit a declaration's attestation."
+        },
+        {
+          "operation_id": "getDeclaration",
+          "method": "get",
+          "path": "/v1/declarations/{declarationId}",
+          "summary": "Retrieve an allergen declaration and its pending/finalised state",
+          "fr_trace": ["FR-004"],
+          "nfr_trace": [
+            { "category": "Usability", "boundary_condition": "Producer must see a clear pending/finalised state distinction for each declaration", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-004" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.86,
+          "reasoning": "The Usability condition — the producer must SEE the state distinction — requires a read path, or the distinction exists only in the write response and is unobservable afterwards. This is the condition doing real derivation work, not a reflexive CRUD pairing."
+        },
+        {
+          "operation_id": "getTransactionLimit",
+          "method": "get",
+          "path": "/v1/producers/{producerId}/transaction-limit",
+          "summary": "Retrieve a producer's current completeness-scaled maximum transaction value",
+          "fr_trace": ["FR-005"],
+          "nfr_trace": [
+            { "category": "Security", "boundary_condition": "Transaction-value limit must be enforced server-side; not client-configurable", "applied_as": "method_restriction", "source": "nfr-spec.md § FR-005" },
+            { "category": "Performance", "boundary_condition": "Limit recalculation frequency on completeness-score change — TBD — needs stakeholder input", "applied_as": "open_question", "source": "nfr-spec.md § FR-005" },
+            { "category": "Security", "boundary_condition": "Server-side enforcement must not be bypassable by altering a client-side request", "applied_as": "method_restriction", "source": "kb-L1-enterprise-security § ES1" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.91,
+          "reasoning": "The Security condition is the whole reason this is a read-only sub-resource: the limit is derived from the completeness score server-side, so the path item declares get only, with no put and no patch, and x-method-restriction records that a writable limit would defeat FR-005 and violate ES1's non-bypassable rule. FR-005's re-evaluation clause is satisfied by the limit being computed rather than stored-and-served, but the recalculation trigger frequency is genuinely undefined and stays as OQ-03 rather than becoming an asserted interval."
+        },
+        {
+          "operation_id": "createTrade",
+          "method": "post",
+          "path": "/v1/trades",
+          "summary": "Record a facilitated trade as a direct producer/distributor-to-buyer arrangement",
+          "fr_trace": ["FR-006"],
+          "nfr_trace": [
+            { "category": "Compliance", "boundary_condition": "Must never record HarvestLink as taking title/possession of goods in any transaction record", "applied_as": "schema_constraint", "source": "nfr-spec.md § FR-006" },
+            { "category": "Availability", "boundary_condition": "Behaviour if a trade cannot be routed facilitation-only — TBD — needs stakeholder input", "applied_as": "open_question", "source": "nfr-spec.md § FR-006" },
+            { "category": "Compliance", "boundary_condition": "HarvestLink must never integrate with Group ERP (SAP) — any ERP posting would imply HarvestLink is a transacting party", "applied_as": "schema_constraint", "source": "kb-L1-enterprise-architecture § EA3" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.9,
+          "reasoning": "FR-006's prohibition is a constraint on the Trade schema's shape, not a validation rule layered on top of it: sellerId and buyerId are both required and both reference external parties, and there is deliberately no counterparty, custodian, or settlementAccount field through which the platform could be recorded as a party. EA3's no-ERP rule is what keeps this endpoint from acquiring an invoicing or ledger-posting surface. The routing-failure fallback is genuinely undefined (OQ-04), so the contract declares a 422 with a problem type and states in x-open-question that the failure semantics are unresolved, rather than inventing a retry or queue behaviour."
+        },
+        {
+          "operation_id": "getProducerMetrics",
+          "method": "get",
+          "path": "/v1/producers/{producerId}/metrics",
+          "summary": "Retrieve a producer's time-to-first-compliant-trade and completeness score at first trade",
+          "fr_trace": ["FR-008", "FR-009"],
+          "nfr_trace": [
+            { "category": "Performance", "boundary_condition": "P95 time-to-first-compliant-trade < 14 days (onboarding start → first compliance-complete trade)", "applied_as": "sla_note", "source": "nfr-spec.md § FR-008" },
+            { "category": "Availability", "boundary_condition": "Best-effort (outbound-only reporting feed, not a compliance record)", "applied_as": "sla_note", "source": "nfr-spec.md § FR-008" },
+            { "category": "Performance", "boundary_condition": "Reported compliance-documentation completeness score ≥ 95% at first trade", "applied_as": "sla_note", "source": "nfr-spec.md § FR-009" },
+            { "category": "Compliance", "boundary_condition": "Whether specific buyer names may appear in completeness reporting — TBD — needs stakeholder input", "applied_as": "open_question", "source": "nfr-spec.md § FR-009" }
+          ],
+          "auth": "externalIdpOAuth2",
+          "confidence": 0.84,
+          "reasoning": "FR-008 and FR-009 both say 'record, per producer, and expose this for reporting' about the same producer, so one metrics resource serves both rather than two near-identical endpoints — this is the only multi-FR endpoint in the surface. Both 14-day and 95% figures are documented as x-target values with an explicit note that they are reporting targets, not thresholds this endpoint enforces. The availability tier here is best-effort per ES4, deliberately lower than the traceability group's 99.9%, and stated rather than inherited. Whether buyer names may appear stays open (OQ-06), so the response schema omits any buyer-identifying field pending that decision rather than guessing either way."
+        }
+      ],
+      "fr_coverage": [
+        { "id": "FR-001", "coverage": "covered", "operation_ids": ["createAttestation", "getAttestation"], "rationale": "The attestation act itself is createAttestation; getAttestation exists because the 6-year ES3 retention obligation on this record type is unverifiable without a read path." },
+        { "id": "FR-002", "coverage": "covered", "operation_ids": ["listProducers"], "rationale": "A single collection GET carries all three discovery facets FR-002 names — category, location and completeness score — as query parameters; no second endpoint is needed and none is invented." },
+        { "id": "FR-003", "coverage": "covered", "operation_ids": ["createTraceabilityRecord", "signTraceabilityRecord", "getTraceabilityRecord"], "rationale": "Three operations cover the FR's two clauses: open-then-dual-sign is the create plus the append-only signatures sub-collection, and the immutable audit-log clause is satisfied by the absence of put and delete on the record path rather than by any operation." },
+        { "id": "FR-004", "coverage": "covered", "operation_ids": ["createDeclaration", "attestDeclaration", "getDeclaration"], "rationale": "Attestation-before-finalisation is modelled as two operations so finalisation cannot be a client-set state; getDeclaration is required by the Usability condition that the producer must actually see the pending/finalised distinction." },
+        { "id": "FR-005", "coverage": "covered", "operation_ids": ["getTransactionLimit"], "rationale": "One read-only sub-resource covers the FR: the limit is set and re-evaluated server-side from the completeness score, so there is deliberately no write operation — a client-settable limit would defeat the requirement it implements." },
+        { "id": "FR-006", "coverage": "covered", "operation_ids": ["createTrade"], "rationale": "The FR is a prohibition on how a trade is recorded, so it is covered by the Trade schema's shape on the one endpoint that records trades — no field exists through which the platform could appear as a party." },
+        { "id": "FR-007", "coverage": "non_api", "operation_ids": [], "rationale": "The cohort is designated off-platform by the product/operations team, per the FR's own wording, so there is no cohort-management operation to derive — inventing an admin endpoint would be an orphan. The restriction is enforced as a shared 403 pilot-cohort-restricted problem response declared on createAttestation and createTrade, which is also what satisfies the Usability condition that a non-cohort user gets an explicit answer rather than a silent failure." },
+        { "id": "FR-008", "coverage": "covered", "operation_ids": ["getProducerMetrics"], "rationale": "The FR's 'expose this for reporting' clause is served by the per-producer metrics read; the recording half is an internal consequence of the trade and traceability operations, not a separate endpoint." },
+        { "id": "FR-009", "coverage": "covered", "operation_ids": ["getProducerMetrics"], "rationale": "Same per-producer metrics resource as FR-008 — both FRs expose a measurement about the same subject, so one resource serves both rather than two near-duplicate endpoints." }
+      ],
+      "open_questions": [
+        { "id": "OQ-01", "question": "What response-time target should buyer producer-discovery search meet, and at which percentile?", "origin": "nfr_tbd", "source_fr": "FR-002", "spec_location": "/paths/~1v1~1producers/get/x-open-question" },
+        { "id": "OQ-02", "question": "What allergen-declaration volume should the service be sized for — declarations per producer per month, and expected producer count at pilot and at scale?", "origin": "nfr_tbd", "source_fr": "FR-004", "spec_location": "/paths/~1v1~1declarations/post/x-open-question" },
+        { "id": "OQ-03", "question": "How soon after a completeness-score change must the transaction limit reflect it — synchronously on the next request, or on a defined recalculation interval?", "origin": "nfr_tbd", "source_fr": "FR-005", "spec_location": "/paths/~1v1~1producers~1{producerId}~1transaction-limit/get/x-open-question" },
+        { "id": "OQ-04", "question": "What should happen when a trade cannot be routed facilitation-only — reject outright, hold for manual review, or something else?", "origin": "nfr_tbd", "source_fr": "FR-006", "spec_location": "/paths/~1v1~1trades/post/x-open-question" },
+        { "id": "OQ-05", "question": "What is the target pilot cohort size, and does the 403 pilot-cohort-restricted response need to distinguish 'not yet designated' from 'cohort full'?", "origin": "nfr_tbd", "source_fr": "FR-007", "spec_location": "/components/responses/PilotCohortRestricted/x-open-question" },
+        { "id": "OQ-06", "question": "May specific buyer names appear in compliance-completeness reporting, or must the metrics response stay aggregate and non-identifying?", "origin": "nfr_tbd", "source_fr": "FR-009", "spec_location": "/paths/~1v1~1producers~1{producerId}~1metrics/get/x-open-question" },
+        { "id": "OQ-07", "question": "How is the compliance-documentation completeness score defined and bounded — is it a 0-100 percentage, and what inputs determine it?", "origin": "requirements_gap", "source_fr": "FR-009", "spec_location": "/components/schemas/CompletenessScore/x-open-question" }
+      ]
+    },
+    "artifacts": [
+      { "id": "artifact-4b1e6c73", "type": "api_spec", "name": "openapi.yaml", "format": "yaml", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-2e7b91af/openapi.yaml" }, "description": "OpenAPI 3.1 contract for HarvestLink — 12 operations across 6 resources, every operation traced to a requirements.md FR", "produced_by": "L1-design-api-spec" }
+    ],
+    "execution_summary": "• Produced 12 operations across 6 resources (attestations, producers, traceability-records, declarations, trades, producer metrics) and 9 component schemas, plus one shared Problem schema and one shared PilotCohortRestricted response.\n• FR coverage: 8 of 9 covered, FR-007 recorded non_api — its cohort is designated off-platform by the product/operations team per the FR's own wording, so it is enforced as a shared 403 problem response on createAttestation and createTrade rather than as an operation. No admin cohort-management endpoint was invented.\n• Open questions: 7 carried into the YAML as x-open-question extensions. Six are the six genuinely-ungrounded TBDs nfr-spec.md flagged (OQ-01 through OQ-06 — buyer-search latency, declaration volume, limit-recalculation frequency, routing-failure behaviour, cohort size, buyer-name visibility). OQ-07 is a requirements gap this derivation surfaced: the completeness score is referenced by FR-002, FR-005 and FR-009 but defined by none of them, and its scale determines both the minCompletenessScore query parameter's type and the metrics response schema.\n• Key decisions: (1) FR-003's 'immutable, append-only' is honoured structurally — sign-off is an append to a signatures sub-collection and the record path declares no put and no delete, with x-method-restriction recording why. (2) FR-006's prohibition shapes the Trade schema rather than validating it — no counterparty or settlement field exists through which HarvestLink could be recorded as a party, and EA3's no-ERP rule keeps the endpoint from acquiring an invoicing surface. (3) listProducers is authenticated despite reading like public discovery, because ES2 classifies an individual completeness score as Confidential and FR-002's Usability condition requires that score in every result. (4) FR-008 and FR-009 share one metrics resource rather than getting near-duplicate endpoints.\n• Self-check: FR sets in requirements.md and nfr-spec.md compared first — 9 ids, same order, matched. Both no-orphan directions confirmed: every operation carries >=1 fr_trace, every FR has exactly one fr_coverage entry. One change made during self-check — an initial listDeclarations operation was removed as an orphan, FR-004 gives no discovery capability over declarations. Confirmed no TBD appears anywhere as a concrete value.\n• Knowledge bases consulted: kb-L1-enterprise-security (ES1 external-IdP scheme and non-shared-identity rule on every write, ES2 Confidential classification driving listProducers auth, ES3 6-year retention on attestations, ES4 explicit per-group availability tiers — 99.9% traceability, best-effort metrics); kb-L1-enterprise-architecture (EA2/EA4 all six resources published through the Kong Gateway with x-gateway-published, EA3 no SAP ERP surface at all and the SMDS producer-identity check declared read-only, EA10 checked — no Tier 1 touch, so product-unit autonomy applies and no EA review is triggered).\n• Guardrails evaluated: gr-L1-output-schema-validator (pass), gr-L1-hallucination-check (pass — no endpoint, field or figure without a cited source), gr-L1-consistency-check (pass — fr_trace and fr_coverage agree in both directions), gr-L1-schema-validator-openapi (not run — guardrail not yet built; OpenAPI 3.1 validity was self-checked instead: all $refs resolve, all operationIds unique, Problem declared once).\n• Artifact saved to s3://adlc-artifacts/exec-2e7b91af/openapi.yaml.\n• Gaps flagged: 7 open questions need stakeholder input before L1-construction-api-code-generator runs — OQ-07 (completeness score definition) is the highest-leverage, since three FRs depend on it and both a query parameter type and a response schema are currently unbounded. gr-L1-schema-validator-openapi does not exist, so the workflow's hard_fail_on: invalid_openapi_syntax is currently unenforced."
+  }
+}

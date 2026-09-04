@@ -1,0 +1,63 @@
+{
+  "requirements_output": {
+    "agent_id": "L1-requirements-elicitor",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-11aa22bb",
+    "workflow_execution_id": "wf-77cc88dd",
+    "status": "success",
+    "content": {
+      "type": "requirements",
+      "schema_version": "1.0",
+      "items": {
+        "functional_requirements": [
+          { "id": "FR-001", "title": "Facilitation-only role attestation at onboarding", "statement": "The system shall require every onboarding producer or distributor to explicitly attest that they, not HarvestLink, hold Food Business Operator status for any trade facilitated on the platform.", "traces_to": "vision.md § Regulatory Posture (FBO-status mitigation)", "confidence": 0.95, "reasoning": "Directly restates CON-01's mitigation_summary as a testable onboarding step." },
+          { "id": "FR-002", "title": "Foodservice buyer discovery and matching", "statement": "The system shall allow foodservice buyers to discover onboarded producers and distributors by product category, location, and compliance-documentation completeness score.", "traces_to": "vision.md § Value Proposition", "confidence": 0.9, "reasoning": "The value proposition names 'direct buyer discovery' explicitly." }
+        ],
+        "compound_splits": []
+      },
+      "artifacts": [
+        { "id": "artifact-11aa22bb", "type": "document", "name": "requirements.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-11aa22bb/requirements.md" }, "description": "Structured functional requirements for HarvestLink", "produced_by": "L1-requirements-elicitor" }
+      ],
+      "execution_summary": "• Produced 2 functional requirements (FR-001–FR-002)."
+    }
+  },
+  "nfr_spec_output": {
+    "agent_id": "L1-requirements-nfr-classifier",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-33ee44ff",
+    "workflow_execution_id": "wf-77cc88dd",
+    "status": "success",
+    "content": {
+      "type": "nfr_classification",
+      "schema_version": "1.0",
+      "items": {
+        "nfr_classifications": [
+          {
+            "id": "FR-001",
+            "title": "Facilitation-only role attestation at onboarding",
+            "boundary_conditions": [
+              { "category": "Security", "boundary_condition": "Attestation must be tied to an authenticated producer/distributor identity", "source": "requirements.md § FR-001" },
+              { "category": "Compliance", "boundary_condition": "Retain 6 years from creation, per Group Records Retention Policy", "source": "kb-L1-enterprise-security § ES3" }
+            ],
+            "confidence": 0.9,
+            "reasoning": "Security follows from FR-001's own authenticated-identity requirement; Compliance is grounded in ES3's 6-year retention for trade/compliance-relevant records."
+          },
+          {
+            "id": "FR-002",
+            "title": "Foodservice buyer discovery and matching",
+            "boundary_conditions": [
+              { "category": "Usability", "boundary_condition": "Search results must show compliance-documentation completeness score alongside each producer", "source": "requirements.md § FR-002" },
+              { "category": "Performance", "boundary_condition": "Buyer search/discovery response time — TBD — needs stakeholder input", "source": "—" }
+            ],
+            "confidence": 0.85,
+            "reasoning": "Usability follows from FR-002's own completeness-score display capability; no response-time figure is stated in any input source, so Performance is TBD."
+          }
+        ]
+      },
+      "artifacts": [
+        { "id": "artifact-33ee44ff", "type": "document", "name": "nfr-spec.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-33ee44ff/nfr-spec.md" }, "description": "NFR specification for HarvestLink", "produced_by": "L1-requirements-nfr-classifier" }
+      ],
+      "execution_summary": "• Classified 2 functional requirements; 1 genuinely-ungrounded TBD remains."
+    }
+  }
+}

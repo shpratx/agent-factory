@@ -1,0 +1,26 @@
+{
+  "requirements_output": {
+    "agent_id": "L1-requirements-elicitor",
+    "agent_version": "1.0.0",
+    "execution_id": "exec-5c0b8d71",
+    "workflow_execution_id": "wf-1e4f7a35",
+    "status": "success",
+    "content": {
+      "type": "requirements",
+      "schema_version": "1.0",
+      "items": {
+        "functional_requirements": [
+          { "id": "FR-001", "title": "Facilitation-only role attestation at onboarding", "statement": "The system shall require every onboarding producer or distributor to explicitly attest that they, not HarvestLink, hold Food Business Operator status for any trade facilitated on the platform.", "traces_to": "vision.md § Regulatory Posture (FBO-status mitigation)", "confidence": 0.95, "reasoning": "Directly restates CON-01's mitigation_summary as a testable onboarding step." },
+          { "id": "FR-002", "title": "Foodservice buyer discovery and matching", "statement": "The system shall allow foodservice buyers to discover onboarded producers and distributors by product category, location, and compliance-documentation completeness score.", "traces_to": "vision.md § Value Proposition", "confidence": 0.9, "reasoning": "The value proposition names 'direct buyer discovery' explicitly." },
+          { "id": "FR-003", "title": "Dual sign-off traceability record entry", "statement": "The system shall require both producer and distributor sign-off before a traceability record is finalised, and shall retain every finalised record in an immutable, append-only audit log.", "traces_to": "vision.md § Regulatory Posture (traceability mitigation)", "confidence": 0.95, "reasoning": "Directly restates CON-02's mitigation_summary." }
+        ],
+        "compound_splits": []
+      },
+      "artifacts": [
+        { "id": "artifact-3d9e0f11", "type": "document", "name": "requirements.md", "format": "markdown", "storage": { "provider": "s3", "location": "s3://adlc-artifacts/exec-5c0b8d71/requirements.md" }, "description": "Structured functional requirements for HarvestLink, traced to vision.md", "produced_by": "L1-requirements-elicitor" }
+      ],
+      "execution_summary": "• Produced 3 functional requirements (FR-001–FR-003)."
+    }
+  },
+  "nfr_spec_output": null
+}

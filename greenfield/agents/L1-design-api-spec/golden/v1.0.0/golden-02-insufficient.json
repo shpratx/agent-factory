@@ -1,0 +1,14 @@
+{
+  "agent_id": "L1-design-api-spec",
+  "agent_version": "1.0.0",
+  "execution_id": "exec-8f3a2d60",
+  "workflow_execution_id": "wf-1e4f7a35",
+  "status": "failed",
+  "content": {
+    "type": "api_spec",
+    "schema_version": "1.0",
+    "items": {},
+    "artifacts": [],
+    "execution_summary": "• Produced 0 endpoints — INSUFFICIENT_CONTEXT.\n• requirements_output was present and valid (3 FRs, status success), but nfr_spec_output was null. Unlike L1-requirements-nfr-classifier — which proceeds without its regulatory input and marks Compliance conditions TBD — this agent has no degraded mode: both inputs are hard preconditions.\n• Why proceeding would have been worse than failing: with requirements.md alone, an endpoint surface for FR-001 to FR-003 is derivable, but every contract detail that reads as a decision would have had nothing behind it. The auth scheme, the rate limits, the error envelope, the retention window on the attestation record, the availability tier on the traceability endpoints — each would have been a plausible default asserted as a fact, and five downstream agents would have consumed them as settled. Producing a contract that looks complete and is silently invented is the specific failure this agent exists to prevent; a fail-fast is the honest outcome.\n• Also not attempted: the FR-set alignment assertion between requirements.md and nfr-spec.md, which replaces the zero-drop guarantee L1-requirements-prd-composer used to provide. With one side of the comparison absent there is nothing to assert.\n• workflow_execution_id inherited from requirements_output (wf-1e4f7a35) — the one required input that was present still carries the execution lineage, so no new id was generated.\n• Knowledge bases consulted: none — failed at input validation, before the derivation step.\n• Guardrails evaluated: gr-L1-output-schema-validator (n/a — failed status), gr-L1-hallucination-check (n/a — no content), gr-L1-consistency-check (n/a — no content), gr-L1-schema-validator-openapi (n/a — no artifact emitted).\n• Gaps flagged: run L1-requirements-nfr-classifier against this requirements.md before re-invoking. Its output is what makes the difference between a derived contract and a guessed one."
+  }
+}

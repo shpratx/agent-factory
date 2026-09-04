@@ -330,7 +330,7 @@
   <header class="mast">
     <div class="eyebrow">Agent Factory · Greenfield · Phase 4 Design</div>
     <h1>L1-design-api-spec</h1>
-    <p class="dek">Derives the OpenAPI contract from the functional requirements and their NFR boundary conditions — the hub artifact the LLD, test and construction agents build on.</p>
+    <p class="dek">Formalises the OpenAPI contract from the high-level design, the functional requirements and their NFR boundary conditions — the hub artifact the LLD, test and construction agents build on.</p>
   </header>
 
   <div class="status-strip">
@@ -343,7 +343,7 @@
     <h2>The agent in context</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1120 800" role="img" aria-label="L1-design-api-spec calls tool-L1-azure-blob-reader to fetch requirements.md and nfr-spec.md from Azure Blob Storage, reads the enterprise architecture and enterprise security knowledge bases, and passes its openapi.yaml output through a four-gate guardrail chain before it reaches the LLD, test script and construction agents plus the GitHub orchestrator. The OpenAPI validator guardrail and all downstream consumers are not yet built.">
+        <svg viewBox="0 0 1120 800" role="img" aria-label="L1-design-api-spec calls tool-L1-azure-blob-reader to fetch requirements.md, nfr-spec.md and hld.md from Azure Blob Storage, reads the enterprise architecture and enterprise security knowledge bases, and passes its openapi.yaml output through a four-gate guardrail chain before it reaches the LLD, test script and construction agents plus the GitHub orchestrator. The HLD producer, the OpenAPI validator guardrail and all downstream consumers are not yet built.">
           <defs>
             <marker id="ar" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
@@ -369,19 +369,24 @@
           </g>
 
           <!-- ============ BLOB STORAGE ============ -->
-          <rect x="270" y="26" width="580" height="104" rx="4" fill="none" stroke="var(--artifact)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".55"/>
-          <text x="286" y="45" font-family="var(--mono)" font-size="10" font-weight="700" letter-spacing=".9" fill="var(--artifact)" opacity=".8">AZURE BLOB STORAGE</text>
+          <rect x="164" y="26" width="792" height="104" rx="4" fill="none" stroke="var(--artifact)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".55"/>
+          <text x="180" y="45" font-family="var(--mono)" font-size="10" font-weight="700" letter-spacing=".9" fill="var(--artifact)" opacity=".8">AZURE BLOB STORAGE</text>
 
-          <rect x="286" y="54" width="250" height="60" rx="3" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="1.5"/>
-          <text x="411" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">requirements.md</text>
-          <text x="411" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-requirements-elicitor</text>
+          <rect x="180" y="54" width="240" height="60" rx="3" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="1.5"/>
+          <text x="300" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">requirements.md</text>
+          <text x="300" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-requirements-elicitor</text>
 
-          <rect x="584" y="54" width="250" height="60" rx="3" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="1.5"/>
-          <text x="709" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">nfr-spec.md</text>
-          <text x="709" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-requirements-nfr-classifier</text>
+          <rect x="440" y="54" width="240" height="60" rx="3" fill="var(--artifact-bg)" stroke="var(--artifact)" stroke-width="1.5"/>
+          <text x="560" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">nfr-spec.md</text>
+          <text x="560" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-requirements-nfr-classifier</text>
+
+          <rect x="700" y="54" width="240" height="60" rx="3" fill="none" stroke="var(--artifact)" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="820" y="79" text-anchor="middle" font-family="var(--mono)" font-size="12.5" font-weight="700" fill="var(--artifact)">hld.md</text>
+          <text x="820" y="98" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="var(--muted)">L1-design-hld &#183; producer not built</text>
 
           <!-- converge into the tool -->
-          <polyline points="411,114 411,138 709,138 709,114" fill="none" stroke="var(--artifact)" stroke-width="1.5"/>
+          <polyline points="300,114 300,138 820,138 820,114" fill="none" stroke="var(--artifact)" stroke-width="1.5"/>
+          <line x1="560" y1="114" x2="560" y2="138" stroke="var(--artifact)" stroke-width="1.5"/>
           <line x1="560" y1="138" x2="560" y2="156" stroke="var(--artifact)" stroke-width="1.5" marker-end="url(#arN)"/>
 
           <!-- ============ BLOB READER TOOL ============ -->
@@ -394,9 +399,9 @@
           <!-- ============ AGENT ============ -->
           <rect x="290" y="232" width="540" height="112" rx="4" fill="var(--agent-bg)" stroke="var(--agent)" stroke-width="2.5"/>
           <text x="560" y="264" text-anchor="middle" font-family="var(--mono)" font-size="17" font-weight="700" fill="var(--agent)">L1-design-api-spec</text>
-          <text x="560" y="288" text-anchor="middle" font-size="12" fill="var(--body)">FR capability &#8594; resource model &#8594; endpoint contract</text>
+          <text x="560" y="288" text-anchor="middle" font-size="12" fill="var(--body)">HLD apis[] + entities[] &#8594; endpoint contract &#183; FR statement confirms it</text>
           <text x="560" y="307" text-anchor="middle" font-size="12" fill="var(--body)">NFR boundary conditions &#8594; auth, limits, error shape</text>
-          <text x="560" y="330" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="700" fill="var(--guard)">asserts both FR-NNN sets align before deriving</text>
+          <text x="560" y="330" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="700" fill="var(--guard)">aligns FR-NNN sets and reconciles every API-NN before emitting</text>
 
           <!-- ============ KNOWLEDGE BASES (left) ============ -->
           <rect x="16" y="238" width="228" height="52" rx="3" fill="var(--kb-bg)" stroke="var(--kb)" stroke-width="1.5"/>
@@ -488,14 +493,14 @@
         <span><i class="swatch" style="background:var(--tool-bg);border-color:var(--tool)"></i> Tool</span>
         <span><i class="swatch" style="border-color:var(--muted);border-style:dashed;background:none"></i> Dashed = not built yet</span>
       </div>
-      <figcaption><b>Solid means it exists in the repo today; dashed means it is declared but unbuilt.</b> Both inputs are fetched from Azure Blob Storage through <code>tool-L1-azure-blob-reader</code> — the agent's only tool, and read-only. Both knowledge bases and three of the four guardrails already exist; the OpenAPI validator and everything downstream of <code>openapi.yaml</code> are still to come.</figcaption>
+      <figcaption><b>Solid means it exists in the repo today; dashed means it is declared but unbuilt.</b> All three inputs are fetched from Azure Blob Storage through <code>tool-L1-azure-blob-reader</code> — the agent's only tool, and read-only. Both knowledge bases and three of the four guardrails already exist; <code>hld.md</code>'s producer, the OpenAPI validator and everything downstream of <code>openapi.yaml</code> are still to come.</figcaption>
     </figure>
   </section>
 
   <section>
     <h2>Inputs</h2>
     <div class="prose">
-      <p>Both documents are read from blob storage by <code>tool-L1-azure-blob-reader</code>, which takes a <code>folder_name</code> prefix and returns the decoded contents of every file under it. Either one missing is a fail-fast <code>INSUFFICIENT_CONTEXT</code>; the two are then cross-checked against each other before anything is derived.</p>
+      <p>All three documents are read from blob storage by <code>tool-L1-azure-blob-reader</code>, which takes a <code>folder_name</code> prefix and returns the decoded contents of every file under it. Any one missing is a fail-fast <code>INSUFFICIENT_CONTEXT</code>; the three are then cross-checked against each other before anything is emitted.</p>
     </div>
     <div class="tbl-wrap">
       <table>
@@ -513,12 +518,14 @@
             <td>Per-FR boundary conditions across six categories, same ids and same order, each cited to a real source or marked <code>TBD</code></td>
             <td><span class="pill built">Built</span></td>
           </tr>
+          <tr>
+            <td>hld.md</td>
+            <td><code>L1-design-hld</code></td>
+            <td><code>apis[]</code> — <code>API-NN</code> id, method, path, request and response schema, auth, owning service. Plus <code>components[]</code> (which service owns each route), <code>data_model.entities[]</code> with fields and relationships, and <code>integrations[]</code></td>
+            <td><span class="pill gap">Producer not built</span></td>
+          </tr>
         </tbody>
       </table>
-    </div>
-    <div class="note">
-      <h3>The zero-drop check lives in this agent</h3>
-      <p><code>L1-requirements-prd-composer</code> is not part of this pipeline, so the two source documents are read directly rather than pre-composed. That costs one guarantee: the composer's own gate used to verify no requirement or boundary condition was lost between elicitation and design. This agent has to assert it instead — the <code>FR-NNN</code> set in <code>nfr-spec.md</code> must match <code>requirements.md</code> exactly, same ids and same order, before any endpoint is derived. The classifier's schema already mandates that alignment, so it is a cheap assertion rather than new analysis, but it must be an explicit step: a mismatch means an upstream agent drifted, and deriving a contract from a partial set is exactly the failure this pipeline exists to prevent.</p>
     </div>
   </section>
 
@@ -531,7 +538,7 @@
           <tr>
             <td>tool-L1-azure-blob-reader</td>
             <td><code>folder_name</code> — blob prefix</td>
-            <td>Fetching <code>requirements.md</code> and <code>nfr-spec.md</code>. Returns per-file sections of decoded text; 30s timeout, two retries, credentials via SecretsSDK at <code>/secrets/{org_id}/azure-blob</code></td>
+            <td>Fetching <code>requirements.md</code>, <code>nfr-spec.md</code> and <code>hld.md</code>. Returns per-file sections of decoded text; 30s timeout, two retries, credentials via SecretsSDK at <code>/secrets/{org_id}/azure-blob</code></td>
             <td><span class="pill built">Built</span></td>
           </tr>
         </tbody>
@@ -545,7 +552,7 @@
   <section>
     <h2>Knowledge bases</h2>
     <div class="prose">
-      <p>Two, both already built. The originally-planned <code>kb-L2-food-domain-api-patterns</code> was dropped — see below.</p>
+      <p>Two, both already built, and both organisation-wide rather than domain-specific — the agent carries no product or industry vocabulary of its own.</p>
     </div>
     <div class="tbl-wrap">
       <table>
@@ -569,11 +576,6 @@
         </tbody>
       </table>
     </div>
-    <div class="note">
-      <h3>Why there is no food-domain KB</h3>
-      <p>A food-domain vocabulary KB — GTIN product identity, batch and lot code formats, the EU FIC 14-allergen enum, temperature-chain units, catch-weight — was planned and then dropped, because none of it is exercised by a single HarvestLink requirement. HarvestLink is a compliance and facilitation platform: FR-006 states it never takes possession, title or custody, so there is no custody chain to model and no cold-chain telemetry to represent. FR-004 is the trap — it says "allergen," but read closely it governs the <em>declaration workflow</em> (producer attestation, sign-off), not the allergen <em>content</em>. The contract needs <code>declarationId</code>, <code>attestedBy</code>, <code>signedOffAt</code>, <code>status</code>. It never needs to know what an allergen is.</p>
-      <p>What the contract genuinely needs comes from the requirements themselves, not a KB: what a compliance-documentation completeness score is and how it is bounded; that FR-003's "immutable, append-only" forbids <code>PUT</code> and <code>DELETE</code> on traceability records; that FR-006 forbids any endpoint implying HarvestLink is a transacting party. Shipping with only the two L1 KBs matches the call <code>L1-requirements-prd-composer</code> made when it shipped with an empty KB list. If HarvestLink later grows a real product catalogue with SKUs and cold-chain tracking, the vocabulary need appears then — building for it now would be speculative.</p>
-    </div>
   </section>
 
   <section>
@@ -589,12 +591,12 @@
           </tr>
           <tr>
             <td>gr-L3-hallucination-detector</td>
-            <td>An endpoint, schema or field with no <code>FR-NNN</code> behind it in <code>requirements.md</code>; a <code>TBD</code> boundary condition silently resolved into a plausible number</td>
+            <td>An endpoint, schema or field with no <code>FR-NNN</code> behind it in <code>requirements.md</code> and no <code>API-NN</code> behind it in <code>hld.md</code>; a <code>TBD</code> boundary condition silently resolved into a plausible number</td>
             <td><span class="pill built">Built</span></td>
           </tr>
           <tr>
             <td>gr-L3-consistency-checker</td>
-            <td>An <code>FR-NNN</code> present in <code>requirements.md</code> with no endpoint and no explicit non-API note</td>
+            <td>An <code>FR-NNN</code> present in <code>requirements.md</code> with no endpoint and no explicit non-API note; an <code>API-NN</code> in <code>hld.md</code> that never surfaces in the contract, or a path in the contract absent from the HLD</td>
             <td><span class="pill built">Built</span></td>
           </tr>
           <tr>
@@ -614,7 +616,7 @@
   "$id": "L1-design-api-spec-output-schema-v1.0",
   "title": "DesignApiSpecItems",
   "type": "object",
-  "required": ["endpoints", "fr_coverage", "open_questions"],
+  "required": ["endpoints", "fr_coverage", "hld_reconciliation", "open_questions"],
   "properties": {
     "endpoints": {
       "type": "array",
@@ -627,6 +629,12 @@
       "description": "One entry per FR-NNN in requirements.md, same ids and same order.",
       "items": { "$ref": "#/$defs/FrCoverage" }
     },
+    "hld_reconciliation": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per API-NN in hld.md. Every HLD route is accounted for, matched or divergent — silence is a guardrail failure.",
+      "items": { "$ref": "#/$defs/HldReconciliation" }
+    },
     "open_questions": {
       "type": "array",
       "description": "Every TBD boundary condition carried through unresolved. Empty array, not omitted, if none.",
@@ -637,7 +645,8 @@
     "Endpoint": {
       "type": "object",
       "required": ["operation_id", "method", "path", "summary",
-                   "fr_trace", "nfr_trace", "confidence", "reasoning"],
+                   "fr_trace", "nfr_trace", "hld_trace",
+                   "confidence", "reasoning"],
       "properties": {
         "operation_id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" },
         "method": {
@@ -659,6 +668,11 @@
         "nfr_trace": {
           "type": "array",
           "items": { "$ref": "#/$defs/NfrInfluence" }
+        },
+        "hld_trace": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^API-[0-9]{2}$" },
+          "description": "The HLD route(s) this endpoint formalises. Empty ONLY when the FR demanded an endpoint the HLD never drew — which must also appear in hld_reconciliation as missing_in_hld."
         },
         "auth": {
           "type": "string",
@@ -721,6 +735,27 @@
         }
       ]
     },
+    "HldReconciliation": {
+      "type": "object",
+      "required": ["api_id", "status", "reasoning"],
+      "properties": {
+        "api_id": { "type": "string", "pattern": "^API-[0-9]{2}$" },
+        "status": {
+          "type": "string",
+          "enum": ["matched", "refined", "missing_in_hld", "missing_in_spec", "conflict"],
+          "description": "refined = same route, contract tightened by an NFR boundary condition. conflict = the HLD and the FR statement disagree; raised as an open question, never silently resolved in either direction."
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "The endpoint this HLD route became. Absent only when status is missing_in_spec."
+        },
+        "divergence": {
+          "type": "string",
+          "description": "What differs and which document said what. Required when status is refined, conflict, missing_in_hld or missing_in_spec."
+        },
+        "reasoning": { "type": "string", "minLength": 20 }
+      }
+    },
     "OpenQuestion": {
       "type": "object",
       "required": ["fr_id", "category", "question", "blocks"],
@@ -753,17 +788,17 @@
       <div class="flow-step">
         <div class="flow-num">1</div>
         <div class="flow-body">
-          <div class="flow-title">Read both documents from blob storage</div>
-          <div class="flow-detail">Call <code>tool-L1-azure-blob-reader</code> once per <code>folder_name</code> prefix to fetch <code>requirements.md</code> and <code>nfr-spec.md</code>.</div>
-          <div class="flow-halt">HALT &#183; INSUFFICIENT_CONTEXT if either is absent or unreadable</div>
+          <div class="flow-title">Read all three documents from blob storage</div>
+          <div class="flow-detail">Call <code>tool-L1-azure-blob-reader</code> once per <code>folder_name</code> prefix to fetch <code>requirements.md</code>, <code>nfr-spec.md</code> and <code>hld.md</code>.</div>
+          <div class="flow-halt">HALT &#183; INSUFFICIENT_CONTEXT if any is absent or unreadable</div>
         </div>
       </div>
 
       <div class="flow-step">
         <div class="flow-num">2</div>
         <div class="flow-body">
-          <div class="flow-title">Assert the two inputs agree</div>
-          <div class="flow-detail">The <code>FR-NNN</code> set in <code>nfr-spec.md</code> must match <code>requirements.md</code> exactly — same ids, same order. This replaces the zero-drop guarantee the PRD composer used to provide.</div>
+          <div class="flow-title">Assert the requirement inputs agree</div>
+          <div class="flow-detail">The <code>FR-NNN</code> set in <code>nfr-spec.md</code> must match <code>requirements.md</code> exactly — same ids, same order. This replaces the zero-drop guarantee the PRD composer used to provide. The HLD is not checked here: it speaks <code>F-XX.X</code>, a different id vocabulary, and is reconciled at step 7 instead.</div>
           <div class="flow-halt">HALT &#183; a mismatch means an upstream agent drifted; never derive from a partial set</div>
         </div>
       </div>
@@ -771,13 +806,21 @@
       <div class="flow-step">
         <div class="flow-num">3</div>
         <div class="flow-body">
-          <div class="flow-title">Derive the resource model</div>
-          <div class="flow-detail">For each <code>FR-NNN</code>, read its verbatim statement and identify the resource and actions it implies. One FR may yield several endpoints; each endpoint records the FR that motivated it in <code>fr_trace</code>.</div>
+          <div class="flow-title">Seed the surface from the HLD</div>
+          <div class="flow-detail">Take method, path, request and response schema and auth from <code>apis[]</code>; turn <code>data_model.entities[]</code> into <code>components/schemas</code> and its relationships into <code>$ref</code>s. Each seeded endpoint records the route it came from in <code>hld_trace</code>. Nothing is invented at this step — the HLD is transcribed, not interpreted.</div>
         </div>
       </div>
 
       <div class="flow-step">
         <div class="flow-num">4</div>
+        <div class="flow-body">
+          <div class="flow-title">Confirm each route against its requirement</div>
+          <div class="flow-detail">For each <code>FR-NNN</code>, read its verbatim statement and establish which seeded endpoints realise it, recorded in <code>fr_trace</code>. The FR link comes from <code>requirements.md</code>, never from the HLD — its <code>implements_features</code> uses <code>F-XX.X</code> ids, a different vocabulary. An FR that demands a route the HLD never drew gets one here, flagged <code>missing_in_hld</code>.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">5</div>
         <div class="flow-body">
           <div class="flow-title">Apply the NFR boundary conditions</div>
           <div class="flow-detail">Attach each FR's boundary conditions to the part of the contract they govern — security scheme, documented rate limit, error response shape, pagination. Each attachment is recorded in <code>nfr_trace</code> with what it shaped.</div>
@@ -786,7 +829,7 @@
       </div>
 
       <div class="flow-step">
-        <div class="flow-num">5</div>
+        <div class="flow-num">6</div>
         <div class="flow-body">
           <div class="flow-title">Apply the enterprise constraints</div>
           <div class="flow-detail">Every route is gateway-published and independently deployable — no point-to-point call into a legacy system, no write-back to SMDS or SAP ERP. External-facing operations carry the external identity provider's scheme, never Azure AD, and every limit is enforced server-side.</div>
@@ -794,18 +837,19 @@
       </div>
 
       <div class="flow-step">
-        <div class="flow-num">6</div>
+        <div class="flow-num">7</div>
         <div class="flow-body">
-          <div class="flow-title">Self-check both directions</div>
-          <div class="flow-detail">Every <code>FR-NNN</code> maps to at least one endpoint or is explicitly marked <code>non_api</code> with a reason; every endpoint traces back to a real <code>FR-NNN</code>. No orphans either way.</div>
+          <div class="flow-title">Self-check all three directions</div>
+          <div class="flow-detail">Every <code>FR-NNN</code> maps to at least one endpoint or is explicitly marked <code>non_api</code> with a reason; every endpoint traces back to a real <code>FR-NNN</code>; and every <code>API-NN</code> in the HLD appears in <code>hld_reconciliation</code> as matched, refined or divergent. No orphans in any direction.</div>
+          <div class="flow-halt">A conflict between the HLD and an FR statement becomes an open question &#183; never silently resolved in favour of either document</div>
         </div>
       </div>
 
       <div class="flow-step">
-        <div class="flow-num">7</div>
+        <div class="flow-num">8</div>
         <div class="flow-body">
           <div class="flow-title">Emit</div>
-          <div class="flow-detail"><code>openapi.yaml</code> as valid OpenAPI 3.x, plus the structured <code>items[]</code> mirror above. Unresolved boundary conditions appear as <code>x-open-question</code> extensions on the paths they affect.</div>
+          <div class="flow-detail"><code>openapi.yaml</code> as valid OpenAPI 3.x, plus the structured <code>items[]</code> mirror above. Unresolved boundary conditions appear as <code>x-open-question</code> extensions on the paths they affect; every route carries <code>x-hld-trace</code> naming the <code>API-NN</code> it formalises, and any divergence from the HLD is stated in the summary rather than buried.</div>
         </div>
       </div>
 

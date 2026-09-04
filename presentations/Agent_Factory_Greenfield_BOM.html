@@ -63,7 +63,7 @@ code{background:#E5E7EB;padding:1px 4px;border-radius:3px;font-size:9.5px;white-
 <td>Structures a raw idea into a problem statement, target users, and success metrics.</td>
 <td>Raw idea brief (free text); sponsoring stakeholder list</td>
 <td><span class="src-human">Human:</span> Product Lead submission via intake form or Confluence "Idea Brief" page<br><span class="src-ext">External:</span> stakeholder registry (org directory / HRIS export)</td>
-<td><code>idea-brief.md</code></td>
+<td><code>idea-brief.json</code></td>
 <td><code>tool-L1-confluence-fetch-page</code></td>
 <td>— <span style="color:var(--gray-txt);font-style:italic;">(idea-brief structure folded into <code>instructions.md</code> per S4 — see note below)</span></td>
 <td><code>gr-L1-hallucination-check</code>, <code>gr-L1-consistency-check</code></td>
@@ -72,7 +72,7 @@ code{background:#E5E7EB;padding:1px 4px;border-radius:3px;font-size:9.5px;white-
 <td><code>L1-vision-market-analyzer</code></td>
 <td>Competitor analysis and SWOT for the proposed idea.</td>
 <td>Problem statement + target market (from idea brief); known competitor list (optional)</td>
-<td><span class="src-agent">Agent:</span> <code>idea-brief.md</code> from <code>L1-vision-idea-intake</code><br><span class="src-ext">External:</span> live web search; <span class="src-kb">KB:</span> prior competitor profiles</td>
+<td><span class="src-agent">Agent:</span> <code>idea-brief.json</code> from <code>L1-vision-idea-intake</code><br><span class="src-ext">External:</span> live web search; <span class="src-kb">KB:</span> prior competitor profiles</td>
 <td><code>market-analysis.md</code></td>
 <td><code>tool-L1-web-search-competitor-scan</code></td>
 <td><code>kb-L2-domain-market</code></td>
@@ -82,7 +82,7 @@ code{background:#E5E7EB;padding:1px 4px;border-radius:3px;font-size:9.5px;white-
 <td><code>L1-vision-regulatory-feasibility-checker</code></td>
 <td>Regulatory feasibility assessment (licensing, compliance regimes) for the target market.</td>
 <td>Problem statement + target geography/product category (from idea brief)</td>
-<td><span class="src-agent">Agent:</span> <code>idea-brief.md</code> from <code>L1-vision-idea-intake</code><br><span class="src-ext">External:</span> regulatory database/API lookup</td>
+<td><span class="src-agent">Agent:</span> <code>idea-brief.json</code> from <code>L1-vision-idea-intake</code><br><span class="src-ext">External:</span> regulatory database/API lookup</td>
 <td><code>regulatory-feasibility.md</code></td>
 <td><code>tool-L1-regulatory-db-lookup</code></td>
 <td><code>kb-L1-regulatory-frameworks-index</code>, <code>kb-L2-domain-regulatory</code></td>
@@ -102,6 +102,8 @@ code{background:#E5E7EB;padding:1px 4px;border-radius:3px;font-size:9.5px;white-
 </table></div>
 <div class="callout" style="background:var(--idea-lt);border-color:var(--idea);color:#7d0e42;"><strong>Human gate before Phase 1:</strong> Product Lead reviews and comments on <code>vision.md</code> in Confluence. That approval comment becomes a required input to Phase 1's first agent.</div>
 <div class="callout" style="background:#FFF8E1;border-color:var(--amber);color:#7a5200;"><strong>Reconciled 2026-08-02 — KB count corrected from 4 to 3, and domain re-scoped to food production &amp; distribution:</strong> building the actual Phase 0 knowledge bases (see <code>phase-0/knowledge-bases/</code>) against the token-optimisation rules in <code>agent-standards-best-practices.html</code> found that <code>L1-vision-idea-intake</code> and <code>L1-vision-statement-generator</code> don't need a KB at all — their original <code>kb-L1-sdlc-templates</code> entry was pure document structure (≤3K tokens), which the S4 "Template as Instruction" rule says belongs embedded in <code>instructions.md</code>, not paid for as a retrieval every execution. <code>L1-vision-market-analyzer</code>'s KB was re-scoped from the generic (and, on inspection, mis-layered — market facts can't be domain-agnostic) <code>kb-L1-market-intelligence</code> to the correctly-layered <code>kb-L2-domain-market</code>. <code>L1-vision-regulatory-feasibility-checker</code> keeps its L1/L2 split, just renamed/re-scoped: <code>kb-L1-regulatory-frameworks-index</code> (generic, unchanged in kind) + <code>kb-L2-domain-regulatory</code> (replacing <code>kb-L2-payments-domain</code>).
+<br><br>
+<strong>Update 2026-08-31 — <code>idea-brief</code> is JSON, not Markdown:</strong> <code>L1-vision-idea-intake</code> emits <code>idea-brief.json</code>. The brief is not a narrative document — it is a structured record (problem statement, target users, value proposition, success metrics with stated/suggested grading, open questions, each item carrying its <code>traced_to</code> input excerpt), and both downstream consumers, <code>L1-vision-market-analyzer</code> and <code>L1-vision-regulatory-feasibility-checker</code>, read specific fields out of it rather than reading it end to end. A Markdown artifact forced those agents to re-parse prose to recover fields the intake agent already had structured, and put the trace links somewhere no validator could check them. As JSON the artifact is schema-validated by <code>gr-L1-output-schema-validator</code> directly, and the field-level traceability survives into Phase 0's later steps. The S4 note in the Knowledge Bases column still holds — the structure stays embedded in the agent's own <code>instructions.md</code> / <code>output_schema.json</code>, not paid for as a KB retrieval. Downstream artifacts (<code>market-analysis.md</code>, <code>regulatory-feasibility.md</code>, <code>vision.md</code>) are unchanged: those <em>are</em> narrative documents with a human reader at the Phase 0 gate.
 <br><br>
 <strong>Update 2026-08-05 — re-scope extended through the full pipeline:</strong> the domain seam noted above is resolved. <code>kb-L2-payments-domain</code> (Phases 1, 3, 5) is now <code>kb-L2-domain-regulatory</code> or <code>kb-L2-food-domain</code> depending on which agent consumes it; <code>gr-L2-payments-compliance</code> (Phases 1, 3) is now <code>gr-L2-food-domain-compliance</code>; <code>kb-L2-payments-api-patterns</code> (Phase 4) is now <code>kb-L2-food-domain-api-patterns</code>. The Phase 0/Phase 1 worked examples (<code>phase-0/examples/</code>, <code>phase-1/examples/</code>) now run the "HarvestLink" scenario — a compliance-enabled producer-to-foodservice marketplace — replacing "PayBridge" end to end, with the same coherence guarantees (single <code>workflow_execution_id</code> per phase, every requirement traceable through to the dependency graph, cycle-check and critical-path independently verified, not just asserted). <code>kb-L2-food-domain</code> (used by Phase 3's story-generator and Phase 5's scenario-writer) and <code>kb-L2-food-domain-api-patterns</code> (Phase 4) are referenced here as planned artifacts — same status as <code>kb-L1-enterprise-architecture</code> elsewhere in this document: named where needed, content not yet built. Only <code>kb-L2-domain-market</code> and <code>kb-L2-domain-regulatory</code> (Phase 0) have real content today, under <code>phase-0/knowledge-bases/</code>.</div>
 

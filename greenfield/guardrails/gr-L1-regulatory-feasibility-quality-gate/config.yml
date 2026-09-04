@@ -9,8 +9,10 @@ rails:
     flows:
       - self check output
 
+
 prompts:
   - task: self_check_input
+    max_length: 64000
     content: |
       Your task is to check if the user input contains regulatory feasibility content that fails its quality gate.
 
@@ -39,6 +41,7 @@ prompts:
       Reply with one word only.
 
   - task: self_check_output
+    max_length: 64000
     content: |
       Your task is to check if the bot response contains regulatory feasibility content that fails its quality gate.
 

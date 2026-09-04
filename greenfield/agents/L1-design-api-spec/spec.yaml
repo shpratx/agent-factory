@@ -1,0 +1,66 @@
+# Agent Specification Document
+spec_version: "1.0"
+artifact_type: agent
+metadata:
+  name: L1-design-api-spec
+  version: "1.0.0"
+  layer: L1
+  phase: design
+  owner: agentic-ai-coe
+  created: "2026-08-31"
+
+purpose:
+  description: "Derives the one authoritative API contract for the product — an OpenAPI 3.1 document whose every endpoint traces to a real FR-NNN and whose auth, rate-limit, error and retention shape is driven by that FR's NFR boundary conditions, never by a guessed default."
+  input: "requirements.md (agent_output from L1-requirements-elicitor) plus nfr-spec.md (agent_output from L1-requirements-nfr-classifier); optionally hld.md from an HLD producer, enriching but never authoritative."
+  output: "openapi.yaml artifact plus structured per-endpoint items carrying fr_trace, nfr_trace, FR coverage and open questions."
+  business_value: "Five downstream agents key off this single artifact — L1-design-hld, L1-design-lld, L1-testing-script-generator, L1-construction-api-code-generator, L1-construction-ui-code-generator — more than any other artifact in the pipeline. Deriving the endpoint surface and the NFR-driven contract details once, here, means five agents stop re-deriving (and disagreeing about) them independently. An endpoint invented with no FR behind it, or a TBD rate limit silently resolved into a plausible number, propagates into generated code and generated tests before anyone notices."
+
+prompt:
+  ref: "prompts/L1-design-api-spec/instructions.md"
+  version: "1.0.0"
+  description: "Walks requirements.md's FRs in order, derives the resource/endpoint surface, attaches each FR's nfr-spec.md boundary conditions to the right part of the contract, applies kb-L1-enterprise-architecture's Gateway-first and no-legacy-write-back rules and kb-L1-enterprise-security's identity/retention/availability rules, and carries every TBD through as an x-open-question rather than a fabricated value. REST conventions are embedded in the prompt (S4), not a KB."
+
+contract:
+  input_schema: "$ref: schemas/agent-input-contract-schema.json"
+  output_schema: "$ref: schemas/agent-output-schema.json"
+
+  input:
+    accepts_from_agents: [L1-requirements-elicitor, L1-requirements-nfr-classifier]
+    accepts_direct_input: false
+    accepts_file_upload:
+      enabled: false
+    required_parameters:
+      requirements_output: { type: object, description: "L1-requirements-elicitor's agent_output — must have status: success with >=1 functional_requirements item; the authoritative capability source and the only source of FR-NNN traceability ids" }
+      nfr_spec_output: { type: object, description: "L1-requirements-nfr-classifier's agent_output — must have status: success; supplies per-FR boundary conditions across the six categories, same FR ids and same order as requirements_output (asserted before any derivation)" }
+    optional_parameters:
+      hld_output: { type: object, description: "hld.md from an HLD producer, once one exists in this pipeline. Enriching, never authoritative — when present the agent formalises its apis[] and data_model.entities[] instead of deriving endpoints from scratch, then reconciles the two surfaces. No producer exists in greenfield/agents/ today, so absent is the normal case." }
+
+context:
+  knowledge_bases:
+    - kb-L1-enterprise-architecture   # Gateway-first integration (EA2/EA4), no legacy point-to-point or write-back to SMDS/SAP ERP (EA3), service domains (EA5), EA review triggers (EA10)
+    - kb-L1-enterprise-security       # external IdP never Azure AD and server-side-enforced limits (ES1), Confidential classification (ES2), 6-year retention held distinct from GDPR erasure (ES3), per-endpoint-group availability tier (ES4), vetting logged even when approved (ES7)
+  # REST conventions (versioning, casing, pagination, error envelope, idempotency) are
+  # embedded in instructions.md per S4 — domain-agnostic, purely structural, and not
+  # writable as a KB until the org's API style guide and Kong plugin config are sourced.
+  guardrails:
+    - gr-L1-output-schema-validator
+    - gr-L1-hallucination-check       # NOTE: repo has gr-L3-hallucination-detector, not an L1 build — see README "Naming mismatch to resolve first"
+    - gr-L1-consistency-check         # NOTE: repo has gr-L3-consistency-checker, not an L1 build — same mismatch
+    - gr-L1-schema-validator-openapi  # NOTE: not built yet — separate build, see README open item 2. hard_fail_on: invalid_openapi_syntax
+  tools: []   # derives from already-supplied input + attached KBs; no read/write platform tool call needed
+
+quality:
+  evaluation_ref: "evaluation.md"
+  min_score: 7.0        # self-check bar only — the workflow sets quality_gate: null and there is
+                        # deliberately no L1-design-api-spec-evaluator, unlike every Phase 1 sibling
+  hallucination_check: true
+  consistency_check: true
+
+performance:
+  target_latency_seconds: 30
+  max_token_budget: 12000
+
+versioning:
+  input_version: "1.0"
+  output_version: "1.0"
+  instruction_hash: "sha256:pending"

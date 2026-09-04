@@ -31,7 +31,7 @@ contract:
     accepts_file_upload:
       enabled: false
     required_parameters:
-      idea_brief_items: { type: object, description: "Full items object from L1-vision-idea-intake, sourced from idea-brief.json (JSON, parsed by key path — never scanned as markdown). Must include generated_date — the agent has no independent clock and reads the run date from this field rather than orchestrator injection" }
+      idea_brief_items: { type: object, description: "Full items object from L1-vision-idea-intake, sourced from idea-brief.json (JSON, parsed by key path — never scanned as markdown). Its generated_date, where present, is only the fallback run date: the agent has no clock and takes the run date from tool-L1-system-current-date (timezone UTC). With neither available it writes \"not available\" in the header and completes the vision — a missing date never halts the run, and is never filled from an example, a fixture, or training data" }
       regulatory_feasibility_items: { type: object, description: "Full items object from L1-vision-regulatory-feasibility-checker as corrected by its evaluator, including its viability object" }
       viability_score: { type: number, description: "Owned by L1-vision-regulatory-feasibility-checker and re-derived by its evaluator at qg-L1-viability-score. Carried here as a parameter and reported exactly as received — this agent may not compute, re-derive, round, or adjust it" }
     optional_parameters:
@@ -50,6 +50,7 @@ context:
   tools:
     - tool-L1-azure-blob-reader      # reads idea-brief.json/regulatory-feasibility.md/market-analysis.md from blob storage in one call
     - tool-L1-azure-blob-writer      # writes vision.md to blob storage; publishing itself is still L1-confluence-publisher's job
+    - tool-L1-system-current-date    # called with timezone UTC — the only way this agent can date vision.md without guessing
 
 quality:
   evaluation_ref: "evaluation.md"
