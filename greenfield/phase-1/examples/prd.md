@@ -1,242 +1,423 @@
-<!--
-EXAMPLE OUTPUT — illustrative content, continuing the HarvestLink scenario from
-Phase 0/1. Not a real product commitment.
--->
-
-# PRD: HarvestLink
+# PRD: Dairy Supply Chain Quality Intelligence Platform
 
 | Field | Value |
 |---|---|
-| Source requirements | `requirements.md` (requirements-2026-08-05-002) |
-| Source NFR spec | `nfr-spec.md` (nfr-spec-2026-08-05-002) |
-| Source vision | `vision.md` (vision-2026-08-02-002) — Assumptions/Constraints/Risks only |
-| Source enterprise security | `kb-L1-enterprise-security` — retention/SLA citations only, carried forward from nfr-spec.md |
-| Approval consumed | Priya Ahluwalia, Product Lead, 2026-08-04: "Approved. The facilitation-only structuring is the right first roadmap milestone — please make sure Requirements calls it out as a hard blocker for everything else, not just a risk." |
-| Generated | 2026-08-05 |
+| Source requirements | evaluated requirements from `L1-requirements-elicitor-evaluator` (wf-b8e4d9f2-5c3e-4g0b-9f6d-8e7g0b3c2d5f) |
+| Source NFR spec | evaluated NFR set from `L1-requirements-nfr-classifier-evaluator` (wf-b8e4d9f2-5c3e-4g0b-9f6d-8e7g0b3c2d5f) |
+| Source vision | vision.md |
 
-## ✅ Executive Summary
-This PRD composes HarvestLink's 9 functional requirements (FR-001–FR-009)
-with their cross-functional constraints into one document, following the
-vision Priya Ahluwalia approved as Product Lead on 2026-08-04. The single
-biggest constraint shaping the requirement set is that HarvestLink must
-never acquire Food Business Operator status — FR-001 and FR-006 exist
-specifically to enforce this, and the corresponding facilitation-only
-structuring risk (not yet validated with a design-partner local authority
-or legal counsel) remains the roadmap's biggest open dependency. Six NFR
-boundary conditions are still marked TBD pending stakeholder input — three
-others (FR-001's retention period, FR-003's and FR-008's availability SLAs)
-are resolved via `kb-L1-enterprise-security`'s existing group policies
-rather than invented — and composing this document surfaced two
-requirement-coverage gaps — offboarding/suspension and dispute handling —
-that need scoping before Phase 2 planning begins.
+## Executive Summary
+
+The Dairy Supply Chain Quality Intelligence Platform addresses critical milk quality preservation challenges in India's dairy supply chain by projecting temperature-at-arrival for milk tankers in transit and triggering real-time alerts when safe limits will be breached. Target users include truck supervisors who need immediate intervention capability, farmers and farmer cooperatives requiring transparent root-cause attribution for rejected batches, maintenance teams needing predictive equipment alerts, and plant operations teams requiring advance warning of at-risk loads. The platform combines existing IoT telemetry (temperature sensors, GPS) with thermal decay modeling to enable proactive quality interventions, reducing milk rejection rates and improving financial accountability across the supply chain. Business value is measured through reduction in milk rejection rates (NSM-01), increase in successful quality-risk interventions (NSM-02), and improvement in alert accuracy to prevent alert fatigue (NSM-03). The solution must comply with DPDP Act 2023 data protection requirements, RPwD Act 2016 accessibility standards, and multi-state dairy regulatory frameworks while maintaining data localisation within India. Key risks include unvalidated thermal decay model accuracy, unassessed IoT sensor data quality, and incomplete mapping of state-level regulatory requirements, all requiring Phase 1 pilot validation before scale.
+
+## Out of Scope
+
+- **Historical trend analytics dashboard**: Implied by vision.md § Value Proposition ("cooler degradation detection" suggests pattern analysis capability) but deferred to Roadmap Phase 2 per vision.md § Roadmap Outline ("Phase 2: Expand analytics depth")
+- **Predictive routing optimization**: Implied by vision.md § Value Proposition (alerts enable "reroute" interventions) but no FR scoped for automated route recommendation this cycle; manual reroute decision-making by truck supervisors is in scope (FR-003)
+- **Farmer cooperative aggregation reporting**: Implied by vision.md § Target Users (farmer cooperatives are named stakeholders) but no FR scoped for cooperative-level aggregated quality reports; individual farmer visibility is in scope (FR-006, FR-007)
+- **Mobile offline mode**: Implied by vision.md § Target Users (truck supervisors operate in rural areas with connectivity challenges) but deferred to Roadmap Phase 2 per vision.md § Roadmap Outline ("Phase 2: Harden for rural connectivity")
+
+## Traceability Matrix
+
+| FR | Priority | MVP | NFR Categories | Open Questions |
+|---|---|---|---|---|
+| FR-001 | High | Yes | Performance, Availability, Scalability | 2 |
+| FR-002 | High | Yes | Performance, Availability, Usability | 1 |
+| FR-003 | High | Yes | Performance, Availability, Security, Usability | 1 |
+| FR-004 | Medium | No | Performance, Scalability | 1 |
+| FR-005 | Medium | No | Performance, Security | 0 |
+| FR-006 | Medium | Yes | Compliance, Availability, Security | 0 |
+| FR-007 | High | Yes | Performance, Compliance, Usability | 0 |
+| FR-008 | Medium | Yes | Performance, Security, Usability | 0 |
+| FR-009 | High | Yes | Compliance, Security, Usability | 0 |
+| FR-010 | High | Yes | Compliance, Performance, Security | 0 |
+| FR-011 | High | Yes | Compliance, Security | 0 |
+| FR-012 | High | Yes | Compliance, Usability | 0 |
+| FR-013 | High | Yes | Compliance, Usability | 0 |
+| FR-014 | High | Yes | Compliance, Security | 0 |
+| FR-015 | Medium | No | Compliance, Performance, Security | 0 |
+| FR-016 | High | Yes | Performance, Usability | 0 |
+| FR-017 | Medium | No | Security, Usability | 0 |
+| FR-018 | High | Yes | Performance, Availability, Usability | 1 |
+| FR-019 | High | Yes | Performance, Compliance | 0 |
+| FR-020 | High | Yes | Performance, Usability | 0 |
 
 ## Compound Requirements Split
-Vision's Roadmap Outline Phase 3 bundles two independently testable
-capabilities into one clause: "pilot launch with a capped cohort **and**
-transaction limits scaled to compliance-documentation completeness." Split
-into **FR-007** (cohort cap) and **FR-005** (completeness-scaled transaction
-limits) below, since a system could satisfy one without the other and each
-needs its own acceptance test.
 
-## ✅ Assumptions
-- **Facilitation-only structure will hold up to validation** (underlies
-  FR-001, FR-006): vision.md's Roadmap Outline calls for validating the
-  facilitation-only legal/product structure with a design-partner local
-  authority or legal counsel, but that validation hasn't happened yet — FR-001
-  and FR-006 are written as if the structure will hold.
-- **Producers and distributors have sufficient digital access** (underlies
-  FR-001, FR-003, FR-004): attestation, dual sign-off, and allergen
-  declaration all assume onboarded producers/distributors can reliably
-  complete an on-platform digital workflow — not yet confirmed for the
-  target user segment (independent/regional producers without an in-house
-  compliance team).
-- **Buyers will trust the displayed completeness score without independent
-  audit** (underlies FR-002): buyer discovery surfaces a compliance-
-  documentation completeness score, assuming foodservice buyers will act on
-  it directly rather than requiring their own verification before
-  onboarding a new supplier.
-- **Pilot cohort will be selected and onboarded manually** (underlies
-  FR-007): the cohort-eligibility gate assumes product/operations will
-  designate eligible producers/distributors by hand, not via a self-service
-  application flow.
+| Source Clause Summary | Split Into |
+|---|---|
+| Combines existing IoT telemetry (temperature sensors, GPS) with thermal decay modeling to project temperature-at-arrival | FR-001 |
+| Trigger alerts when safe limits will be breached, while providing cooler degradation detection and farmer-facing root-cause attribution | FR-002, FR-004, FR-007 |
+| DPDP Act 2023 obligations (consent, purpose limitation, data principal rights) are manageable with standard controls | FR-009, FR-010 |
+| Truck Supervisor App and Farmer App interfaces to meet WCAG 2.1 Level AA standards | FR-012, FR-013 |
 
-## ✅ Constraints
-- **Must never acquire Food Business Operator status** (constrains FR-001,
-  FR-006): vision.md § Regulatory Posture (Red item) — HarvestLink must
-  operate strictly as a data/matching and documentation layer; producers
-  and distributors remain the FBOs.
-- **Traceability records require dual sign-off and immutability**
-  (constrains FR-003): vision.md § Regulatory Posture (Amber item) —
-  producer and distributor dual sign-off with an immutable audit log is not
-  solved by default and must be explicitly designed for.
-- **Allergen declarations require producer attestation before finalisation**
-  (constrains FR-004): vision.md § Regulatory Posture (Amber item).
-- **Pilot phase is scoped to a designated cohort, not general availability**
-  (constrains FR-005, FR-007): vision.md § Roadmap Outline, Phase 3 — limits
-  scale with completeness data only after pilot, general availability is
-  out of scope for this PRD.
-- **Data protection remains an ongoing design/monitoring requirement**
-  (constrains FR-002, FR-008, FR-009): vision.md § Regulatory Posture (Green
-  item) — not a launch blocker, but every component that surfaces or reports
-  on user/producer data must keep this in view.
+## Assumptions
 
-## ✅ Risks
-- **Facilitation-only structuring risk** (affects FR-001, FR-006): carried
-  forward from vision.md § Open Risks Carried Forward — the entire roadmap
-  depends on getting this legal/product structure right first; no fallback
-  path is defined yet if a facilitation-only model can't fully avoid FBO
-  status in practice.
-- **Compliance-documentation-completeness methodology** (affects FR-004,
-  FR-005, FR-009): carried forward from vision.md § Open Risks Carried
-  Forward — the dual-sign-off and completeness-scoring approach is a design
-  commitment, not yet a selected methodology or validated accuracy rate.
-- **Competitive response speed** (program-level, not tied to a specific
-  requirement): carried forward from vision.md § Open Risks Carried Forward
-  — Bidfood or Brakes could bundle a producer-marketplace feature into
-  their existing compliance infrastructure before HarvestLink reaches pilot
-  launch.
+- **ASSUM-001: Thermal decay model parameters available** (underlies FR-001): The thermal decay model referenced in FR-001 assumes model parameters (decay coefficients, ambient temperature influence factors) are available or derivable from existing research/pilot data; vision.md § Open Risks OR-05 flags model accuracy as unvalidated, establishing this as an assumption requiring Phase 1 validation.
+- **ASSUM-002: IoT telemetry infrastructure operational** (underlies FR-001, FR-004, FR-018): Requirements assume existing IoT telemetry (temperature sensors, GPS) is operational and accessible; vision.md § Value Proposition states the platform "combines existing IoT telemetry" but does not validate sensor coverage, uptime, or data quality; OR-07 flags IoT data quality as unassessed.
+- **ASSUM-003: Safe limit thresholds defined** (underlies FR-002, FR-017): FR-002 assumes "safe limits defined for milk quality preservation" exist and are known; vision.md does not specify these thresholds, and FR-017 explicitly scopes threshold tuning based on pilot data, establishing initial thresholds as an assumption.
+- **ASSUM-004: Truck supervisor device availability** (underlies FR-003): FR-003 assumes truck supervisors have devices capable of receiving real-time alerts (smartphones, tablets); vision.md § Target Users identifies truck supervisors as users but does not validate device availability or connectivity in rural transit routes.
+- **ASSUM-005: Maintenance team interface exists** (underlies FR-005): FR-005 assumes a "maintenance interface" exists for delivering predictive maintenance alerts; vision.md does not specify this interface, and no FR scopes its design/implementation.
+- **ASSUM-006: Plant operations interface exists** (underlies FR-008): FR-008 assumes a "plant operations interface" exists for delivering advance warnings; vision.md does not specify this interface, and no FR scopes its design/implementation.
+- **ASSUM-007: Baseline rejection/save rates measurable** (underlies FR-019): FR-019 assumes baseline rejection and save rates are measurable from existing operational data; vision.md § North-Star Metrics NSM-01/NSM-02 require baselining in Phase 1 but do not validate data availability.
+- **ASSUM-008: DPDP Act 2023 rules finalized** (underlies FR-009, FR-010): FR-009/FR-010 implement DPDP Act 2023 compliance mechanisms; vision.md § Regulatory Posture OR-02 notes "DPDP Act 2023 rules not yet finalized by government," establishing regulatory interpretation as an assumption requiring legal review.
 
-## ✅ Requirements
+## Constraints
 
-### FR-001: Facilitation-only role attestation at onboarding
-**Statement:** The system shall require every onboarding producer or
-distributor to explicitly attest that they, not HarvestLink, hold Food
-Business Operator status for any trade facilitated on the platform.
-**Traces to:** vision.md § Regulatory Posture (FBO-status mitigation)
+- **CON-001: DPDP Act 2023 compliance mandatory** (constrains FR-009, FR-010, FR-011): vision.md § Regulatory Posture CON-01 states "DPDP Act 2023 obligations (consent, purpose limitation, data principal rights) are manageable with standard controls but are non-negotiable"; all personal data collection/processing must comply.
+- **CON-002: Data localisation within India mandatory** (constrains FR-011): vision.md § Regulatory Posture CON-02 states "Data localisation (all personal data hosted/processed within India) eliminates cross-border transfer risk"; all infrastructure must be India-resident per DPDP Act 2023.
+- **CON-003: WCAG 2.1 Level AA compliance mandatory** (constrains FR-012, FR-013): vision.md § Regulatory Posture CON-08 states "WCAG 2.1 Level AA compliance required for public-facing digital services per RPwD Act 2016"; Truck Supervisor App and Farmer App must meet accessibility standards.
+- **CON-004: Multi-state regulatory compliance required** (constrains FR-014): vision.md § Regulatory Posture CON-04 states "Multi-state regulatory exposure (dairy, APMC) requires per-state mapping"; system must accommodate varying state-level dairy and APMC rules.
+- **CON-005: Phase 1 pilot timeline 6 months** (constrains program-level): vision.md § Roadmap Outline states "Phase 1 (Pilot): 6 months — 2 states, 50 tankers, 200 bulk coolers"; all MVP requirements must be deliverable within this timeline.
+- **CON-006: Enterprise security standards apply** (constrains FR-003, FR-005, FR-006, FR-008, FR-017): kb-L1-enterprise-security ES1 mandates authenticated identity for external parties; ES3 mandates 6-year retention for trade/compliance-relevant records; ES4 mandates 99.5% uptime for legally-relevant audit/compliance records.
+
+## Risks
+
+- **RISK-001: Thermal decay model accuracy unvalidated** (affects FR-001, FR-002, FR-016): vision.md § Open Risks OR-05 states "Thermal decay model accuracy is unvalidated; if projections are systematically biased, alert accuracy (NSM-03) will suffer and operational trust will erode"; Phase 1 pilot must validate model accuracy per FR-016.
+- **RISK-002: Alert threshold sensitivity/specificity unknown** (affects FR-002, FR-017): vision.md § Open Risks OR-06 states "Alert threshold tuning (sensitivity vs. specificity) is unknown; too-sensitive thresholds cause alert fatigue, too-conservative thresholds miss genuine risks"; Phase 1 pilot must establish thresholds per FR-017.
+- **RISK-003: IoT data quality unassessed** (affects FR-001, FR-018): vision.md § Open Risks OR-07 states "IoT sensor data quality (uptime, accuracy, latency) is unassessed; poor data quality undermines projection accuracy and alert reliability"; Phase 1 pilot must assess data quality per FR-018.
+- **RISK-004: State-level regulatory mapping incomplete** (affects FR-014): vision.md § Open Risks OR-01 states "Multi-state regulatory mapping (dairy quality standards, APMC rules) is incomplete; compliance gaps could block operations in specific states"; legal review required before Phase 1 pilot launch.
+- **RISK-005: DPDP Act 2023 rules not finalized** (affects FR-009, FR-010): vision.md § Open Risks OR-02 states "DPDP Act 2023 rules not yet finalized by government; interpretation of consent/data principal rights obligations may shift"; legal review required, and compliance mechanisms may require adjustment post-finalization.
+- **RISK-006: WCAG 2.1 Level AA compliance scope ambiguous** (affects FR-012, FR-013): vision.md § Open Risks OR-04 states "WCAG 2.1 Level AA compliance scope is ambiguous (which interfaces qualify as 'public-facing digital services' under RPwD Act 2016?)"; legal review required to confirm Truck Supervisor App and Farmer App applicability.
+- **RISK-007: Truck supervisor adoption uncertain** (affects FR-003, program-level): vision.md § Open Risks (implicit in Target Users section) identifies truck supervisors as external parties with uncertain digital literacy and device availability; low adoption would undermine intervention capability.
+- **RISK-008: Farmer trust in root-cause attribution uncertain** (affects FR-007, program-level): vision.md § Problem Statement identifies "opaque quality failures" as a pain point; if farmers distrust root-cause attribution methodology, financial accountability improvements may not materialize.
+
+## Requirements
+
+### FR-001: Temperature-at-arrival projection
+
+**Statement:** The system shall project temperature-at-arrival for each milk tanker in transit using existing IoT telemetry (temperature sensors, GPS) and thermal decay modeling.
+
+**Citation:** vision.md § Value Proposition
+
+**MVP:** Yes (vision.md § Value Proposition frames temperature-at-arrival projection as core to solving the stated problem; vision.md § Roadmap Outline Phase 1 scopes "temperature-at-arrival projection" as foundational capability)
 
 **Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Usability | Attestation must be a clear, explicit step, not a buried checkbox | requirements.md § FR-001 |
-| Security | Attestation must be tied to an authenticated producer/distributor identity | requirements.md § FR-001 |
-| Compliance | Retain 6 years from creation, per Group Records Retention Policy | kb-L1-enterprise-security § ES3 |
 
-### FR-002: Foodservice buyer discovery and matching
-**Statement:** The system shall allow foodservice buyers to discover
-onboarded producers and distributors by product category, location, and
-compliance-documentation completeness score.
-**Traces to:** vision.md § Value Proposition
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Calculate and store projected arrival temperature within 60 seconds of receiving new telemetry data | requirements.md § FR-001 | Yes |
+| Availability | TBD — needs stakeholder input | — | TBD |
+| Scalability | TBD — needs stakeholder input | — | TBD |
 
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Usability | Search results must show compliance-documentation completeness score alongside each producer | requirements.md § FR-002 |
-| Performance | Buyer search/discovery response time — TBD — needs stakeholder input | — |
+### FR-002: Safe limit breach alert triggering
 
-### FR-003: Dual sign-off traceability record entry
-**Statement:** The system shall require both producer and distributor
-sign-off before a traceability record is finalised, and shall retain every
-finalised record in an immutable, append-only audit log.
-**Traces to:** vision.md § Regulatory Posture (traceability mitigation:
-"producer and distributor dual sign-off... immutable audit log")
+**Statement:** The system shall trigger an alert when the projected temperature-at-arrival will breach safe limits defined for milk quality preservation.
+
+**Citation:** vision.md § Value Proposition
+
+**MVP:** Yes (vision.md § Value Proposition frames alert triggering as core to enabling real-time intervention; vision.md § Roadmap Outline Phase 1 scopes alert capability)
 
 **Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Security | Traceability record must be immutable (append-only) once dual-signed | requirements.md § FR-003 |
-| Compliance | Must satisfy Reg. (EC) 178/2002 Art. 18 "one step back, one step forward" | vision.md § Regulatory Posture (Traceability record integrity) |
-| Availability | 99.9% uptime — traceability records may be required for active regulatory defence | kb-L1-enterprise-security § ES4 |
 
-### FR-004: Producer-attested allergen declaration workflow
-**Statement:** The system shall require producer attestation and sign-off
-before an allergen declaration is finalised on-platform.
-**Traces to:** vision.md § Regulatory Posture (allergen mitigation:
-"producer attestation and sign-off before any declaration is finalised")
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Generate alert within 10 seconds of breach condition detection | requirements.md § FR-002 | Yes |
+| Availability | TBD — needs stakeholder input | — | TBD |
+| Usability | Alert must include tanker identifier, current location, projected arrival temperature, time until arrival, and breach severity to prevent misinterpretation of risk level | requirements.md § FR-002 | Yes |
 
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Compliance | Must satisfy Natasha's Law / EU FIC Reg. 1169/2011 baseline labelling | vision.md § Regulatory Posture (Allergen declaration liability) |
-| Usability | Producer must see a clear pending/finalised state distinction for each declaration | requirements.md § FR-004 |
-| Scalability | Expected declaration volume — TBD — needs stakeholder input | — |
+### FR-003: Real-time alert delivery to truck supervisors
 
-### FR-005: Compliance-completeness-scaled transaction limits
-**Statement:** The system shall set a producer's maximum transaction value
-according to their compliance-documentation completeness score, and
-re-evaluate that limit as the score changes.
-**Traces to:** vision.md § Roadmap Outline, Phase 3 (split — see Compound
-Requirements Split above)
+**Statement:** The system shall deliver real-time alerts to truck supervisors when quality risk is detected during transit.
+
+**Citation:** vision.md § Target Users
+
+**MVP:** Yes (vision.md § Target Users identifies truck supervisors as primary action-takers; vision.md § Roadmap Outline Phase 1 scopes real-time alert delivery)
 
 **Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Security | Transaction-value limit must be enforced server-side; not client-configurable | requirements.md § FR-005 |
-| Performance | Limit recalculation frequency on completeness-score change — TBD — needs stakeholder input | — |
 
-### FR-006: Facilitation-only transaction routing
-**Statement:** The system shall never record HarvestLink as taking
-possession, title, or physical custody of food in any transaction; every
-trade shall be routed and documented as a direct producer/distributor-to-
-buyer arrangement.
-**Traces to:** vision.md § Regulatory Posture (FBO-status mitigation:
-"HarvestLink never takes physical possession of food")
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Deliver alert to assigned truck supervisor's device within 15 seconds of alert generation | requirements.md § FR-003 | Yes |
+| Availability | TBD — needs stakeholder input | — | TBD |
+| Security | Alert delivery must be tied to authenticated truck supervisor identity, not anonymous or shared credentials | kb-L1-enterprise-security § ES1 | Yes |
+| Usability | Alert delivery status (delivered, failed, acknowledged) must be logged and visible to prevent silent delivery failures | requirements.md § FR-003 | Yes |
 
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Compliance | Must never record HarvestLink as taking title/possession of goods in any transaction record | requirements.md § FR-006 |
-| Availability | Behaviour if a trade cannot be routed facilitation-only — TBD — needs stakeholder input | — |
+### FR-004: Cooler degradation detection
 
-### FR-007: Pilot-phase cohort restriction
-**Statement:** The system shall restrict onboarding and trading, during the
-pilot phase, to a cohort of producers/distributors explicitly designated
-eligible by the product/operations team.
-**Traces to:** vision.md § Roadmap Outline, Phase 3 (split — see Compound
-Requirements Split above)
+**Statement:** The system shall detect degrading cooler performance by analyzing temperature telemetry patterns over time.
+
+**Citation:** vision.md § Value Proposition
+
+**MVP:** No (vision.md § Roadmap Outline Phase 2 scopes "Expand analytics depth" including predictive maintenance; Phase 1 focuses on transit alerts per Value Proposition)
 
 **Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Usability | Non-cohort users must receive an explicit "not yet available" response, not a silent failure | requirements.md § FR-007 |
-| Scalability | Target cohort size for pilot — TBD — needs stakeholder input | — |
 
-### FR-008: Time-to-first-compliant-trade measurement
-**Statement:** The system shall record, per producer, the elapsed time from
-onboarding start to first fully-documented, compliance-complete trade, and
-expose this for reporting against a target of under 14 days.
-**Traces to:** vision.md § North-Star Metric(s), metric 1
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Detection runs automatically on a daily schedule for all monitored coolers | requirements.md § FR-004 | No |
+| Scalability | TBD — needs stakeholder input | — | TBD |
 
-**Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
-|---|---|---|
-| Performance | P95 time-to-first-compliant-trade < 14 days (onboarding start → first compliance-complete trade) | vision.md § North-Star Metric(s), metric 1 |
-| Availability | Best-effort (outbound-only reporting feed, not a compliance record) | kb-L1-enterprise-security § ES4 |
+### FR-005: Predictive maintenance alerts for degrading coolers
 
-### FR-009: Compliance-documentation-completeness measurement
-**Statement:** The system shall record, per producer, a compliance-
-documentation completeness score at first trade, and expose this for
-reporting against a target of at least 95%.
-**Traces to:** vision.md § North-Star Metric(s), metric 2
+**Statement:** The system shall generate predictive maintenance alerts for maintenance teams when degrading cooler performance is detected.
+
+**Citation:** vision.md § Target Users
+
+**MVP:** No (depends on FR-004 which is Phase 2 per Roadmap Outline; maintenance alerts are secondary to transit intervention capability per Value Proposition)
 
 **Non-Functional Requirements:**
-| Category | Boundary Condition | Source |
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Generate maintenance alert within 1 hour of degradation detection | requirements.md § FR-005 | No |
+| Security | Alert delivery must be tied to authenticated maintenance team identity, not anonymous or shared credentials | kb-L1-enterprise-security § ES1 | No |
+
+### FR-006: Quality-assurance intervention logging
+
+**Statement:** The system shall log quality-assurance interventions that saved milk batches for farmer visibility.
+
+**Citation:** vision.md § Target Users
+
+**MVP:** Yes (vision.md § Target Users identifies farmers requiring visibility into interventions; intervention logging is foundational for transparent accountability per Value Proposition)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | Intervention logs retained for at least 6 years and queryable by batch identifier and farmer identifier | kb-L1-enterprise-security § ES3 | Yes |
+| Availability | System storing intervention logs must target minimum 99.5% uptime as legally-relevant audit/compliance records | kb-L1-enterprise-security § ES4 | Yes |
+| Security | Intervention logging must be tied to authenticated identity of actor performing intervention | kb-L1-enterprise-security § ES1 | Yes |
+
+### FR-007: Root-cause attribution for rejected batches
+
+**Statement:** The system shall provide transparent root-cause attribution for rejected batches to distinguish farmer-side issues from transit or equipment failures.
+
+**Citation:** vision.md § Target Users
+
+**MVP:** Yes (vision.md § Target Users identifies farmers requiring transparent attribution; vision.md § Problem Statement frames opaque quality failures as core pain point; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Root-cause report accessible to affected farmer or farmer cooperative within 24 hours of rejection | requirements.md § FR-007 | Yes |
+| Compliance | Root-cause reports retained for at least 6 years | kb-L1-enterprise-security § ES3 | Yes |
+| Usability | Root-cause attribution must distinguish farmer-side issues from transit or equipment failures with supporting evidence to prevent misattribution | requirements.md § FR-007 | Yes |
+
+### FR-008: Advance warning to plant operations for at-risk loads
+
+**Statement:** The system shall provide advance warning to plant operations and quality assurance teams when at-risk loads are en route.
+
+**Citation:** vision.md § Target Users
+
+**MVP:** Yes (vision.md § Target Users identifies plant operations teams as benefiting from advance warning; enables prioritized offloading per Value Proposition)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Notify destination plant operations team at least 30 minutes before projected arrival | requirements.md § FR-008 | Yes |
+| Security | Plant operations acknowledgment and response must be tied to authenticated identity, not anonymous or shared credentials | kb-L1-enterprise-security § ES1 | Yes |
+| Usability | Notification must include tanker identifier, projected arrival time, risk level, projected temperature-at-arrival, and recommended handling actions to prevent misinterpretation | requirements.md § FR-008 | Yes |
+
+### FR-009: DPDP Act 2023 consent mechanism
+
+**Statement:** The system shall implement consent mechanisms compliant with DPDP Act 2023 for collection and processing of personal data from farmers, truck supervisors, and maintenance personnel.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** Yes (vision.md § Regulatory Posture CON-01 identifies DPDP Act 2023 compliance as non-negotiable; consent is foundational data protection obligation; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | Consent mechanism compliant with DPDP Act 2023, presenting consent request in clear language specifying data types, processing purposes, retention period, and data principal rights before data collection | vision.md § Regulatory Posture CON-01 | Yes |
+| Security | Consent records (granted/denied, timestamp, consent version) must be stored and auditable for each user | requirements.md § FR-009 | Yes |
+| Usability | User can grant or deny consent; denial prevents data collection and system access for that user | requirements.md § FR-009 | Yes |
+
+### FR-010: Data principal rights mechanisms
+
+**Statement:** The system shall implement data principal rights mechanisms compliant with DPDP Act 2023, including access, correction, erasure, and data portability.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** Yes (vision.md § Regulatory Posture CON-01 identifies DPDP Act 2023 compliance as non-negotiable; data principal rights are mandatory obligations; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | Data principal rights mechanisms compliant with DPDP Act 2023, including access (within 7 days), correction/erasure (within 14 days), and data portability | vision.md § Regulatory Posture CON-01 | Yes |
+| Performance | Access requests fulfilled within 7 days; correction/erasure requests processed within 14 days | requirements.md § FR-010 | Yes |
+| Security | Data principal rights requests logged with request type, timestamp, requestor identifier, and resolution status | requirements.md § FR-010 | Yes |
+
+### FR-011: Data localisation within India
+
+**Statement:** The system shall host and process all personal data within India to comply with DPDP Act 2023 cross-border data transfer restrictions.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** Yes (vision.md § Regulatory Posture CON-02 identifies data localisation as mandatory to eliminate cross-border transfer risk; architectural constraint; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | All personal data storage and processing infrastructure physically located within India to comply with DPDP Act 2023 cross-border data transfer restrictions | vision.md § Regulatory Posture CON-02 | Yes |
+| Security | Data residency verified through infrastructure audit logs and hosting provider certifications confirming Indian data center locations | requirements.md § FR-011 | Yes |
+
+### FR-012: WCAG 2.1 Level AA compliance for Truck Supervisor App
+
+**Statement:** The Truck Supervisor App interface shall meet WCAG 2.1 Level AA accessibility standards as required by RPwD Act 2016.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** Yes (vision.md § Regulatory Posture CON-08 identifies WCAG 2.1 Level AA compliance as mandatory for public-facing digital services; Truck Supervisor App is user-facing; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | Truck Supervisor App interface meets WCAG 2.1 Level AA accessibility standards as required by RPwD Act 2016 | vision.md § Regulatory Posture CON-08 | Yes |
+| Usability | All interface elements include text alternatives; all functionality operable via keyboard; color contrast ratios meet 4.5:1 (normal text) and 3:1 (large text); compatible with screen readers | requirements.md § FR-012 | Yes |
+
+### FR-013: WCAG 2.1 Level AA compliance for Farmer App
+
+**Statement:** The Farmer App interface shall meet WCAG 2.1 Level AA accessibility standards as required by RPwD Act 2016.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** Yes (vision.md § Regulatory Posture CON-08 identifies WCAG 2.1 Level AA compliance as mandatory for public-facing digital services; Farmer App is user-facing; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | Farmer App interface meets WCAG 2.1 Level AA accessibility standards as required by RPwD Act 2016 | vision.md § Regulatory Posture CON-08 | Yes |
+| Usability | All interface elements include text alternatives; all functionality operable via keyboard; color contrast ratios meet 4.5:1 (normal text) and 3:1 (large text); compatible with screen readers | requirements.md § FR-013 | Yes |
+
+### FR-014: Per-state regulatory compliance configuration
+
+**Statement:** The system shall support per-state regulatory compliance configuration to accommodate varying state-level dairy and APMC rules.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** Yes (vision.md § Regulatory Posture CON-04 identifies multi-state regulatory exposure as binding constraint requiring per-state mapping; architectural requirement; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | System maintains configurable regulatory rule set for each operating state to accommodate state-level dairy/APMC rules; system behavior adapts based on state determined by GPS location or plant assignment | vision.md § Regulatory Posture CON-04 | Yes |
+| Security | Regulatory configuration changes version-controlled and auditable, with effective dates and change history logged | requirements.md § FR-014 | Yes |
+
+### FR-015: CERT-In cybersecurity incident reporting
+
+**Statement:** The system shall implement cybersecurity incident detection and reporting mechanisms compliant with CERT-In requirements within 6 hours of incident detection.
+
+**Citation:** vision.md § Regulatory Posture
+
+**MVP:** No (vision.md § Regulatory Posture identifies CERT-In reporting as precedented operational requirement but not launch-blocking; Phase 2 hardening per Roadmap Outline; Priority: Medium)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Compliance | Cybersecurity incident report submitted to CERT-In within 6 hours of incident detection via prescribed reporting channel | vision.md § Regulatory Posture | No |
+| Performance | Detect and log cybersecurity incidents in real time; generate incident report meeting CERT-In reporting thresholds | requirements.md § FR-015 | No |
+| Security | System detects unauthorized access attempts, data breaches, and service disruptions; incident report includes incident type, timestamp, affected systems, impact assessment, and containment actions | requirements.md § FR-015 | No |
+
+### FR-016: Thermal decay model validation against actual arrival temperatures
+
+**Statement:** The system shall validate thermal decay model accuracy by comparing projected temperatures against actual arrival temperatures measured at receiving plants.
+
+**Citation:** vision.md § Open Risks Carried Forward
+
+**MVP:** Yes (vision.md § Open Risks OR-05 identifies thermal decay model accuracy as unvalidated and critical for operational trust; Phase 1 pilot dependency per Roadmap Outline; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Calculate model accuracy metrics (mean absolute error, root mean square error, percentage within ±1°C tolerance) on a rolling 30-day window; report daily to system administrators | requirements.md § FR-016 | Yes |
+| Usability | Accuracy metrics flagged when accuracy falls below configurable threshold to prevent silent model degradation | requirements.md § FR-016 | Yes |
+
+### FR-017: Alert threshold tuning based on pilot data
+
+**Statement:** The system shall support alert threshold tuning based on pilot operations data to balance sensitivity versus specificity and minimize false alarms.
+
+**Citation:** vision.md § Roadmap Outline
+
+**MVP:** No (vision.md § Roadmap Outline Phase 2 explicitly scopes "alert threshold tuning based on pilot data"; Phase 1 establishes baseline thresholds; Priority: Medium)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Security | Alert threshold adjustments require justification and effective date; changes version-controlled and auditable with before/after alert rate metrics tracked | requirements.md § FR-017 | No |
+| Usability | Administrative interface for adjusting alert thresholds must be accessible only to authorized administrators to prevent unauthorized threshold manipulation | requirements.md § FR-017 | No |
+
+### FR-018: IoT data quality validation
+
+**Statement:** The system shall validate IoT telemetry data quality (temperature sensors, GPS) and implement fallback logic for sensor failures or data gaps.
+
+**Citation:** vision.md § Open Risks Carried Forward
+
+**MVP:** Yes (vision.md § Open Risks OR-07 identifies IoT data quality as unassessed and critical for alert accuracy; Phase 1 pilot dependency per Roadmap Outline; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Validate each incoming telemetry data point for completeness, plausibility, and timeliness; log data quality issues and apply fallback logic | requirements.md § FR-018 | Yes |
+| Availability | TBD — needs stakeholder input | — | TBD |
+| Usability | Data quality metrics (uptime, completeness, plausibility failure rate) tracked per sensor and reported daily to prevent silent sensor failures | requirements.md § FR-018 | Yes |
+
+### FR-019: Baseline rejection and save rate tracking
+
+**Statement:** The system shall track baseline rejection rates and successful save rates to enable measurement against North-Star Metrics NSM-01 and NSM-02.
+
+**Citation:** vision.md § North-Star Metric(s)
+
+**MVP:** Yes (vision.md § North-Star Metrics NSM-01/NSM-02 require baselining in Phase 1; tracking is foundational for measuring product impact; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Calculate rejection rate and save rate on a rolling 30-day window; report weekly to product and operations teams | requirements.md § FR-019 | Yes |
+| Compliance | Rejection and save rate records retained for at least 6 years | kb-L1-enterprise-security § ES3 | Yes |
+
+### FR-020: Alert accuracy tracking against actual arrival conditions
+
+**Statement:** The system shall track alert accuracy by comparing alerts triggered against actual arrival conditions to measure North-Star Metric NSM-03.
+
+**Citation:** vision.md § North-Star Metric(s)
+
+**MVP:** Yes (vision.md § North-Star Metrics NSM-03 requires alert accuracy baselining in Phase 1; critical for operational trust and avoiding alert fatigue; Priority: High)
+
+**Non-Functional Requirements:**
+
+| Category | Boundary Condition | Source | MVP |
+|---|---|---|---|
+| Performance | Calculate alert accuracy (percentage of alerts where projected breach matched actual conditions) on a rolling 30-day window; report weekly | requirements.md § FR-020 | Yes |
+| Usability | Track true positives, false positives, and false negatives to enable sensitivity/specificity tuning and prevent alert fatigue | requirements.md § FR-020 | Yes |
+
+## Open Questions
+
+- **FR-001 (Availability)**: TBD — needs stakeholder input on SLA for temperature-at-arrival projection service (continuous telemetry processing is critical path but no uptime target stated in requirements or vision.md)
+- **FR-001 (Scalability)**: TBD — needs stakeholder input on fleet-wide scale targets (number of tankers, telemetry data ingestion rate, concurrent projection calculations)
+- **FR-002 (Availability)**: TBD — needs stakeholder input on SLA for alert generation service (alert generation is critical path but no uptime target stated in requirements or vision.md)
+- **FR-003 (Availability)**: TBD — needs stakeholder input on SLA for alert delivery service (alert delivery is critical path but no uptime target stated in requirements or vision.md)
+- **FR-004 (Scalability)**: TBD — needs stakeholder input on cooler monitoring volume targets (number of coolers, historical data retention window for degradation detection)
+- **FR-018 (Availability)**: TBD — needs stakeholder input on SLA for IoT data quality validation service (data quality affects alert accuracy but no uptime target stated in requirements or vision.md)
+- **Coverage gap**: No FR scopes the design/implementation of the "maintenance interface" referenced in FR-005 or the "plant operations interface" referenced in FR-008; these interfaces are assumed to exist but are not explicitly designed in the current FR set, creating a potential delivery gap for FR-005 and FR-008 acceptance criteria.
+
+## Glossary
+
+| Term | Definition | Source |
 |---|---|---|
-| Performance | Reported compliance-documentation completeness score ≥ 95% at first trade | vision.md § North-Star Metric(s), metric 2 |
-| Compliance | Whether specific buyer names may appear in completeness reporting — TBD — needs stakeholder input | — |
-
-## ✅ Open Questions
-- FR-002 (Performance): Buyer search/discovery response time
-- FR-004 (Scalability): Expected declaration volume
-- FR-005 (Performance): Limit recalculation frequency on completeness-score change
-- FR-006 (Availability): Behaviour if a trade cannot be routed facilitation-only
-- FR-007 (Scalability): Target cohort size for pilot
-- FR-009 (Compliance): Whether specific buyer names may appear in completeness reporting
-
-Resolved since the previous revision — no longer open: FR-001's attestation
-retention period, FR-003's and FR-008's availability SLAs, all three via
-`kb-L1-enterprise-security` (see their NFR tables above). Not invented
-values — an existing group policy already answered these once an enterprise
-security KB existed to check.
-- **Coverage gap:** no FR covers producer/distributor offboarding or
-  suspension (e.g. on repeated compliance failures) — only onboarding
-  (FR-001) and ongoing trading are specified. Surfaced by reading FR-001
-  through FR-009 together; not visible from requirements.md or nfr-spec.md
-  in isolation, since neither document prompts a reviewer to check for a
-  missing lifecycle state.
-- **Coverage gap:** no FR covers dispute handling when a buyer contests a
-  delivered trade's compliance documentation after FR-003's dual sign-off —
-  the traceability record is immutable once signed, but what happens when a
-  buyer disputes it isn't specified anywhere in the requirement set.
-
----
-*Generated by `L1-requirements-prd-composer` · execution_id: `exec-2d7c94ab` · workflow_execution_id: `wf-6d3f8b04`*
+| DPDP Act 2023 | Digital Personal Data Protection Act 2023 (India), governing collection, processing, and storage of personal data; mandates consent mechanisms, data principal rights (access, correction, erasure, portability), and data localisation within India | vision.md § Regulatory Posture |
+| RPwD Act 2016 | Rights of Persons with Disabilities Act 2016 (India), requiring WCAG 2.1 Level AA accessibility compliance for public-facing digital services | vision.md § Regulatory Posture |
+| WCAG 2.1 Level AA | Web Content Accessibility Guidelines 2.1 Level AA, specifying accessibility standards including text alternatives for non-text content, keyboard operability, color contrast ratios (4.5:1 for normal text, 3:1 for large text), and screen reader compatibility | requirements.md § FR-012 |
+| CERT-In | Indian Computer Emergency Response Team, requiring cybersecurity incident reporting within 6 hours of detection for specified incident types | vision.md § Regulatory Posture |
+| APMC | Agricultural Produce Market Committee, state-level regulatory bodies governing agricultural commodity trade in India; rules vary by state | vision.md § Regulatory Posture |
+| Thermal decay model | Mathematical model projecting temperature change over time for milk in transit, incorporating current temperature, GPS location, estimated time to arrival, and thermal decay parameters (decay coefficients, ambient temperature influence) | requirements.md § FR-001 |
+| Temperature-at-arrival | Projected temperature of milk at the moment a tanker arrives at the receiving plant, calculated using thermal decay modeling and real-time IoT telemetry | requirements.md § FR-001 |
+| Safe limits | Temperature thresholds defined for milk quality preservation; breach indicates risk of quality degradation or rejection | requirements.md § FR-002 |
+| Root-cause attribution | Analysis identifying the failure point for rejected or downgraded milk batches, distinguishing farmer-side issues (e.g., farmer cooler malfunction) from transit conditions (e.g., tanker temperature control failure) or equipment failures (e.g., receiving plant cooler issues), supported by telemetry data and quality test results | requirements.md § FR-007 |
+| Intervention | Quality-assurance action taken in response to an alert (e.g., reroute, prioritization, expedited processing) to save a milk batch at risk of rejection | requirements.md § FR-006 |
+| Data principal | Individual whose personal data is collected/processed, entitled to rights under DPDP Act 2023 (access, correction, erasure, portability) | requirements.md § FR-009 |
+| Data localisation | Requirement that all personal data storage and processing infrastructure be physically located within India, per DPDP Act 2023 cross-border data transfer restrictions | requirements.md § FR-011 |

@@ -1,0 +1,12 @@
+# gr-L1-requirements-elicitation-quality — Prompt-Only Mode
+# Layer: L1
+# Triggers on: output (post_execution — fires when L1-requirements-elicitor-evaluator concludes)
+
+define bot refuse to respond
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant requirements output failed one or more L1 requirements-quality gates (atomicity, citation, vague-term, id-integrity, split-integrity, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"requirements-elicitation-quality\", \"rail\": \"output\"}"
+
+define bot inform cannot answer
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant requirements output failed one or more L1 requirements-quality gates (atomicity, citation, vague-term, id-integrity, split-integrity, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"requirements-elicitation-quality\", \"rail\": \"output\"}"
+
+define bot inform answer unknown
+  "{\"detected\": true, \"verdict\": \"rejected\", \"reason\": \"Resultant requirements output failed one or more L1 requirements-quality gates (atomicity, citation, vague-term, id-integrity, split-integrity, or rubric threshold)\", \"severity\": \"critical\", \"category\": \"requirements-elicitation-quality\", \"rail\": \"output\"}"

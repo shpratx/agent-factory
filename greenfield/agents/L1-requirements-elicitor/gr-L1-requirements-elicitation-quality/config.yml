@@ -1,0 +1,53 @@
+models:
+
+  - type: main
+    engine: openai
+    model: gpt-5.4
+
+
+rails:
+  output:
+    flows:
+      - self check output
+
+prompts:
+  - task: self_check_output
+    content: |
+      Your task is to check if the bot response (resultant L1-requirements-elicitor output, with L1-requirements-elicitor-evaluator's fixes resolved in) passes every Quality Gate checklist item and every rubric score threshold below.
+
+      Bot response: "{{ bot_response }}"
+
+      First, check status. If status is "failed" with an explicit named reason such as "INSUFFICIENT_CONTEXT" (e.g. vision.md unavailable, or no recorded Product Lead approval_comment), this is a legitimate refusal — treat it as safe and skip the checks below.
+
+      Otherwise, flag ONLY if the response fails any of these Quality Gates:
+      1. functional_requirements[] is empty, or ids are not sequential from FR-001, or there are gaps or duplicate ids.
+      2. Any FR is missing "citation", or the citation is not in the form "vision.md § {section name}", or it cites more than one section.
+      3. Any "statement" contains an unqualified vague term (fast, secure, user-friendly, appropriate, robust, intuitive, seamless, efficient, reliable, scalable, modern) with no number or rule qualifying it in the same sentence.
+      4. Any "statement" bundles two or more independently testable capabilities into one sentence — "and"/"or" joining two different behaviours or verbs that could be tested separately.
+      5. Any FR uses "should" or "may" for a capability that is stated as required, instead of "shall".
+      6. Any FR has fewer than 2 acceptance_criteria, or an acceptance criterion is not a concrete pass/fail condition, or introduces scope not present in that FR's own statement.
+      7. "depends_on" is missing, is not either "None" or a well-formed "FR-NNN", references an id absent from functional_requirements[], or points at the FR itself.
+      8. "priority" is missing or is not exactly one of "High", "Medium", "Low".
+      9. Any "statement" is a condensed gloss rather than the full requirement text — truncated, ends in an ellipsis, or is a fragment rather than a complete testable sentence.
+      10. Any compound_splits[] entry has fewer than 2 ids in split_into, or names an id absent from functional_requirements[]; or an FR whose "notes" indicate it came from a compound split does not appear in any compound_splits[].split_into.
+      11. Any FR is missing "confidence" or "reasoning", or the reasoning merely restates the statement instead of justifying the extraction decision.
+      12. The output writes to blob storage — an artifacts[] entry, a blob_storage location, or an execution_summary claim that a requirements.md file was saved or uploaded. This agent must emit JSON only.
+      13. execution_summary is missing, is JSON rather than plain-text bullets, or its stated counts (FR count, compound splits made) do not match the actual array lengths in the response.
+      14. content.type is not "requirements", or schema_version, execution_id, or a "wf-" workflow_execution_id is missing.
+      15. Faithfulness below 0.90 — an FR asserts a capability with no supporting citation field or with reasoning that contradicts its own citation.
+      16. Hallucination above 0.05 — any invented id, invented vision.md section name pattern, or capability introduced in acceptance_criteria that the statement never states.
+      17. Internal consistency below 0.90 — priority, depends_on, notes, or compound_splits contradict each other or the statements they describe.
+      18. Relevance below 0.85 — an FR is not a testable product capability (e.g. a restatement of a metric, a goal, or a background narrative).
+      19. Reasoning quality below 0.80 — reasoning fields are generic boilerplate repeated across FRs rather than decision-specific.
+
+      Do NOT flag:
+      - status "failed" with an explicit named reason such as "INSUFFICIENT_CONTEXT" — a correctly labelled refusal is a legitimate outcome, not a defect.
+      - compound_splits[] as an empty array when no statement shows evidence of a split.
+      - "notes" being omitted on an FR that did not come from a compound split.
+      - depends_on set to "None".
+      - a confidence value below 1.0 where the reasoning explains the uncertainty.
+      - a long statement — statements must be full and verbatim, so length alone is never a defect.
+      - a domain term that reads as subjective but is quantified by a number or rule in the same sentence.
+
+      Answer only "yes" if the response passes every Quality Gate and every rubric threshold above.
+      Answer "no" if the response fails any Quality Gate or falls below any rubric threshold.
