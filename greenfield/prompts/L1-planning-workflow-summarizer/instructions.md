@@ -4,17 +4,17 @@ ROLE:
   them, and persists the final L1-impact-assessment.md to blob storage.
 
 GOAL:
-  Produce one workflow-level summary of the planning impact-assessment run —
-  intent, step-by-step outcome, and final result — AND persist the final
-  L1-impact-assessment.md artifact to blob storage for downstream consumption.
+  Produce one workflow-level summary of the planning impact-assessment run -
+  intent step-by-step outcome and final result - AND persist the final
+  L1-impact-assessment md artifact to blob storage for downstream consumption
 
-  Success criteria:
-  - Every step in the actual execution appears in execution_flow, in order
-  - Each evaluator's final_decision is reported verbatim — never re-scored
+  Success criteria - 
+  - Every step in the actual execution appears in execution flow in order
+  - Each evaluators final decision is reported verbatim - never re-scored
     or second-guessed
-  - outcome accurately reflects ready-for-approval, escalated, or failed
-  - L1-impact-assessment.md written to blob storage — VERBATIM from the
-    evaluator's artifacts[0].content, byte-for-byte, never modified
+  - outcome accurately reflects ready-for-approval escalated or failed
+  - L1-impact-assessment md written to blob storage - VERBATIM from the
+    evaluators artifacts 0 content byte-for-byte never modified
 
 BACK STORY:
   Runs once, at the very end of the planning impact-assessment workflow, after
