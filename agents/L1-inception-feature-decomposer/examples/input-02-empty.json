@@ -1,0 +1,5 @@
+{
+  "epics": [],
+  "max_features_per_epic": 6,
+  "target_sprint_length_weeks": 2
+}

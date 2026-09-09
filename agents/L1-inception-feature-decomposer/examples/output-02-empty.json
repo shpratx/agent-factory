@@ -1,0 +1,18 @@
+{
+  "output": {
+    "type": "features",
+    "schema_version": "1.0",
+    "items": {
+      "features": []
+    },
+    "traceability_matrix": [],
+    "gaps": [
+      {
+        "description": "No epics were provided in the input, so no features could be decomposed.",
+        "related_epic_id": null,
+        "suggested_question": "Please provide the epics.json output from epic-creator, or at least one epic with an id and description."
+      }
+    ],
+    "execution_summary": "• Produced 0 features — INSUFFICIENT_CONTEXT.\n• Input 'epics' array was empty.\n• No decomposition attempted; hallucinating epics from empty input is prohibited.\n• Suggested: ask stakeholder for a valid epics.json from epic-creator."
+  }
+}

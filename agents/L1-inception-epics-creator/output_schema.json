@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L1-inception-epic-creator-output-v1.0",
+  "title": "Epic Creator Output",
+  "description": "Output schema for the epic creator agent. Converts an approved PRD, impact assessment, and dependency graph into a grounded, dependency-ordered set of business-capability epics with full PRD-requirement traceability.",
+  "type": "object",
+  "required": ["agent_id", "agent_version", "execution_id", "workflow_execution_id", "status", "content"],
+  "properties": {
+    "agent_id": {"type": "string", "const": "L1-inception-epic-creator"},
+    "agent_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "execution_id": {"type": "string", "pattern": "^exec-.+$"},
+    "workflow_execution_id": {"type": "string", "pattern": "^wf-.+$"},
+    "status": {"type": "string", "enum": ["success", "failed"]},
+    "content": {
+      "type": "object",
+      "required": ["type", "schema_version", "items", "storage", "execution_summary"],
+      "properties": {
+        "type": {"type": "string", "const": "epics"},
+        "schema_version": {"type": "string", "const": "1.0"},
+        "items": {"$ref": "#/$defs/Items"},
+        "storage": {"$ref": "#/$defs/Storage"},
+        "execution_summary": {
+          "type": "string",
+          "minLength": 50,
+          "description": "Plain-text summary: workflow_execution_id, epic count, PRD requirement coverage, key sequencing/priority decisions, self-check findings, open_questions, tools invoked, blob storage location"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Items": {
+      "type": "object",
+      "required": ["epics", "traceability_matrix", "open_questions"],
+      "properties": {
+        "epics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/Epic"},
+          "description": "Business-capability epics, grounded in PRD/impact-assessment/dependency-graph content, ordered by dependency (foundational nodes before dependent nodes)"
+        },
+        "traceability_matrix": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/TraceabilityEntry"},
+          "description": "Generated directly from every epic's requirements_used — one entry per FR-NNN/NFR that appears in at least one epic. Must never diverge from requirements_used."
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Plain-language unresolved items — unmappable PRD requirements, dependency-graph nodes that don't resolve to an epic, ambiguous grounding, split candidates"
+        }
+      }
+    },
+    "Epic": {
+      "type": "object",
+      "required": ["epic_id", "title", "description", "business_value", "priority", "requirements_used", "acceptance_criteria", "confidence", "reasoning"],
+      "description": "A business capability epic. Must represent a business capability, NOT a technical layer.",
+      "properties": {
+        "epic_id": {
+          "type": "string",
+          "pattern": "^EPIC-\\d{3}$",
+          "description": "Unique epic identifier, e.g. EPIC-001"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Business capability title, <=10 words, verb-first, domain language from the PRD — not a technical layer"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 30,
+          "description": "What this epic delivers and why, grounded in prd.md/impact-assessment.md content"
+        },
+        "business_value": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Must cite a specific PRD requirement or carried-forward vision theme, not a generic statement like 'improves the business'"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2"],
+          "description": "Derived from the PRD's own requirement ordering/priority markers — never invented"
+        },
+        "requirements_used": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^(FR|NFR)-\\d+$"},
+          "description": "Every FR-NNN/NFR this epic covers. Every PRD requirement must appear in at least one epic's requirements_used, or be recorded in open_questions."
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/AcceptanceCriterion"}
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Self-assessed grounding confidence for this epic"
+        },
+        "reasoning": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Why this epic exists, why this scope, why this priority"
+        }
+      }
+    },
+    "AcceptanceCriterion": {
+      "type": "object",
+      "required": ["type", "criterion", "rationale", "source"],
+      "properties": {
+        "type": {"type": "string", "description": "e.g. Functional, Non-Functional"},
+        "criterion": {"type": "string", "description": "Testable, specific condition"},
+        "rationale": {"type": "string", "description": "Why this criterion matters to the epic"},
+        "source": {
+          "type": "string",
+          "description": "Grounding citation resolving to real prd.md / impact-assessment.md / dependency_graph.json content, e.g. 'prd.md § FR-001' — never fabricated"
+        }
+      }
+    },
+    "TraceabilityEntry": {
+      "type": "object",
+      "required": ["fr_id", "covered_by"],
+      "properties": {
+        "fr_id": {"type": "string", "pattern": "^(FR|NFR)-\\d+$"},
+        "covered_by": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^EPIC-\\d{3}$"}
+        }
+      }
+    },
+    "Storage": {
+      "type": "object",
+      "required": ["provider", "file_name", "blob_storage_url"],
+      "properties": {
+        "provider": {"type": "string", "const": "blob storage"},
+        "folder_name": {"type": "string", "description": "The folder_name parameter supplied at runtime"},
+        "file_name": {"type": "string", "const": "L1-epics.json"},
+        "blob_storage_url": {"type": "string", "description": "URL returned by the blob storage writer tool after saving the epic set"}
+      }
+    }
+  }
+}

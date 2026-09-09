@@ -1,0 +1,167 @@
+{
+  "output": {
+    "type": "features",
+    "schema_version": "1.0",
+    "items": {
+      "features": [
+        {
+          "id": "F-01.1",
+          "epic_id": "EP-01",
+          "title": "Individual & joint applicant identity capture",
+          "description": "Web form allowing a customer to enter personal and identity details for themselves and, optionally, a joint applicant.",
+          "acceptance_criteria": [
+            "Customer can enter name, date of birth, address, and government ID number",
+            "Customer can add a joint applicant with the same required fields",
+            "Form validates required fields before submission",
+            "Submitted data is persisted and linked to a new application record"
+          ],
+          "nfr_mapping": ["Data privacy (PII encryption at rest and in transit)"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.95,
+            "reasoning": "Derived from acceptance criterion covering identity submission, explicitly including joint applicants.",
+            "citation": "EP-01: 'Customer can submit identity details online, including for a joint applicant'",
+            "trajectory": "Stable once launched."
+          }
+        },
+        {
+          "id": "F-01.2",
+          "epic_id": "EP-01",
+          "title": "KYC document upload",
+          "description": "Allows the customer to upload ID and proof-of-address documents for verification.",
+          "acceptance_criteria": [
+            "Customer can upload ID and proof-of-address documents",
+            "System validates file type and size before accepting",
+            "Uploaded documents are linked to the application record"
+          ],
+          "nfr_mapping": ["Data privacy (PII encryption at rest and in transit)"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.95,
+            "reasoning": "Directly derived from the document upload acceptance criterion.",
+            "citation": "EP-01: 'Customer can upload supporting documents (ID, proof of address)'",
+            "trajectory": "May later add OCR pre-validation."
+          }
+        },
+        {
+          "id": "F-01.3",
+          "epic_id": "EP-01",
+          "title": "Compliance review & decision workflow",
+          "description": "Gives a compliance officer a queue of submitted applications with the ability to approve or reject with a coded reason.",
+          "acceptance_criteria": [
+            "Officer can view a queue of pending applications",
+            "Officer can approve or reject with a structured reason code",
+            "Decision and reason are recorded in an audit trail"
+          ],
+          "nfr_mapping": ["Audit trail for all compliance decisions", "Availability 99.5%"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.9,
+            "reasoning": "Combines the review acceptance criterion with the audit trail NFR at the epic level.",
+            "citation": "EP-01: 'Compliance officer can review, approve, or reject submissions with a reason code'",
+            "trajectory": "Stable; future automated risk scoring is out of scope."
+          }
+        },
+        {
+          "id": "F-01.4",
+          "epic_id": "EP-01",
+          "title": "Status notifications",
+          "description": "Sends the customer an email notification at each stage transition of their application.",
+          "acceptance_criteria": [
+            "Customer is notified by email on submission",
+            "Customer is notified by email on approval or rejection",
+            "Rejection notification includes the reason and resubmission instructions"
+          ],
+          "nfr_mapping": ["Availability 99.5%"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.9,
+            "reasoning": "Directly derived from the notification acceptance criterion.",
+            "citation": "EP-01: 'Customer receives status notifications by email at each stage transition'",
+            "trajectory": "Could expand to SMS/in-app in a later release."
+          }
+        },
+        {
+          "id": "F-01.5",
+          "epic_id": "EP-01",
+          "title": "Application resubmission",
+          "description": "Allows a customer whose application was rejected to correct and resubmit it once.",
+          "acceptance_criteria": [
+            "Rejected customer can edit previously submitted identity/document data",
+            "System enforces a single resubmission attempt",
+            "Resubmission routes back into the compliance review queue"
+          ],
+          "nfr_mapping": ["Audit trail for all compliance decisions"],
+          "sprint_hint": "Sprint 1",
+          "metadata": {
+            "confidence": 0.85,
+            "reasoning": "Directly derived from the resubmission acceptance criterion; resubmission limit of one is explicit in the epic.",
+            "citation": "EP-01: 'Rejected applications can be resubmitted once with corrected information'",
+            "trajectory": "Stable."
+          }
+        },
+        {
+          "id": "F-02.1",
+          "epic_id": "EP-02",
+          "title": "External bank transfer funding",
+          "description": "Allows a customer to initiate funding of their new account from an external bank account.",
+          "acceptance_criteria": [
+            "Customer can enter external account details and transfer amount",
+            "Transfer request is submitted for processing",
+            "Customer sees a pending status until funds clear"
+          ],
+          "nfr_mapping": ["Availability 99.9%"],
+          "sprint_hint": "Sprint 2",
+          "metadata": {
+            "confidence": 0.9,
+            "reasoning": "Directly derived from the bank transfer funding acceptance criterion.",
+            "citation": "EP-02: 'Customer can initiate a funding transfer from an external bank account'",
+            "trajectory": "Stable."
+          }
+        },
+        {
+          "id": "F-02.2",
+          "epic_id": "EP-02",
+          "title": "Debit card funding",
+          "description": "Allows a customer to fund their account instantly via debit card with real-time confirmation.",
+          "acceptance_criteria": [
+            "Customer can enter debit card details",
+            "System processes payment and confirms in real time",
+            "Funded amount reflects in balance immediately on success"
+          ],
+          "nfr_mapping": ["PCI-DSS compliance for card payments", "Availability 99.9%"],
+          "sprint_hint": "Sprint 2",
+          "metadata": {
+            "confidence": 0.95,
+            "reasoning": "Directly derived from the debit card funding acceptance criterion, carrying the PCI-DSS NFR.",
+            "citation": "EP-02: 'Customer can fund via debit card with real-time confirmation'",
+            "trajectory": "Stable."
+          }
+        },
+        {
+          "id": "F-02.3",
+          "epic_id": "EP-02",
+          "title": "Balance view",
+          "description": "Displays the customer's current account balance after a funding transaction completes.",
+          "acceptance_criteria": [
+            "Customer can view current balance after successful funding",
+            "Balance updates reflect both transfer and card funding sources"
+          ],
+          "nfr_mapping": ["Availability 99.9%"],
+          "sprint_hint": "Sprint 2",
+          "metadata": {
+            "confidence": 0.9,
+            "reasoning": "Directly derived from the balance-viewing acceptance criterion.",
+            "citation": "EP-02: 'Customer can view current balance after funding completes'",
+            "trajectory": "Stable; will later show transaction history."
+          }
+        }
+      ]
+    },
+    "traceability_matrix": [
+      {"epic_id": "EP-01", "feature_ids": ["F-01.1", "F-01.2", "F-01.3", "F-01.4", "F-01.5"]},
+      {"epic_id": "EP-02", "feature_ids": ["F-02.1", "F-02.2", "F-02.3"]}
+    ],
+    "execution_summary": "• Produced 8 features across 2 epics (EP-01 Customer Onboarding: 5 features, EP-02 Account Funding: 3 features).\n• Every feature traces to a specific acceptance criterion in its parent epic.\n• EP-01 reached the max_features_per_epic cap of 5; no slices were merged since each maps to a distinct criterion.\n• NFRs inherited from each epic were mapped to the features they specifically apply to (e.g., PCI-DSS only on card funding).\n• Reflection check: verified all feature IDs unique and correctly formatted, traceability_matrix complete for both epics, no cross-epic feature bleed.\n• [REFLECTING] Found: initial draft omitted the resubmission-limit detail in F-01.5's acceptance criteria. [REFLECTING] Resolved: added explicit single-resubmission constraint.\n• No gaps flagged; all epic capabilities fully covered."
+  }
+}

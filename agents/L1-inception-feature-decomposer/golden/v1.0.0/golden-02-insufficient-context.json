@@ -1,0 +1,20 @@
+{
+  "output": {
+    "type": "features",
+    "schema_version": "1.0",
+    "items": {
+      "features": []
+    },
+    "traceability_matrix": [
+      {"epic_id": "EP-99", "feature_ids": []}
+    ],
+    "gaps": [
+      {
+        "description": "Epic EP-99 has a placeholder title ('asdf'), a placeholder description ('tbd'), no stated capability, and no acceptance criteria. There is not enough substance to derive any features without hallucinating scope.",
+        "related_epic_id": "EP-99",
+        "suggested_question": "Please provide a real title, description, capability statement, and at least one acceptance criterion for EP-99 before feature decomposition can proceed."
+      }
+    ],
+    "execution_summary": "• Produced 0 features — INSUFFICIENT_CONTEXT for epic EP-99.\n• Epic title and description are placeholder/gibberish text ('asdf', 'tbd'), capability field is empty, and acceptance_criteria array is empty.\n• Reflection check: confirmed no legitimate functional slice could be identified from the given epic without inventing content, which is prohibited.\n• [REFLECTING] Found: initial draft considered inferring generic features from the epic title alone. [REFLECTING] Resolved: reverted to INSUFFICIENT_CONTEXT since inferring from a placeholder title would be hallucination.\n• traceability_matrix retains the epic_id with an empty feature_ids array to preserve full epic coverage in output structure.\n• Suggested: ask stakeholder to complete EP-99 with real content before resubmitting."
+  }
+}

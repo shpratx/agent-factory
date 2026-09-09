@@ -1,0 +1,86 @@
+# Agent Specification Document
+spec_version: "1.0"
+artifact_type: agent
+metadata:
+  name: L1-inception-jira-uploader
+  version: "1.0.0"
+  layer: L1
+  phase: inception
+  owner: agentic-ai-coe
+  created: "2026-08-28"
+
+purpose:
+  description: "Reads the approved, evaluated Epic set and Feature set from blob storage, builds a flat Jira-tool payload (Epics before Features, with parentKey links), invokes tool-L1-jira-upload-epics exactly once, parses its result, and returns a standard AgentOutput status object reporting whether the upload succeeded, with issue counts and a Jira project link."
+  input: "folder_name identifying the blob storage location; L1-epics.json and L1-features.json, retrieved exclusively via the attached blob-storage-reader tool (no direct_input or file_upload accepted for this agent)."
+  output: "A status AgentOutput (v2 envelope) reporting agent_status (success/partial_success/failed), tool invocation result, Jira project URL, and per-issue created/failed detail. Does NOT write to blob storage — this agent's deliverable is the status record itself, consumed by the workflow orchestrator and audit logs."
+  business_value: "Bridges inception planning and Jira tooling: flattens deeply-nested AgentOutput objects into the exact shape the Jira upload tool needs, guarantees single-pass parent (Epic) resolution before any Feature is created, and returns a uniform status record so the workflow orchestrator and audit logs never need to parse Jira API responses directly."
+
+prompt:
+  ref: "prompts/L1-inception-jira-uploader/instructions.md"
+  version: "1.0.0"
+  description: "Reads L1-epics.json/L1-features.json (both must be status: success), validates every epic/feature, builds an Epics-then-Features Jira payload with parentKey links, invokes tool-L1-jira-upload-epics exactly once, parses its return lines, and reports a status AgentOutput. Never retries the tool call."
+
+contract:
+  input_schema: "$ref: schemas/agent-input-contract-schema.json"
+  output_schema: "$ref: output_schema.json"
+
+  input:
+    accepts_from_agents: [L1-inception-epics-creator-evaluator, L1-inception-feature-decomposer-evaluator]
+    accepts_direct_input: false   # Blob-reader REQUIRED — this agent never accepts direct_input.
+    accepts_file_upload:
+      enabled: false   # Blob-reader REQUIRED — this agent never accepts file_upload.
+      formats: []
+    accepts_blob_storage:
+      enabled: true
+      required: true
+      description: "ONLY accepted ingestion path. Agent calls the attached blob-storage-reader tool once with folder_name + file_names=[\"L1-epics.json\", \"L1-features.json\"] to fetch both artifacts before building the Jira payload."
+    required_documents:
+      - L1-epics.json
+      - L1-features.json
+    required_parameters:
+      folder_name:
+        type: string
+        description: "Blob storage folder/container path supplied by the user. Used to read L1-epics.json and L1-features.json. This agent does not write back to blob storage."
+    optional_parameters:
+      projectKey:
+        type: string
+        description: "Jira project key to pass through to tool-L1-jira-upload-epics. Omitted entirely from the tool payload if not supplied at runtime."
+
+  output:
+    $ref: "output_schema.json"
+
+execution_ids:
+  workflow_execution_id:
+    origin: "inherited"   # inherit from the upstream AgentOutput's workflow_execution_id (originated by L1-inception-epics-creator)
+    format: "wf-<uuid>"
+    description: "Inherited verbatim from the upstream AgentOutput's workflow_execution_id — never generate a new one when an upstream id is present."
+  execution_id:
+    origin: "generated"
+    format: "exec-<uuid>"
+    description: "Newly generated on every execution of this agent."
+
+context:
+  knowledge_bases:
+    - kb-epics-best-practices       # v1.1. Attached at runtime for context on Epic structure/fields when validating extracted content.
+    - kb-features-best-practices    # v1.1. Attached at runtime for context on Feature structure/fields when validating extracted content.
+  tools:
+    - blob-storage-reader           # Attached at runtime. Called with (folder_name, file_names=["L1-epics.json", "L1-features.json"]) to fetch both artifacts in one call.
+    - tool-L1-jira-upload-epics     # Attached at runtime. Invoked EXACTLY ONCE with the validated { projectKey?, issueType, issues[] } payload. Converts descriptions to ADF internally, resolves parentKey (logical id) to the real Jira key once the parent Epic has been created. Returns parseable text lines: "<type> created: <KEY> (<summary>)", "Failed: <summary> -> ... | Detail: ...", or "Fatal error: ...". Never retried on failure.
+  guardrails:
+    - gr-L1-output-schema-validator
+    - gr-L1-pii-detection
+    - gr-L3-hallucination-detector
+    - gr-L3-consistency-checker
+    - gr-L2-tool-permissions
+    - gr-L3-agent-rate-limit
+
+quality:
+  evaluation_ref: "evaluation.md"
+  min_score: 7.0
+  hallucination_check: true
+  consistency_check: true
+
+versioning:
+  input_version: "1.0"
+  output_version: "1.0"
+  instruction_hash: "sha256:pending"
